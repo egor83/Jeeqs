@@ -1,10 +1,18 @@
 application: jeeqsy
 version: alpha
-runtime: python
+runtime: python27
 api_version: 1
+threadsafe: no
 
 builtins:
   - remote_api: on
+
+libraries:
+- name: django
+  version: latest
+
+- name: jinja2
+  version: latest
 
 inbound_services:
 - warmup

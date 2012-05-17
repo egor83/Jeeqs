@@ -4,19 +4,18 @@
 A program for managing challenges, attempt and solutions.
 
 """
-from google.appengine.api.datastore_errors import Rollback
-from google.appengine.dist import use_library
-use_library('django', '1.3')
-from django.utils import simplejson as json
 
-import logging
 import os
-import StringIO
 import sys
-import traceback
-import types
+import logging
+
+import webapp2
+from google.appengine.ext.webapp import template
 
 sys.path.append(os.path.join(os.path.dirname(__file__), 'lib'))
+
+from google.appengine.api.datastore_errors import Rollback
+from django.utils import simplejson as json
 
 from models import *
 from utils import *
@@ -24,11 +23,8 @@ from spam_manager import *
 from program_tester import *
 
 from google.appengine.api import users
-from google.appengine.ext.webapp import template
 from google.appengine.ext.webapp.util import run_wsgi_app
 
-
-from google.appengine.ext import webapp
 
 import lib.markdown as markdown
 
@@ -111,7 +107,7 @@ def prettify_injeeqs(injeeqs):
             jeeq.icon = 'ui-icon-flag'
             jeeq.background = 'lightgrey'
 
-class FrontPageHandler(webapp.RequestHandler):
+class FrontPageHandler(webapp2.RequestHandler):
     """renders the home.html template
     """
 
@@ -167,10 +163,10 @@ class FrontPageHandler(webapp.RequestHandler):
                 'logout_url': users.create_logout_url(self.request.url)
         })
 
-        rendered = webapp.template.render(template_file, vars, debug=_DEBUG)
-        self.response.out.write(rendered)
+        rendered = template.render(template_file, vars, debug=_DEBUG)
+        self.response.write(rendered)
 
-class UserHandler(webapp.RequestHandler):
+class UserHandler(webapp2.RequestHandler):
     """Renders User's profile page"""
 
     @authenticate(False)
@@ -194,10 +190,10 @@ class UserHandler(webapp.RequestHandler):
                 'logout_url': users.create_logout_url(self.request.url)
         })
 
-        rendered = webapp.template.render(template_file, vars, debug=_DEBUG)
-        self.response.out.write(rendered)
+        rendered = template.render(template_file, vars, debug=_DEBUG)
+        self.response.write(rendered)
 
-class AboutHandler(webapp.RequestHandler):
+class AboutHandler(webapp2.RequestHandler):
     """Renders the About page """
 
     @authenticate(required=False)
@@ -210,10 +206,10 @@ class AboutHandler(webapp.RequestHandler):
                 'logout_url': users.create_logout_url(self.request.url)
         })
 
-        rendered = webapp.template.render(template_file, vars, debug=_DEBUG)
-        self.response.out.write(rendered)
+        rendered = template.render(template_file, vars, debug=_DEBUG)
+        self.response.write(rendered)
 
-class ChallengeHandler(webapp.RequestHandler):
+class ChallengeHandler(webapp2.RequestHandler):
     """renders the solve_a_challenge.html template
     """
 
@@ -303,10 +299,10 @@ class ChallengeHandler(webapp.RequestHandler):
                 'submission' : submission,
                 'feedbacks' : feedbacks
         })
-        rendered = webapp.template.render(template_file, vars, debug=_DEBUG)
-        self.response.out.write(rendered)
+        rendered = template.render(template_file, vars, debug=_DEBUG)
+        self.response.write(rendered)
 
-class ReviewHandler(webapp.RequestHandler):
+class ReviewHandler(webapp2.RequestHandler):
     """renders the review template
     """
 
@@ -359,11 +355,11 @@ class ReviewHandler(webapp.RequestHandler):
                 'submissions' : submissions,
         })
 
-        rendered = webapp.template.render(template_file, vars, debug=_DEBUG)
-        self.response.out.write(rendered)
+        rendered = template.render(template_file, vars, debug=_DEBUG)
+        self.response.write(rendered)
 
 
-class ProgramHandler(webapp.RequestHandler):
+class ProgramHandler(webapp2.RequestHandler):
     """Evaluates a python program and returns the result.
     """
 
@@ -396,10 +392,10 @@ class ProgramHandler(webapp.RequestHandler):
         except:
             pass
         finally:
-            self.response.out.write(output['result'])
+            self.response.write(output['result'])
 
 
-class RPCHandler(webapp.RequestHandler):
+class RPCHandler(webapp2.RequestHandler):
     """Handles RPC calls
     """
 
@@ -522,8 +518,8 @@ class RPCHandler(webapp.RequestHandler):
             'feedbacks' : feedbacks
         })
 
-        rendered = webapp.template.render(template_file, vars, debug=_DEBUG)
-        self.response.out.write(rendered)
+        rendered = template.render(template_file, vars, debug=_DEBUG)
+        self.response.write(rendered)
 
 
     def submit_challenge_vertical_scroll(self):
@@ -722,7 +718,7 @@ class RPCHandler(webapp.RequestHandler):
             self.jeeqser.displayname = displayname
             self.jeeqser.put()
         else:
-            self.response.out.write('not_unique')
+            self.response.write('not_unique')
             return
 
     def submit_vote(self):
@@ -786,7 +782,7 @@ class RPCHandler(webapp.RequestHandler):
                     flags_left = spam_manager.check_and_update_flag_limit(jeeqser)
                     response = {'flags_left_today':flags_left}
                     out_json = json.dumps(response)
-                    self.response.out.write(out_json)
+                    self.response.write(out_json)
                     if flags_left == -1:
                         raise Rollback()
 
@@ -859,7 +855,7 @@ class RPCHandler(webapp.RequestHandler):
 
 
             out_json = json.dumps(response)
-            self.response.out.write(out_json)
+            self.response.write(out_json)
 
     def took_tour(self):
         jeeqser_key = self.request.get('jeeqser_key')
@@ -888,11 +884,11 @@ class RPCHandler(webapp.RequestHandler):
         solver_jeeqsers = Jeeqser.get(solver_keys)
         template_file = os.path.join(os.path.dirname(__file__), 'templates', 'challenge_avatars.html')
         vars = {'solver_jeeqsers' : solver_jeeqsers}
-        rendered = webapp.template.render(template_file, vars, debug=_DEBUG)
-        self.response.out.write(rendered)
+        rendered = template.render(template_file, vars, debug=_DEBUG)
+        self.response.write(rendered)
 
 def main():
-    application = webapp.WSGIApplication(
+    application = webapp2.WSGIApplication(
         [('/', FrontPageHandler),
             ('/challenge/', ChallengeHandler),
             ('/challenge/shell.runProgram', ProgramHandler),
