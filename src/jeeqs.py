@@ -72,7 +72,7 @@ def authenticate(required=True):
         def wrapper(self):
             user = users.get_current_user()
             if not user and required:
-                self.error(401)
+                self.error(StatusCode.unauth)
                 return
             elif user:
                 self.jeeqser = get_jeeqser()
@@ -92,6 +92,15 @@ def authenticate(required=True):
         return wrapper
     return real_decorator
 
+
+# Get Jeeqser_Challege for user and challenge
+# TODO: move to proper file
+def get_JC(jeeqser, challenge):
+  return Jeeqser_Challenge\
+    .all()\
+    .filter('jeeqser =', jeeqser)\
+    .filter('challenge =', challenge)\
+    .fetch(1)
 
 
 # Adds icons and background to feedback objects
@@ -176,7 +185,7 @@ class UserHandler(webapp2.RequestHandler):
         if jeeqser_key:
             target_jeeqser = Jeeqser.get(jeeqser_key)
             if not target_jeeqser:
-                self.error(403)
+                self.error(StatusCode.forbidden)
                 return
         else:
             target_jeeqser = self.jeeqser
@@ -224,7 +233,7 @@ class ChallengeHandler(webapp2.RequestHandler):
         # get the challenge
         ch_key = self.request.get('ch')
         if not ch_key:
-            self.error(403)
+            self.error(StatusCode.forbidden)
             return
 
         challenge = None
@@ -233,7 +242,7 @@ class ChallengeHandler(webapp2.RequestHandler):
             challenge = Challenge.get(ch_key)
         finally:
             if not challenge:
-                self.error(403)
+                self.error(StatusCode.forbidden)
                 return
 
         if not challenge.content and challenge.markdown:
@@ -316,7 +325,7 @@ class ReviewHandler(webapp2.RequestHandler):
         # get the challenge
         ch_key = self.request.get('ch')
         if not ch_key:
-            self.error(403)
+            self.error(StatusCode.forbidden)
             return
 
         challenge = None
@@ -325,21 +334,31 @@ class ReviewHandler(webapp2.RequestHandler):
             challenge = Challenge.get(ch_key)
         finally:
             if not challenge:
-                self.error(403)
+                self.error(StatusCode.forbidden)
                 return
 
-        # Retrieve other users' submissions
-        submissions_query = db.GqlQuery(" SELECT * "
-                                        " FROM Attempt "
-                                        " WHERE challenge = :1 "
-                                        " AND active = True "
-                                        " AND flagged = False "
-                                        " ORDER BY vote_count ASC ",
-                                        challenge)
-        submissions = submissions_query.fetch(20)
+        # Check if the user has solved this      
+        if not users.is_current_user_admin():
+            self_challenge = get_JC(self.jeeqser,challenge)
+            qualified = self_challenge and self_challenge[0].status == 'correct'
+        else: 
+            qualified = True
 
-        # TODO: replace this iteration with a data oriented approach
-        submissions[:] = [submission for submission in submissions if not (submission.author.key() == self.jeeqser.key() or self.jeeqser.key() in submission.users_voted)]
+        if qualified:
+            # Retrieve other users' submissions
+            submissions_query = db.GqlQuery(" SELECT * "
+                                              " FROM Attempt "
+                                              " WHERE challenge = :1 "
+                                              " AND active = True "
+                                              " AND flagged = False "
+                                              " ORDER BY vote_count ASC ",
+                                              challenge)
+            submissions = submissions_query.fetch(20)
+
+            # TODO: replace this iteration with a data oriented approach
+            submissions[:] = [submission for submission in submissions if not (submission.author.key() == self.jeeqser.key() or self.jeeqser.key() in submission.users_voted)]
+        else:
+             submissions = []
 
         template_file = os.path.join(os.path.dirname(__file__), 'templates',
             'review_a_challenge.html')
@@ -353,6 +372,7 @@ class ReviewHandler(webapp2.RequestHandler):
                 'challenge' : challenge,
                 'challenge_key' : challenge.key(),
                 'submissions' : submissions,
+                'qualified' : qualified
         })
 
         rendered = template.render(template_file, vars, debug=_DEBUG)
@@ -371,7 +391,7 @@ class ProgramHandler(webapp2.RequestHandler):
         # retrieve the challenge
         challenge_key = self.request.get('challenge_key')
         if not challenge_key:
-            self.error(403)
+            self.error(StatusCode.forbidden)
             return
 
         challenge = None
@@ -380,7 +400,7 @@ class ProgramHandler(webapp2.RequestHandler):
             challenge = Challenge.get(challenge_key)
         finally:
             if not challenge:
-                self.error(403)
+                self.error(StatusCode.forbidden)
                 return
 
         self.response.headers['Content-Type'] = 'text/plain'
@@ -403,7 +423,7 @@ class RPCHandler(webapp2.RequestHandler):
     def post(self):
         method = self.request.get('method')
         if (not method):
-            self.error(403)
+            self.error(StatusCode.forbidden)
             return
 
         if method == 'submit_vote':
@@ -421,14 +441,14 @@ class RPCHandler(webapp2.RequestHandler):
         elif method == 'took_tour':
             self.took_tour()
         else:
-            self.error(403)
+            self.error(StatusCode.forbidden)
             return
 
     def get(self):
         method = self.request.get('method')
         logging.debug("dispatching method %s "% method)
         if (not method):
-            self.error(403)
+            self.error(StatusCode.forbidden)
             return
 
         if method == 'get_in_jeeqs':
@@ -436,7 +456,7 @@ class RPCHandler(webapp2.RequestHandler):
         elif method == 'get_challenge_avatars':
             self.get_challenge_avatars()
         else:
-            self.error(403)
+            self.error(StatusCode.forbidden)
             return
 
     @staticmethod
@@ -498,7 +518,7 @@ class RPCHandler(webapp2.RequestHandler):
             submission = Attempt.get(submission_key)
         finally:
             if not submission:
-                self.error(403)
+                self.error(StatusCode.forbidden)
                 return
 
         template_file = os.path.join(os.path.dirname(__file__), 'templates',
@@ -525,18 +545,18 @@ class RPCHandler(webapp2.RequestHandler):
     def submit_challenge_vertical_scroll(self):
         """updates a challenge's source url """
         if not users.is_current_user_admin():
-            self.error(401)
+            self.error(StatusCode.unauth)
             return
 
         new_vertical_scroll = self.request.get('vertical_scroll')
         if not new_vertical_scroll:
-            self.error(403)
+            self.error(StatusCode.forbidden)
             return
 
         # retrieve the challenge
         challenge_key = self.request.get('challenge_key')
         if not challenge_key:
-            self.error(403)
+            self.error(StatusCode.forbidden)
             return
 
         challenge = None
@@ -545,7 +565,7 @@ class RPCHandler(webapp2.RequestHandler):
             challenge = Challenge.get(challenge_key);
         finally:
             if not challenge:
-                self.error(403)
+                self.error(StatusCode.forbidden)
                 return
 
         challenge.vertical_scroll = float(new_vertical_scroll)
@@ -554,18 +574,18 @@ class RPCHandler(webapp2.RequestHandler):
     def submit_challenge_source(self):
         """updates a challenge's source """
         if not users.is_current_user_admin():
-            self.error(401)
+            self.error(StatusCode.unauth)
             return
 
         new_source = self.request.get('source')
         if not new_source:
-            self.error(403)
+            self.error(StatusCode.forbidden)
             return
 
         # retrieve the challenge
         challenge_key = self.request.get('challenge_key')
         if not challenge_key:
-            self.error(403)
+            self.error(StatusCode.forbidden)
             return
 
         challenge = None
@@ -574,7 +594,7 @@ class RPCHandler(webapp2.RequestHandler):
             challenge = Challenge.get(challenge_key);
         finally:
             if not challenge:
-                self.error(403)
+                self.error(StatusCode.forbidden)
                 return
 
         challenge.markdown = new_source
@@ -592,7 +612,7 @@ class RPCHandler(webapp2.RequestHandler):
         # retrieve the challenge
         challenge_key = self.request.get('challenge_key')
         if not challenge_key:
-            self.error(403)
+            self.error(StatusCode.forbidden)
             return
 
         challenge = None
@@ -601,7 +621,7 @@ class RPCHandler(webapp2.RequestHandler):
             challenge = Challenge.get(challenge_key);
         finally:
             if not challenge:
-                self.error(403)
+                self.error(StatusCode.forbidden)
 
         if challenge.automatic_review:
             new_solution = '    :::python' + '\n'
@@ -610,11 +630,7 @@ class RPCHandler(webapp2.RequestHandler):
             solution = new_solution
 
         # TODO: We can convert two foreign keys (jeeqser, challenge) into a single key and get the key faster
-        jeeqser_challenge = Jeeqser_Challenge\
-            .all()\
-            .filter('jeeqser = ', self.jeeqser)\
-            .filter('challenge = ', challenge)\
-            .fetch(1)
+        jeeqser_challenge = get_JC(self.jeeqser, challenge)
 
         class Namespace(object): pass
         ns = Namespace()
@@ -735,15 +751,20 @@ class RPCHandler(webapp2.RequestHandler):
             submission = Attempt.get(submission_key)
         finally:
             if not submission:
-                self.error(403)
+                self.error(StatusCode.forbidden)
                 return
-
+        
+        #Ensure non-admin user is qualified to vote
+        if not users.is_current_user_admin():
+            voter_challenge = get_JC(self.jeeqser, submission.challenge)
+            qualifield = voter_challenge and voter_challenge[0].status == 'correct'
+            
+            if not qualified:
+                self.error(StatusCode.forbidden)
+                return
+        
         if not self.jeeqser.key() in submission.users_voted:
-            jeeqser_challenge = Jeeqser_Challenge\
-                .all()\
-                .filter('jeeqser =', submission.author)\
-                .filter('challenge = ', submission.challenge)\
-                .fetch(1)
+            jeeqser_challenge = get_JC(submission.author,submission.challenge)
 
             if len(jeeqser_challenge) == 0:
                 # should never happen but let's guard against it!
@@ -821,7 +842,7 @@ class RPCHandler(webapp2.RequestHandler):
                 feedback=feedback
             ).put()
         else: # should not happen!
-            self.error(403)
+            self.error(StatusCode.forbidden)
             return
 
 

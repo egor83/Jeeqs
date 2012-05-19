@@ -23,7 +23,6 @@
         $(document).ready(function() {
             $('.submit-vote').bind('click', function() {
 
-                $(this).attr("disabled", "disabled");
                 $initiator = $(this)
 
                 $submission_id = $(this).attr("id").split("__")[1];
@@ -35,6 +34,7 @@
                     return;
                 }
 
+                $(this).attr("disabled", "disabled");
                 $.ajax({
                     url: "/rpc",
                     async: true,
@@ -105,7 +105,11 @@
 
     <div id="submissions">
         {% if submissions|length == 0 %}
-            <p> No Submissions are available to review </p>
+            {%if not qualified %}
+             <h3>You are not qualified to review this challenge.
+                To qualify you have to solve this challenge yourself. </h3>
+            {%endif%}
+            <p> No Submissions are available to review.</p>
         {% else %}
             <h2>Submissions available for review: </h2>
             {% for submission in submissions %}
