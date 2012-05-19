@@ -203,13 +203,22 @@
 
                         {% if challenge.submitted %}
                             <div style="float: left; clear:left;">
-                                {% include "attempt_score.html" with submission=challenge.jc %}
+                                {% with challenge.jc as submission %}
+                                    {% include "attempt_score.html"%}
+                                {% endwith %}
                             </div>
                         {% endif %}
 
                         {% if challenge.last_solver %}
                             <div style="float: right; clear:right; margin-top: 5px">
-                                {% include "jeeqser_avatar.html" with jeeqser_key=challenge.last_solver.key avatar_url=challenge.last_solver.gravatar_url style="float:right"%}
+                                {#  TODO: Make the content in one line using jinja2 #}
+                                {% with challenge.last_solver.key as jeeqser_key %}
+                                    {% with challenge.last_solver.gravatar_url as avatar_url %}
+                                            {% with "float:right" as style %}
+                                                {% include "jeeqser_avatar.html" %}
+                                            {% endwith %}
+                                    {% endwith %}
+                                {% endwith %}
                             </div>
                         {% endif %}
 
@@ -228,7 +237,11 @@
     <div id="all-jeeqs-in-list" class="accordion accordion-open" style="float:left; margin:10px; max-height: 600px; overflow:auto;">
         <h3><a href="#">In Jeeqs</a></h3>
         <div class="jeeqs-list">
-            {% include "in_jeeqs_list.html" with feedbacks=injeeqs write_challenge_name='true'%}
+            {% with injeeqs as feedbacks %}
+                {% with 'true' as write_challenge_name %}
+                    {% include "in_jeeqs_list.html"%}
+                {% endwith %}
+        {% endwith %}
         </div>
     </div>
 
