@@ -6,28 +6,30 @@
 
 <div id="userInfo" style="width:100%; text-align: right;">
     <div style="float:left; margin:5px; margin-left: 20px">
+        <a href="/" class="noline" style="color: black">
         <span style="font-size: 1.5em; font-weight: bold">Jeeqs</span>
         <img style="margin-left: 5px" src="/static/favicon.ico"/>
+        </a>
     </div>
     <div style="float:right; margin: 5px; margin-right: 20px">
         <span>
-            <a class="noline" href="/">Home</a> |
+            <a class="noline" href="/" style="color: black">Home</a> |
             {% if jeeqser %}
                 <span>
                     <img width="40px" height="40px" src="{{ jeeqser.gravatar_url }}" style="vertical-align: middle; border-radius: 5px"/>
                     <span class="username">
-                        <a class="noline" href="/user/">{{ jeeqser.displayname }}
+                        <a class="noline" href="/user/" style="color: black">{{ jeeqser.displayname }}
                             {% if jeeqser.suspended_until %}
                                 <strong style="color:red" title="Your account is suspended until {{ jeeqser.suspended_until }}">!</strong>
                             {% endif %}
                         </a>
                     </span>
                 </span>
-                | <a class="noline" href="{{ logout_url }}">Log out</a>
+                | <a class="noline" href="{{ logout_url }}" style="color: black">Log out</a>
             {% else %}
-                <a class="noline" href="{{ login_url }}">Log in </a>
+                <a class="noline" href="{{ login_url }}" style="color: black">Log in </a>
             {% endif %}
-            | <a class="noline" href="/about/">About</a>
+            | <a class="noline" href="/about/" style="color: black">About</a>
         </span>
     </div>
 </div>
