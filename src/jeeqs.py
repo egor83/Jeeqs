@@ -5,17 +5,17 @@ A program for managing challenges, attempt and solutions.
 
 """
 
+import jinja2
 import os
 import sys
 import logging
 
 import webapp2
-from google.appengine.ext.webapp import template
 
 sys.path.append(os.path.join(os.path.dirname(__file__), 'lib'))
 
 from google.appengine.api.datastore_errors import Rollback
-from django.utils import simplejson as json
+import json
 
 from models import *
 from utils import *
@@ -25,9 +25,11 @@ from program_tester import *
 from google.appengine.api import users
 from google.appengine.ext.webapp.util import run_wsgi_app
 
-
 import lib.markdown as markdown
 
+jinja_environment = jinja2.Environment(
+                        loader=jinja2.FileSystemLoader(os.path.join(os.path.dirname(__file__), 'templates'))
+                        ,extensions=['jinja2.ext.with_'])
 
 # Set to True if stack traces should be shown in the browser, etc.
 # TODO: should this be changed into an environment variable ?
@@ -161,8 +163,6 @@ class FrontPageHandler(webapp2.RequestHandler):
 
         all_activities = Activity.all().order('-date').fetch(10)
 
-        template_file = os.path.join(os.path.dirname(__file__), 'templates', 'home.html')
-
         vars = add_common_vars({
                 'challenges': all_challenges,
                 'injeeqs': injeeqs,
@@ -172,7 +172,8 @@ class FrontPageHandler(webapp2.RequestHandler):
                 'logout_url': users.create_logout_url(self.request.url)
         })
 
-        rendered = template.render(template_file, vars, debug=_DEBUG)
+        template = jinja_environment.get_template('home.html')
+        rendered = template.render(vars)
         self.response.write(rendered)
 
 class UserHandler(webapp2.RequestHandler):
@@ -190,8 +191,6 @@ class UserHandler(webapp2.RequestHandler):
         else:
             target_jeeqser = self.jeeqser
 
-        template_file = os.path.join(os.path.dirname(__file__), 'templates', 'Jeeqser.html')
-
         vars = add_common_vars({
                 'jeeqser' : self.jeeqser,
                 'target_jeeqser' : target_jeeqser,
@@ -199,7 +198,8 @@ class UserHandler(webapp2.RequestHandler):
                 'logout_url': users.create_logout_url(self.request.url)
         })
 
-        rendered = template.render(template_file, vars, debug=_DEBUG)
+        template = jinja_environment.get_template('Jeeqser.html')
+        rendered = template.render(vars)
         self.response.write(rendered)
 
 class AboutHandler(webapp2.RequestHandler):
@@ -207,7 +207,6 @@ class AboutHandler(webapp2.RequestHandler):
 
     @authenticate(required=False)
     def get(self):
-        template_file = os.path.join(os.path.dirname(__file__), 'templates', 'about.html')
         vars = add_common_vars({
                 'jeeqser' : self.jeeqser,
                 'gravatar_url' : self.jeeqser.gravatar_url if self.jeeqser else None,
@@ -215,7 +214,8 @@ class AboutHandler(webapp2.RequestHandler):
                 'logout_url': users.create_logout_url(self.request.url)
         })
 
-        rendered = template.render(template_file, vars, debug=_DEBUG)
+        template = jinja_environment.get_template('about.html')
+        rendered = template.render(vars)
         self.response.write(rendered)
 
 class ChallengeHandler(webapp2.RequestHandler):
@@ -252,9 +252,6 @@ class ChallengeHandler(webapp2.RequestHandler):
         attempt_key = self.request.get('att')
         if attempt_key:
             submission = Attempt.get(attempt_key)
-
-        template_file = os.path.join(os.path.dirname(__file__), 'templates',
-            'solve_a_challenge.html')
 
         if (self.jeeqser):
             attempts_query = db.GqlQuery(" SELECT * "
@@ -308,7 +305,9 @@ class ChallengeHandler(webapp2.RequestHandler):
                 'submission' : submission,
                 'feedbacks' : feedbacks
         })
-        rendered = template.render(template_file, vars, debug=_DEBUG)
+
+        template = jinja_environment.get_template('solve_a_challenge.html')
+        rendered = template.render(vars)
         self.response.write(rendered)
 
 class ReviewHandler(webapp2.RequestHandler):
@@ -360,9 +359,6 @@ class ReviewHandler(webapp2.RequestHandler):
         else:
              submissions = []
 
-        template_file = os.path.join(os.path.dirname(__file__), 'templates',
-            'review_a_challenge.html')
-
         vars = add_common_vars({
                 'server_software': os.environ['SERVER_SOFTWARE'],
                 'python_version': sys.version,
@@ -375,7 +371,8 @@ class ReviewHandler(webapp2.RequestHandler):
                 'qualified' : qualified
         })
 
-        rendered = template.render(template_file, vars, debug=_DEBUG)
+        template = jinja_environment.get_template('review_a_challenge.html')
+        rendered = template.render(vars)
         self.response.write(rendered)
 
 
@@ -522,7 +519,7 @@ class RPCHandler(webapp2.RequestHandler):
                 return
 
         template_file = os.path.join(os.path.dirname(__file__), 'templates',
-            'in_jeeqs_list.html')
+            'templates/in_jeeqs_list.html')
 
         feedbacks = Feedback.all()\
             .filter('attempt = ', submission)\
@@ -538,7 +535,7 @@ class RPCHandler(webapp2.RequestHandler):
             'feedbacks' : feedbacks
         })
 
-        rendered = template.render(template_file, vars, debug=_DEBUG)
+        rendered = template.render(template_file, vars)
         self.response.write(rendered)
 
 
@@ -903,9 +900,9 @@ class RPCHandler(webapp2.RequestHandler):
             solver_keys.append(jc.jeeqser.key())
 
         solver_jeeqsers = Jeeqser.get(solver_keys)
-        template_file = os.path.join(os.path.dirname(__file__), 'templates', 'challenge_avatars.html')
         vars = {'solver_jeeqsers' : solver_jeeqsers}
-        rendered = template.render(template_file, vars, debug=_DEBUG)
+        template = jinja_environment.get_template('challenge_avatars.html')
+        rendered = template.render(vars)
         self.response.write(rendered)
 
 def main():
@@ -916,7 +913,7 @@ def main():
             ('/review/', ReviewHandler),
             ('/rpc', RPCHandler),
             ('/user/', UserHandler),
-            ('/about/', AboutHandler)], debug=_DEBUG)
+            ('/about/', AboutHandler)])
     run_wsgi_app(application)
 
 

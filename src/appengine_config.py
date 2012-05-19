@@ -1,6 +1,3 @@
-from google.appengine.dist import use_library
-use_library('django', '1.3')
-
 import os
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), 'lib'))

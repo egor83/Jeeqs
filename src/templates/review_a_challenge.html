@@ -120,22 +120,26 @@
                     </div>
                     <div class="submission-feedback">
                         <span class="feedback-buttons">
-                            <input type="radio" id="incorrect_{{ submission.key }}" name="feedback_{{ submission.key }}"
+                            <input type="radio" id="incorrect_{{ submission.key() }}" name="feedback_{{ submission.key() }}"
                                    value="incorrect"/>
-                            <label for="incorrect_{{ submission.key }}"  class="incorrect_label" title="Incorrect or Incomplete"><span class="ui-icon ui-icon-closethick"></span></label>
+                            <label for="incorrect_{{ submission.key() }}"  class="incorrect_label" title="Incorrect or Incomplete"><span class="ui-icon ui-icon-closethick"></span></label>
 
-                            <input type="radio" id="correct_{{ submission.key }}" name="feedback_{{ submission.key }}"
+                            <input type="radio" id="correct_{{ submission.key() }}" name="feedback_{{ submission.key() }}"
                                    value="correct"/>
-                            <label for="correct_{{ submission.key }}" class="correct_label" title="Correct"><span class="ui-icon ui-icon-check"></span></label>
+                            <label for="correct_{{ submission.key() }}" class="correct_label" title="Correct"><span class="ui-icon ui-icon-check"></span></label>
 
-                            <input type="radio" id="flag_{{ submission.key }}" name="feedback_{{ submission.key }}"
+                            <input type="radio" id="flag_{{ submission.key() }}" name="feedback_{{ submission.key() }}"
                                    value="flag" class="flag_checkbox"/>
-                            <label for="flag_{{ submission.key }}" title="Spam!" class="flag_label"><span class="ui-icon ui-icon-flag"></span></label>
+                            <label for="flag_{{ submission.key() }}" title="Spam!" class="flag_label"><span class="ui-icon ui-icon-flag"></span></label>
                         </span>
                         <div>
-                            <textarea id="response__{{ submission.key }}" rows="5" style="width: 50%;"></textarea>
+                            <textarea id="response__{{ submission.key() }}" rows="5" style="width: 50%;"></textarea>
                         </div>
-                        <button class="submit-vote" id="submit__{{ submission.key }}" style="float:right">{{ submission.voted|yesno:'Submitted,Submit' }}</button>
+                        {% set submitted = 'Submitted' %}
+                        {% if not submission.voted %}
+                            {% set submitted = 'Submit' %}
+                        {% endif %}
+                        <button class="submit-vote" id="submit__{{ submission.key() }}" style="float:right">{{ submitted }}</button>
                     </div>
                 </div>
             {% endfor %}

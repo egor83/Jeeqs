@@ -8,11 +8,8 @@ builtins:
   - remote_api: on
 
 libraries:
-- name: django
-  version: latest
-
 - name: jinja2
-  version: latest
+  version: 2.6
 
 inbound_services:
 - warmup

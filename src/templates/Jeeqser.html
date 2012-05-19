@@ -71,17 +71,17 @@
 
     <h3>Out Jeeqs</h3>
     <div class="jeeqser-value">
-        {{ target_jeeqser.reviews_out_num|default_if_none:"0" }}
+        {{ target_jeeqser.reviews_out_num|d('0') }}
     </div>
 
     <h3>In Jeeqs</h3>
     <div class="jeeqser-value">
-        {{ target_jeeqser.reviews_in_num|default_if_none:"0" }}
+        {{ target_jeeqser.reviews_in_num|d('0') }}
     </div>
 
     <h3>Submissions</h3>
     <div class="jeeqser-value">
-        {{ target_jeeqser.submissions_num|default_if_none:"0" }}
+        {{ target_jeeqser.submissions_num|d('0') }}
     </div>
 
 {% endblock container %}

@@ -1,9 +1,6 @@
 import os
 import string
 
-from google.appengine.dist import use_library
-use_library('django', '1.3')
-
 from google.appengine.api import users
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app

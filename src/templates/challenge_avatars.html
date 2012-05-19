@@ -1,8 +1,8 @@
 {# A list of avatars returned for a challenge's stats #}
 {% for jeeqser in solver_jeeqsers %}
-    {% with jeeqser.key as jeeqser_key %}
-        {% with jeeqser.gravatar_url as avatar_url %}
-            {% include "jeeqser_avatar.html" %}
-        {% endwith %}
+    {% with %}
+        {% set jeeqser_key =  jeeqser.key() %}
+        {% set avatar_url = jeeqser.gravatar_url %}
+        {% include "jeeqser_avatar.html" %}
     {% endwith %}
 {% endfor %}

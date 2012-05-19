@@ -107,7 +107,7 @@
             var pythonMode = require("ace/mode/python").Mode;
             $editor.getSession().setMode(new pythonMode());
             {% if template_code %}
-                $editor.getSession().setValue("{{ template_code|escapejs }}");
+                $editor.getSession().setValue("{{ template_code }}");
             {% else %}
                 $editor.getSession().setValue("# Write your python code here!");
             {% endif %}
@@ -151,19 +151,23 @@
     {% include "challenge.html" %}
 {% endblock container_header %}
 
-{%block column1-style%}
+{%block column1_style%}
     nine columns
-{% endblock column1-style %}
+{% endblock column1_style %}
 
-{% block column2-style %}
+{% block column2_style %}
     seven columns
-{% endblock column2-style%}
+{% endblock column2_style%}
 
  %}
 {% block column1 %}
     <div id="submission" style="padding:15px;">
         {% if submission %}
-            <h3> Submitted for review ({{ submission.active|yesno:'Active,Not Active' }})</h3>
+            {% set active = 'Active' %}
+            {% if not submission.active %}
+                {% set active = 'Not Active' %}
+            {% endif %}
+            <h3> Submitted for review ({{ active }})</h3>
             <div id="submission-content" style="overflow:auto">
                 {{ submission.content|safe}}
             </div>
@@ -207,7 +211,7 @@
 
     {% if submission %}
         <div>
-            <h4>Submission score: {{ submission.vote_average|floatformat:"-2"}}/4 based on votes by {{ submission.vote_count }} Jeeqsers</h4>
+            <h4>Submission score: {{ submission.vote_average}}/4 based on votes by {{ submission.vote_count }} Jeeqsers</h4>
             <h2>{% include "attempt_score.html"%}</h2>
         </div>
         <div id="feedbacks" class="accordion" style="">
@@ -254,7 +258,7 @@
         <div class="recent-jeeqs">
             {% if jeeqser %}
                 {% for attempt in attempts %}
-                    <p> <a class="noline" href="/challenge/?ch={{ challenge.key }}&att={{ attempt.key }}"> Attempt #{{ attempt.index }}</a> at: {{ attempt.date }}</p>
+                    <p> <a class="noline" href="/challenge/?ch={{ challenge.key() }}&att={{ attempt.key() }}"> Attempt #{{ attempt.index }}</a> at: {{ attempt.date }}</p>
                     <div>
                         {{ attempt.content|safe }}
                     </div>
