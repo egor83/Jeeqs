@@ -756,7 +756,7 @@ class RPCHandler(webapp2.RequestHandler):
 
 
 
-def update_displayname(self):
+    def update_displayname(self):
         displayname = self.request.get('display_name')
 
         if displayname == self.jeeqser.displayname_persisted:
