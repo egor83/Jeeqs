@@ -434,6 +434,8 @@ class RPCHandler(webapp2.RequestHandler):
             self.update_displayname()
         elif method == 'submit_solution':
             self.submit_solution()
+        elif method == 'save_draft_solution':
+            self.save_draft_solution()
         elif method == 'flag_feedback':
             self.flag_feedback()
         elif method == 'submit_challenge_source':
@@ -724,6 +726,9 @@ class RPCHandler(webapp2.RequestHandler):
             done_by_gravatar=self.jeeqser.gravatar_url,
             challenge=challenge,
             challenge_name=challenge.name).put()
+
+    def save_draft_solution(self):
+        pass
 
     def update_displayname(self):
         displayname = self.request.get('display_name')

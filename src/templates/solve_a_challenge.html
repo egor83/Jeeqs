@@ -69,10 +69,11 @@
                     url: "/rpc",
                     async: true,
                     type: "POST",
-                    data: {'method': 'submit_solution', 'challenge_key': $challengeKey, 'solution':$solution},
+                    data: {'method': 'save_draft_solution', 'challenge_key': $challengeKey, 'solution':$solution},
                     success: function(response){
-                        $initiator.button("option", "label", "Submitted");
-                        window.location.replace("/");
+                        $initiator.button("option", "label", "Saved!");
+                        setTimeout("$initiator.button(\"option\", \"label\", \"Save as Draft\");"
+                                  ,1500);
                     }
                 })
             })
@@ -197,7 +198,7 @@
 
     <div id="new_submission">
         <form id="answerForm" action="shell.runProgram" method="get">
-            <input type="hidden" name="challenge_key" id = "challenge_key" value="{{ challenge_key }}" />
+            <input type="hidden" name="challenge_key" id="challenge_key" value="{{ challenge_key }}" />
 
             {% if not challenge.automatic_review %}
                 <div id="solutionContainer" class="accordion accordion-open" style="margin-top:20px;">
