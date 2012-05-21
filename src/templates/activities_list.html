@@ -16,7 +16,7 @@
                     {% include "jeeqser_displayname.html"%}
                 {% endwith %}
                 submitted for challenge <a class="noline" href="/challenge/?ch={{ activity.challenge.key() }}"><b>{{ activity.challenge_name }}</b></a>
-                &nbsp; <span style="color:grey; font-size:smaller;">{{ activity.date }} {# | timesince ago #}  </span>
+                &nbsp; <span style="color:grey; font-size:smaller;">{{ activity.date|timesince }} </span>
             </div>
         {% endif %}
         {% if activity.type == 'voting' %}
@@ -50,7 +50,7 @@
                 {% endwith %}
                 to challenge
                 <a class="noline" href="/challenge/?ch={{ activity.challenge.key() }}"><b>{{ activity.challenge_name }}</b></a>
-                &nbsp; <span style="color:grey; font-size:smaller;">{{ activity.date }} {# | timesince ago #} </span>
+                &nbsp; <span style="color:grey; font-size:smaller;">{{ activity.date|timesince}} </span>
             </div>
         {% endif %}
     </div>

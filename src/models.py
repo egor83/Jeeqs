@@ -161,6 +161,7 @@ class Challenge(db.Model):
     exercise_program_persisted = db.StringProperty()
     exercise_university_persisted = db.StringProperty()
     exercise_course_code_persisted = db.StringProperty()
+    exercise_course_name_persisted = db.StringProperty()
 
     @property
     def exercise_number(self):
@@ -223,6 +224,15 @@ class Challenge(db.Model):
             self.exercise_course_code_persisted = self.exercise.course.code
             self.put()
             return self.exercise_course_code_persisted
+
+    @property
+    def exercise_course_name(self):
+        if self.exercise_course_name_persisted:
+            return self.exercise_course_name_persisted
+        elif self.exercise and self.exercise.name:
+            self.exercise_course_name_persisted = self.exercise.course.name
+            self.put()
+            return self.exercise_course_name_persisted
 
 class Attempt(db.Model):
     """Models a Submission for a Challenge """

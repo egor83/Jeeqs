@@ -26,12 +26,14 @@ from google.appengine.api import users
 from google.appengine.ext.webapp.util import run_wsgi_app
 
 import lib.markdown as markdown
-from template_filters import escapejs
+from template_filters import escapejs, timesince
 
 jinja_environment = jinja2.Environment(
                         loader=jinja2.FileSystemLoader(os.path.join(os.path.dirname(__file__), 'templates'))
                         ,extensions=['jinja2.ext.with_'])
+
 jinja_environment.filters['escapejs'] = escapejs
+jinja_environment.filters['timesince'] = timesince
 
 
 # Set to True if stack traces should be shown in the browser, etc.
