@@ -103,13 +103,13 @@
 
 {% block column1 %}
 
-    <div id="submissions">
+    <div id="submissions" style="margin-top: 20px">
         {% if submissions|length == 0 %}
             {%if not qualified %}
              <h3>You are not qualified to review this challenge.
                 To qualify you have to solve this challenge yourself. </h3>
             {%endif%}
-            <p> No Submissions are available to review.</p>
+            <div style="color:grey"> No Submissions are available to review at this time! Please check back later!</div>
         {% else %}
             <h2>Submissions available for review: </h2>
             {% for submission in submissions %}
