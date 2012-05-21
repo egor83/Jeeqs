@@ -192,9 +192,8 @@
                         {% endif %}
 
                         {% if challenge.exercise %}
-                            {# TODO: OPTIMIZE THIS #}
                             <div style="float:left; font-size: smaller" title="{{ challenge.exercise.course.name }}">
-                                {{ challenge.exercise.course.code }}&nbsp;
+                                {{ challenge.exercise_course_code }} &nbsp;
                             </div>
                             <div style="float: left; font-size: smaller;">
                                 {{ challenge.exercise_program }}&nbsp;{{ challenge.exercise_university }}

@@ -160,8 +160,11 @@ class Challenge(db.Model):
     exercise_number_persisted = db.StringProperty()
     exercise_program_persisted = db.StringProperty()
     exercise_university_persisted = db.StringProperty()
+    exercise_course_code_persisted = db.StringProperty()
 
-    def get_exercise_number(self):
+    @property
+    def exercise_number(self):
+        """Exercise Number"""
         if self.exercise_number_persisted:
             return self.exercise_number_persisted
         else:
@@ -171,9 +174,10 @@ class Challenge(db.Model):
                 return self.exercise_number_persisted
             else:
                 return None
-    exercise_number = property(fget=get_exercise_number, doc="Exercise number")
 
-    def get_exercise_program(self):
+    @property
+    def exercise_program(self):
+        """Exercise Program"""
         if self.exercise_program_persisted:
             return self.exercise_program_persisted
         else:
@@ -183,9 +187,10 @@ class Challenge(db.Model):
                 return self.exercise_program_persisted
             else:
                 return None
-    exercise_program = property(fget=get_exercise_program, doc="Exercise program")
 
-    def get_exercise_university(self):
+    @property
+    def exercise_university(self):
+        """ Exercise University """
         if self.exercise_university_persisted:
             return self.exercise_university_persisted
         else:
@@ -195,9 +200,10 @@ class Challenge(db.Model):
                 return self.exercise_university_persisted
             else:
                 return None
-    exercise_university = property(fget=get_exercise_university, doc="Exercise University")
 
-    def get_attribution(self):
+    @property
+    def attribution(self):
+        """Attribution"""
         if self.attribution_persistent:
             return self.attribution_persistent
         elif self.exercise and self.exercise.course.attribution:
@@ -205,10 +211,18 @@ class Challenge(db.Model):
             self.put()
             return self.attribution_persistent
 
+    @attribution.setter
     def set_attribution(self, value):
         self.attribution_persistent = value
 
-    attribution = property(get_attribution, set_attribution, "Attribution")
+    @property
+    def exercise_course_code(self):
+        if self.exercise_course_code_persisted:
+            return self.exercise_course_code_persisted
+        elif self.exercise and self.exercise.course:
+            self.exercise_course_code_persisted = self.exercise.course.code
+            self.put()
+            return self.exercise_course_code_persisted
 
 class Attempt(db.Model):
     """Models a Submission for a Challenge """
