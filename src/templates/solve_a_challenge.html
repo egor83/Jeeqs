@@ -60,6 +60,23 @@
                 })
             })
 
+            $('#save_draft_submission_button').bind('click', function(event, ui) {
+                var $solution = $('#wmd-input') .val();
+                var $challengeKey = $('#challenge_key').val();
+                $initiator = $(this)
+
+                $.ajax({
+                    url: "/rpc",
+                    async: true,
+                    type: "POST",
+                    data: {'method': 'submit_solution', 'challenge_key': $challengeKey, 'solution':$solution},
+                    success: function(response){
+                        $initiator.button("option", "label", "Submitted");
+                        window.location.replace("/");
+                    }
+                })
+            })
+
             $('#submit_program').bind('click', function(event, ui) {
                 $(this).attr("disabled", "disabled");
                 var $solution = $editor.getSession().getValue()
@@ -201,6 +218,7 @@
                     {% else %}
                         <button type="button" id="submitSolutionButton" style="color:red" disabled="disabled" title="Submission credit has reached 0. Please review some submissions first.">Submit Solution</button>
                     {% endif %}
+                    <button type="button" id="save_draft_submission_button" style="color:#669824"><i>Save as Draft</i></button>
                 </div>
             {% endif %} {# automatic review #}
             <br/>
