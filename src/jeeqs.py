@@ -633,7 +633,6 @@ class RPCHandler(webapp2.RequestHandler):
                 new_solution += '    ' + line
             solution = new_solution
 
-        # TODO: We can convert two foreign keys (jeeqser, challenge) into a single key and get the key faster
         jeeqser_challenge = get_JC(self.jeeqser, challenge)
 
         class Namespace(object): pass
@@ -728,9 +727,36 @@ class RPCHandler(webapp2.RequestHandler):
             challenge_name=challenge.name).put()
 
     def save_draft_solution(self):
-        pass
+        """
+        Submits a solution
+        """
+        program = solution = self.request.get('solution')
+        if not solution:
+            return
 
-    def update_displayname(self):
+        # retrieve the challenge
+        challenge_key = self.request.get('challenge_key')
+        if not challenge_key:
+            self.error(StatusCode.forbidden)
+            return
+
+        challenge = None
+
+        try:
+            challenge = Challenge.get(challenge_key);
+        finally:
+            if not challenge:
+                self.error(StatusCode.forbidden)
+
+        def persist_new_draft():
+            pass
+
+        xg_on = db.create_transaction_options(xg=True)
+        db.run_in_transaction_options(xg_on, persist_new_submission)
+
+
+
+def update_displayname(self):
         displayname = self.request.get('display_name')
 
         if displayname == self.jeeqser.displayname_persisted:
