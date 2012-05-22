@@ -142,8 +142,7 @@
 
             {% if not jeeqser %}
                 $('#submitSolutionButton, #submit_program').
-                       button('option', 'disabled', 'disabled')
-                       .button('option', 'label', 'login to Submit');
+                       button('option', 'disabled', 'disabled');
             {% endif %}
 
             $('#insert_program').bind('click', function() {
@@ -210,16 +209,19 @@
                             <div style="float:right; font-size: x-small;"><a href="http://daringfireball.net/projects/markdown/syntax">Markdown</a> and <a href="http://www.mathjax.org/">MathJax</a> are supported.</div>
                         </div>
                         <div id="wmd-preview" class="wmd-panel wmd-preview" style="margin-top: 15px;"></div>
+                        <div id="submitButton" style="margin-top: 10px;">
+                            {% if jeeqser %}
+                                {% if jeeqser.reviews_out_num >= jeeqser.submissions_num or challenge.name == 'Factorial' or isadmin %}
+                                    <button type="button" id ="submitSolutionButton" style="color:green;">Submit Solution</button>
+                                {% else %}
+                                    <button type="button" id="submitSolutionButton" style="color:red" disabled="disabled" title="Submission credit has reached 0. Please review some submissions first.">Submit Solution</button>
+                                {% endif %}
+                                <button type="button" id="save_draft_submission_button" style="color:#669824"><i>Save as Draft</i></button>
+                            {% else %}
+                                <button type="button" id ="submitSolutionButton" style="color:green;">Login to Submit!</button>
+                            {% endif %}
+                        </div>
                     </div>
-                </div>
-
-                <div id="submitButton" style="margin-top: 10px;">
-                    {% if jeeqser.reviews_out_num >= jeeqser.submissions_num or challenge.name == 'Factorial' or isadmin %}
-                        <button type="button" id ="submitSolutionButton" style="color:green;">Submit Solution</button>
-                    {% else %}
-                        <button type="button" id="submitSolutionButton" style="color:red" disabled="disabled" title="Submission credit has reached 0. Please review some submissions first.">Submit Solution</button>
-                    {% endif %}
-                    <button type="button" id="save_draft_submission_button" style="color:#669824"><i>Save as Draft</i></button>
                 </div>
             {% endif %} {# automatic review #}
             <br/>

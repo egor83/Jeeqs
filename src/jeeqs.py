@@ -754,8 +754,6 @@ class RPCHandler(webapp2.RequestHandler):
         xg_on = db.create_transaction_options(xg=True)
         db.run_in_transaction_options(xg_on, persist_new_submission)
 
-
-
     def update_displayname(self):
         displayname = self.request.get('display_name')
 
