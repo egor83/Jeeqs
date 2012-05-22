@@ -703,11 +703,17 @@ class RPCHandler(webapp2.RequestHandler):
 
         xg_on = db.create_transaction_options(xg=True)
         db.run_in_transaction_options(xg_on, persist_new_submission)
-
         # Receive variables from transaction
         self.jeeqser = ns.jeeqser
         attempt = ns.attempt
         jeeqser_challenge = ns.jeeqser_challenge
+
+        # delete a draft if exists
+        try:
+            draft = Draft.all().ancestor(self.jeeqser).filter('challenge = ', challenge).fetch(1)[0]
+            draft.delete()
+        except IndexError:
+            pass
 
         # TODO: Do this asynchronously!
         # run the tests and persist the results
