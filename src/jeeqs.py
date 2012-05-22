@@ -233,7 +233,7 @@ class ChallengeHandler(webapp2.RequestHandler):
         attempts = None
         feedbacks = None
         submission = None
-
+        draft = None
 
         # get the challenge
         ch_key = self.request.get('ch')
@@ -297,6 +297,12 @@ class ChallengeHandler(webapp2.RequestHandler):
             if feedbacks:
                 prettify_injeeqs(feedbacks)
 
+            # Fetch saved draft
+            try:
+                draft = Draft.all().filter('author = ', self.jeeqser).filter('challenge = ', challenge).fetch(1)[0]
+            except IndexError:
+                draft = None
+
         vars = add_common_vars({
                 'server_software': os.environ['SERVER_SOFTWARE'],
                 'python_version': sys.version,
@@ -308,7 +314,8 @@ class ChallengeHandler(webapp2.RequestHandler):
                 'challenge_key' : challenge.key(),
                 'template_code': challenge.template_code,
                 'submission' : submission,
-                'feedbacks' : feedbacks
+                'feedbacks' : feedbacks,
+                'draft': draft
         })
 
         template = jinja_environment.get_template('solve_a_challenge.html')
@@ -730,8 +737,9 @@ class RPCHandler(webapp2.RequestHandler):
         """
         Submits a solution
         """
-        program = solution = self.request.get('solution')
+        solution = self.request.get('solution')
         if not solution:
+            self.error(StatusCode.bad)
             return
 
         # retrieve the challenge
@@ -749,10 +757,20 @@ class RPCHandler(webapp2.RequestHandler):
                 self.error(StatusCode.forbidden)
 
         def persist_new_draft():
-            pass
+            try:
+                draft = Draft.all().ancestor(self.jeeqser).filter('author = ', self.jeeqser).filter('challenge = ', challenge).fetch(1)[0]
+            except IndexError:
+                draft = Draft(
+                    parent=self.jeeqser,
+                    author=self.jeeqser,
+                    challenge = challenge,
+                    content = markdown.markdown(solution, ['codehilite', 'mathjax']),
+                    markdown = solution)
+
+                draft.put()
 
         xg_on = db.create_transaction_options(xg=True)
-        db.run_in_transaction_options(xg_on, persist_new_submission)
+        db.run_in_transaction_options(xg_on, persist_new_draft)
 
     def update_displayname(self):
         displayname = self.request.get('display_name')

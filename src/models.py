@@ -234,7 +234,7 @@ class Challenge(db.Model):
             self.put()
             return self.exercise_course_name_persisted
 
-class Draft_Attempt(db.Model):
+class Draft(db.Model):
     """Models a draft (un-submitted) attempt"""
     challenge = db.ReferenceProperty(Challenge)
     author = db.ReferenceProperty(Jeeqser)
@@ -242,7 +242,7 @@ class Draft_Attempt(db.Model):
     content = db.TextProperty()
     #non-compiled markdown
     markdown = db.TextProperty()
-    date = db.DateTimeProperty(auto_now_add=True)
+    date = db.DateTimeProperty(auto_now=True)
 
 class Attempt(db.Model):
     """Models a Submission for a Challenge """

@@ -25,6 +25,10 @@
 
         $(document).ready(function() {
 
+            {% if draft %}
+                $('#wmd-input').val('{{ draft.markdown  }}')
+            {% endif %}
+
             {% if not challenge.automatic_review %}
                 var converter = Markdown.getSanitizingConverter();
                 converter.hooks.chain("postConversion", function (text) {
@@ -74,6 +78,11 @@
                         $initiator.button("option", "label", "Saved!");
                         setTimeout("$initiator.button(\"option\", \"label\", \"Save as Draft\");"
                                   ,1500);
+                    },
+                    error: function(response) {
+                        $initiator.button("option", "label", "Oops! Try Again!");
+                        setTimeout("$initiator.button(\"option\", \"label\", \"Save as Draft\");"
+                                ,1500);
                     }
                 })
             })
@@ -216,7 +225,7 @@
                                 {% else %}
                                     <button type="button" id="submitSolutionButton" style="color:red" disabled="disabled" title="Submission credit has reached 0. Please review some submissions first.">Submit Solution</button>
                                 {% endif %}
-                                <button type="button" id="save_draft_submission_button" style="color:#669824"><i>Save as Draft</i></button>
+                                <button type="button" id="save_draft_submission_button" style="color:#669824">Save as Draft</button>
                             {% else %}
                                 <button type="button" id ="submitSolutionButton" style="color:green;">Login to Submit!</button>
                             {% endif %}
