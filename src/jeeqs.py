@@ -770,10 +770,12 @@ class RPCHandler(webapp2.RequestHandler):
                     parent=self.jeeqser,
                     author=self.jeeqser,
                     challenge = challenge,
-                    content = markdown.markdown(solution, ['codehilite', 'mathjax']),
-                    markdown = solution)
+                )
 
-                draft.put()
+            draft.markdown = solution
+            draft.content = markdown.markdown(solution, ['codehilite', 'mathjax'])
+
+            draft.put()
 
         xg_on = db.create_transaction_options(xg=True)
         db.run_in_transaction_options(xg_on, persist_new_draft)
