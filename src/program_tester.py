@@ -3,6 +3,9 @@ Helps with running test cases over a challenge's solution
 
 """
 
+# TODO: we would need to add another server on GAE that only runs these python apps. That would make it safe to run them
+# and allow the user to import statements and things.
+
 import traceback
 import new
 import sys
@@ -56,9 +59,15 @@ def compile_and_run(program, output):
                 sys.stdout = stdout_buffer
                 sys.stderr = stderr_buffer
 
-                #imports
+                # allowed imports
                 import math
-                exec compiled in {'__builtins__': {'sqrt':math.sqrt}}, {}
+                builtins = {}
+
+                for item in dir(math):
+                    if hasattr(math.__dict__.get(item), '__call__'):
+                        builtins[item] = math.__dict__.get(item)
+
+                exec compiled in {'__builtins__': builtins}, {}
                 
             finally:
                 sys.stdout = old_stdout
