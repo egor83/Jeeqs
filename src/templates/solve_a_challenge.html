@@ -37,11 +37,13 @@
                 var editor1 = new Markdown.Editor(converter);
                 editor1.hooks.chain("onPreviewRefresh", function() {
                     MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+                    $('#solutionContainer').accordion("resize");
                 })
                 editor1.run();
             {% endif %}
 
             // Resize the accordion to accomodate the preview
+            $('#solutionContainer').accordion({collapsible: true, autoHeight: false})
             $('#solutionContainer').accordion("resize");
 
             $consoleInitialized = false
@@ -175,19 +177,7 @@
 
 {% block container_header %}
     {% include "challenge.html" %}
-{% endblock container_header %}
-
-{%block column1_style%}
-    nine columns
-{% endblock column1_style %}
-
-{% block column2_style %}
-    seven columns
-{% endblock column2_style%}
-
- %}
-{% block column1 %}
-    <div id="submission" style="padding:15px;">
+    <div id="submission" style="padding:15px; clear:both">
         {% if submission %}
             {% set active = 'Active' %}
             {% if not submission.active %}
@@ -203,13 +193,24 @@
             </div>
         {% endif %}
     </div>
+{% endblock container_header %}
 
+{%block column1_style%}
+    nine columns
+{% endblock column1_style %}
+
+{% block column2_style %}
+    seven columns
+{% endblock column2_style%}
+
+ %}
+{% block column1 %}
     <div id="new_submission">
         <form id="answerForm" action="shell.runProgram" method="get">
             <input type="hidden" name="challenge_key" id="challenge_key" value="{{ challenge_key }}" />
 
             {% if not challenge.automatic_review %}
-                <div id="solutionContainer" class="accordion accordion-open" style="margin-top:20px;">
+                <div id="solutionContainer" class="accordion">
                     <h3><a href="#">Solution</a></h3>
                     <div>
                         <div class="wmd-panel">
@@ -240,21 +241,18 @@
 {% endblock column1 %}
 
 {% block column2 %}
-
     {% if submission %}
-        <div>
-            <h4>Submission score: {{ submission.vote_average}}/4 based on votes by {{ submission.vote_count }} Jeeqsers</h4>
-            <h2>{% include "attempt_score.html"%}</h2>
-        </div>
-        <div id="feedbacks" class="accordion" style="">
+        <div id="feedbacks" class="accordion" style="max-height: 300px; overflow: scroll">
             <h3><a href="#">In Jeeqs</a></h3>
             <div>
+                <div>
+                    <h4>Submission score: {{ submission.vote_average}}/4 based on votes by {{ submission.vote_count }} Jeeqsers</h4>
+                    {% include "attempt_score.html"%}
+                </div>
                 {% include "in_jeeqs_list.html" %}
             </div>
         </div>
-    {% else %}
     {% endif %}
-
 {% endblock column2 %}
 
 {% block container_footer %}

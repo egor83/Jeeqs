@@ -31,11 +31,14 @@
 <div class="challenge" style="float:left; width:100%;">
     <h1> {{ challenge.name }} </h1>
     <h3> {% include "exercise_breadcrumbs.html" %} </h3>
-    <div id="challenge" class="tabs">
+    <div id="challenge" class="tabs" style="height: 400px; overflow: auto">
         <ul>
             <li><a href="#tabs-1">Problem</a></li>
             <li><a href="#tabs-2">Source</a></li>
             <li><a href="#source-pdf">PDF</a></li>
+            {% if challenge.attribution %}
+                <li><a href="#challenge_info">Info</a></li>
+            {% endif %}
         </ul>
         <div id="tabs-1">
             {% if challenge.content  %}
@@ -50,7 +53,7 @@
                 <button type="button" id="submitChallengeSource">Update</button>
             {% endif %}
         </div>
-        <div id="source-pdf" stye="min-height: 400px">
+        <div id="source-pdf">
             {% if challenge.document_id and challenge.access_key %}
                 <div id='embedded_challenge' style="width: 100%;"></div>
                 <script type="text/javascript">
@@ -77,37 +80,24 @@
                 {% endif %}
             {% endif %}
         </div>
-    </div>
-
-    {% if challenge.attribution %}
-    <div id="challenge-info" class="accordion-closed" style="float:left; margin-top: 15px;">
-        <h4><a href="#">Info</a></h4>
-        <div>
-            <div id="Info" class="tabs">
-                <ul>
-                    <li><a href="#details">Details</a></li>
-                </ul>
-                <div id="details">
-                    {% if challenge.exercise %}
-                        <p>
-                        <strong>Course</strong>
-                        <br/>
-                        <small>{{ challenge.exercise.course.program.university.name }}, {{ challenge.exercise.course.program.name }} : {{ challenge.exercise.course.name }}</small>
-                        </p>
-                    {%  endif %}
-                    {% if challenge.attribution %}
-                        <p> <strong>Attribution</strong>
-                            <br/>
-                            <small>{{ challenge.attribution }}</small>
-                        </p>
-                    {% endif %}
-                    {% if challenge.source %}
-                        <p> <strong>Source</strong>
-                        <br/><small><a class="noline" target="_blank" href="{{ challenge.source }}">{{ challenge.source}}</a></small></p>
-                    {% endif %}
-                </div>
-            </div>
+        <div id="challenge_info">
+            {% if challenge.exercise %}
+                <p>
+                    <strong>Course</strong>
+                    <br/>
+                    <small>{{ challenge.exercise_university }}, {{ challenge.exercise_program }} : {{ challenge.exercise_course_name }}</small>
+                </p>
+            {%  endif %}
+            {% if challenge.attribution %}
+                <p> <strong>Attribution</strong>
+                    <br/>
+                    <small>{{ challenge.attribution }}</small>
+                </p>
+            {% endif %}
+            {% if challenge.source %}
+                <p> <strong>Source</strong>
+                    <br/><small><a class="noline" target="_blank" href="{{ challenge.source }}">{{ challenge.source}}</a></small></p>
+            {% endif %}
         </div>
     </div>
-    {% endif %}
 </div>
