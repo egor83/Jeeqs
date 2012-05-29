@@ -4,7 +4,7 @@
     a.noline { text-decoration: none;}
 </style>
 
-<div id="userInfo" style="width:100%; text-align: right;">
+<div id="userInfo" style="width:100%; text-align: right; z-index: 999">
     <div style="float:left; margin:5px; margin-left: 20px">
         <a href="/" class="noline" style="color: black">
         <span style="font-size: 1.5em; font-weight: bold">Jeeqs</span>
@@ -33,3 +33,17 @@
         </span>
     </div>
 </div>
+
+<script>
+    $(document).ready(function() {
+        var div = $('#userInfo');
+        var start = $(div).offset().top;
+
+        $.event.add(window, "scroll", function() {
+            // Keep the toolbar on top
+            var p = $(window).scrollTop();
+            $(div).css('position',((p)>start) ? 'fixed' : 'static');
+            $(div).css('top',((p)>start) ? '0px' : '');
+        });
+    })
+</script>
