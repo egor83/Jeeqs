@@ -330,7 +330,7 @@ class ReviewHandler(webapp2.RequestHandler):
     def get(self):
 
         if not self.jeeqser:
-            self.redirect('/')
+            self.response.write('<div style="color: grey">You need to be logged in to see other submissions</div>')
             return
 
         # get the challenge
