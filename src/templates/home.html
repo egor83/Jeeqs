@@ -174,11 +174,6 @@
                                 </a>
                             </span>
                         </div>
-                        <div style="float: right">
-                            {% if jeeqser and challenge.status == 'correct' or isadmin %}
-                                <a class="noline" href="/review/?ch={{ challenge.key() }}" title="Review this challenge"><span class="ui-icon ui-icon-pencil" style="float:left"></span></a>
-                            {% endif %}
-                        </div>
                         <div style="float: right; clear:right">
                             {%if challenge.num_jeeqsers_solved > 0 %}
                                 {% set cursor = 'pointer' %}

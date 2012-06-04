@@ -177,125 +177,126 @@
 
 {% block container_header %}
     {% include "challenge.html" %}
-    <div id="submission" style="padding:15px; clear:both">
-        {% if submission %}
-            {% set active = 'Active' %}
-            {% if not submission.active %}
-                {% set active = 'Not Active' %}
-            {% endif %}
-            <h3> Submitted for review ({{ active }})</h3>
-            <div id="submission-content" style="overflow:auto">
-                {{ submission.content|safe}}
+
+    <div id="submissions" class="tabs" style="float:left; clear:left; width: 100%; margin-top: 20px">
+        <ul>
+            <li><a href="#your_submission">Your Submission</a></li>
+            <li><a href="#all_submissions">All Submissions</a></li>
+        </ul>
+        <div id="your_submission">
+            <div id="submission" style="padding:15px; clear:both">
+                {% if submission %}
+                    {% set active = 'Active' %}
+                    {% if not submission.active %}
+                        {% set active = 'Not Active' %}
+                    {% endif %}
+                    <h3> Submitted for review ({{ active }})</h3>
+                    <div id="submission-content" style="overflow:auto">
+                        {{ submission.content|safe}}
+                    </div>
+                {% else %}
+                    <div style="color:grey">
+                        No submission found! Please Submit a solution!
+                    </div>
+                {% endif %}
             </div>
-        {% else %}
-            <div style="color:grey">
-                No submission found! Please Submit a solution!
+
+            <div id="your_submission_column_2" style="float:left; clear:both; width: 100%; margin-top:10px;">
+                {% if submission %}
+                    <div id="feedbacks" class="accordion">
+                        <h3><a href="#">In Jeeqs</a></h3>
+                        <div style="max-height: 300px; overflow: scroll">
+                            <div>
+                                <h4>Submission score: {{ submission.vote_average}}/4 based on votes by {{ submission.vote_count }} Jeeqsers</h4>
+                                {% include "attempt_score.html"%}
+                            </div>
+                            {% include "in_jeeqs_list.html" %}
+                        </div>
+                    </div>
+                {% endif %}
             </div>
-        {% endif %}
+
+            <div id="your_submission_column_1" style="float:left; clear:both; width: 100%; margin-top:10px;">
+                <div id="new_submission">
+                    <form id="answerForm" action="shell.runProgram" method="get">
+                        <input type="hidden" name="challenge_key" id="challenge_key" value="{{ challenge_key }}" />
+
+                        {% if not challenge.automatic_review %}
+                            <div id="solutionContainer" class="accordion">
+                                <h3><a href="#">Solution</a></h3>
+                                <div>
+                                    <div class="wmd-panel">
+                                        <div id="wmd-button-bar"></div>
+                                        <textarea class="wmd-input" id="wmd-input"></textarea>
+                                        <div style="float:right; font-size: x-small;"><a href="http://daringfireball.net/projects/markdown/syntax">Markdown</a> and <a href="http://www.mathjax.org/">MathJax</a> are supported.</div>
+                                    </div>
+                                    <div id="wmd-preview" class="wmd-panel wmd-preview" style="margin-top: 15px;"></div>
+                                    <div id="submitButton" style="margin-top: 10px;">
+                                        {% if jeeqser %}
+                                            {% if jeeqser.reviews_out_num >= jeeqser.submissions_num or challenge.name == 'Factorial' or isadmin %}
+                                                <button type="button" id ="submitSolutionButton" style="color:green;">Submit Solution</button>
+                                            {% else %}
+                                                <button type="button" id="submitSolutionButton" style="color:red" disabled="disabled" title="Submission credit has reached 0. Please review some submissions first.">Submit Solution</button>
+                                            {% endif %}
+                                            <button type="button" id="save_draft_submission_button" style="color:#669824">Save as Draft</button>
+                                        {% else %}
+                                            <button type="button" id ="submitSolutionButton" style="color:green;">Login to Submit!</button>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %} {# automatic review #}
+                        <br/>
+                    </form>
+                </div>
+            </div>
+
+            <div id="your_submission_container_footer" style="float:left; clear: both; width: 100%;">
+                <div id="console" class="accordion">
+                    <h3><a href="#">Sandbox</a></h3>
+                    <div style="overflow:auto; height:100%;">
+                        <div>
+                            <div class="eight columns">
+                                <div id="editorContainer" style="position: relative; width: 100%; height: 300px;">
+                                    <div id="editor" style="width: 100%;height:300px; "></div>
+                                </div>
+                            </div>
+                            <div class="five columns">
+                                <textarea id="output" readonly="readonly" placeholder="Console" style="width:100%;height:270px;">
+                                </textarea>
+                            </div>
+                        </div>
+                        <div class="clearfix"></div>
+                        <br/>
+                        <button type="button" onclick="clearOutput()">Clear Console</button>
+                        <button type="button" onclick="runProgram()">Run</button>
+
+                        {% if not challenge.automatic_review %}
+                            <button id ="insert_program" type=button>Use as Solution</button>
+                        {% else %}
+                            <button id="submit_program" type=button>Submit</button>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div id="recent-attempts" class="accordion accordion-closed" style="margin-top: 10px; width: 100%;">
+                    <h3><a href="#">Your Recent Submissions</a></h3>
+                    <div class="recent-jeeqs">
+                        {% if jeeqser %}
+                            {% for attempt in attempts %}
+                                <p> <a class="noline" href="/challenge/?ch={{ challenge.key() }}&att={{ attempt.key() }}"> Attempt #{{ attempt.index }}</a> at: {{ attempt.date }}</p>
+                                <div>
+                                    {{ attempt.content|safe }}
+                                </div>
+                                <hr/>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div id="all_submissions">
+        </div>
     </div>
 {% endblock container_header %}
-
-{%block column1_style%}
-    nine columns
-{% endblock column1_style %}
-
-{% block column2_style %}
-    seven columns
-{% endblock column2_style%}
-
- %}
-{% block column1 %}
-    <div id="new_submission">
-        <form id="answerForm" action="shell.runProgram" method="get">
-            <input type="hidden" name="challenge_key" id="challenge_key" value="{{ challenge_key }}" />
-
-            {% if not challenge.automatic_review %}
-                <div id="solutionContainer" class="accordion">
-                    <h3><a href="#">Solution</a></h3>
-                    <div>
-                        <div class="wmd-panel">
-                            <div id="wmd-button-bar"></div>
-                            <textarea class="wmd-input" id="wmd-input"></textarea>
-                            <div style="float:right; font-size: x-small;"><a href="http://daringfireball.net/projects/markdown/syntax">Markdown</a> and <a href="http://www.mathjax.org/">MathJax</a> are supported.</div>
-                        </div>
-                        <div id="wmd-preview" class="wmd-panel wmd-preview" style="margin-top: 15px;"></div>
-                        <div id="submitButton" style="margin-top: 10px;">
-                            {% if jeeqser %}
-                                {% if jeeqser.reviews_out_num >= jeeqser.submissions_num or challenge.name == 'Factorial' or isadmin %}
-                                    <button type="button" id ="submitSolutionButton" style="color:green;">Submit Solution</button>
-                                {% else %}
-                                    <button type="button" id="submitSolutionButton" style="color:red" disabled="disabled" title="Submission credit has reached 0. Please review some submissions first.">Submit Solution</button>
-                                {% endif %}
-                                <button type="button" id="save_draft_submission_button" style="color:#669824">Save as Draft</button>
-                            {% else %}
-                                <button type="button" id ="submitSolutionButton" style="color:green;">Login to Submit!</button>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-            {% endif %} {# automatic review #}
-            <br/>
-        </form>
-    </div>
-
-{% endblock column1 %}
-
-{% block column2 %}
-    {% if submission %}
-        <div id="feedbacks" class="accordion" style="max-height: 300px; overflow: scroll">
-            <h3><a href="#">In Jeeqs</a></h3>
-            <div>
-                <div>
-                    <h4>Submission score: {{ submission.vote_average}}/4 based on votes by {{ submission.vote_count }} Jeeqsers</h4>
-                    {% include "attempt_score.html"%}
-                </div>
-                {% include "in_jeeqs_list.html" %}
-            </div>
-        </div>
-    {% endif %}
-{% endblock column2 %}
-
-{% block container_footer %}
-    <div id="console" class="accordion" style="margin-top:10px;">
-        <h3><a href="#">Sandbox</a></h3>
-        <div style="overflow:auto; height:100%;">
-          <div>
-            <div class="eight columns">
-              <div id="editorContainer" style="position: relative; width: 100%; height: 300px;">
-                <div id="editor" style="width: 100%;height:300px; "></div>
-              </div>
-            </div>
-            <div class="six columns">
-              <textarea id="output" readonly="readonly" placeholder="Console" style="width:100%;height:270px;">
-              </textarea>
-            </div>
-          </div>
-          <div class="clearfix"></div>
-          <br/>
-          <button type="button" onclick="clearOutput()">Clear Console</button>
-          <button type="button" onclick="runProgram()">Run</button>
-
-          {% if not challenge.automatic_review %}
-              <button id ="insert_program" type=button>Use as Solution</button>
-          {% else %}
-              <button id="submit_program" type=button>Submit</button>
-          {% endif %}
-        </div>
-    </div>
-
-    <div id="recent-attempts" class="accordion accordion-closed" style="margin-top: 20px">
-        <h3><a href="#">Your Recent Submissions</a></h3>
-        <div class="recent-jeeqs">
-            {% if jeeqser %}
-                {% for attempt in attempts %}
-                    <p> <a class="noline" href="/challenge/?ch={{ challenge.key() }}&att={{ attempt.key() }}"> Attempt #{{ attempt.index }}</a> at: {{ attempt.date }}</p>
-                    <div>
-                        {{ attempt.content|safe }}
-                    </div>
-                    <hr/>
-                {% endfor %}
-            {% endif %}
-        </div>
-    </div>
-
-{% endblock container_footer %}
