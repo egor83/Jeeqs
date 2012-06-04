@@ -1,157 +1,145 @@
-{% extends "base_twoColumn.html" %}
-
-{% block script %}
-    <script>
-        /**
-         * Renders a user friendly text for his opinion
-         * @param feedback
-         */
-        renderFeedback = function(feedback) {
-            switch (feedback) {
-                case 1:
-                    return "Incorrect!";
-                    break;
-                case 2:
-                    return "Incomplete!";
-                case 3:
-                    return "Correct";
-                case 4:
-                    return "Perfetto!";
-            }
+<script>
+    /**
+     * Renders a user friendly text for his opinion
+     * @param feedback
+     */
+    renderFeedback = function(feedback) {
+        switch (feedback) {
+            case 1:
+                return "Incorrect!";
+                break;
+            case 2:
+                return "Incomplete!";
+            case 3:
+                return "Correct";
+            case 4:
+                return "Perfetto!";
         }
+    }
 
-        $(document).ready(function() {
-            $('.submit-vote').bind('click', function() {
+    $(document).ready(function() {
+        $('.submit-vote').bind('click', function() {
 
-                $initiator = $(this)
+            $initiator = $(this)
 
-                $submission_id = $(this).attr("id").split("__")[1];
-                $response = $('#response__'+$submission_id).val();
-                $vote = $('input:radio[name=feedback_'+$submission_id+']:checked').val();
+            $submission_id = $(this).attr("id").split("__")[1];
+            $response = $('#response__'+$submission_id).val();
+            $vote = $('input:radio[name=feedback_'+$submission_id+']:checked').val();
 
-                if (!$vote || $response.length < 10) {
-                    alert('Please enter your vote and a 10 character minimum response!');
-                    return;
-                }
+            if (!$vote || $response.length < 10) {
+                alert('Please enter your vote and a 10 character minimum response!');
+                return;
+            }
 
-                $(this).attr("disabled", "disabled");
-                $.ajax({
-                    url: "/rpc",
-                    async: true,
-                    type: "POST",
-                    data: {'method': 'submit_vote', 'submission_key':$submission_id, 'vote':$vote, 'response':$response},
-                    success: function(response){
-                        var parsed = jQuery.parseJSON(response)
-                        if (parsed != null && parsed.flags_left_today == -1) {
-                            alert("You don't have any more flags left.")
-                        }
-                        else {
-                            if ($vote == "flag") {
-                                alert("You have " + parsed.flags_left_today + " flags left")
-                            }
-
-                            $initiator.button("option", "label", "Submitted");
-                            // Disable the other controls
-                            $initiator.parent().find("textarea").attr("disabled", "disabled").css("font-style", "italic");
-                            $initiator.parent().find("input[type=radio]").button("option", "disabled", true);
-                            $initiator.parent().css("background", "bisque");
-
-                            // Get the in_jeeqs
-                            $.ajax({
-                                url: "/rpc",
-                                async: true,
-                                type: "GET",
-                                data: {'method': 'get_in_jeeqs', 'submission_key':$submission_id},
-                                success: function(response) {
-                                    // The sever sends an HTML
-                                    $('#submissionFeedbacks').html(response);
-                                    var below_ad = $('#ad').length ? $('#ad').height() + $('#ad').offset().top + 30 : 0
-                                    $('#submissionFeedbacksContainer').offset({top: Math.max($initiator.parent().parent().offset().top, below_ad)})
-                                },
-                                error: function(response) {
-                                    $('#submissionFeedbacks').html("Could not retrieve other In Jeeqs")
-                                }
-                            })
-                        }
+            $(this).attr("disabled", "disabled");
+            $.ajax({
+                url: "/rpc",
+                async: true,
+                type: "POST",
+                data: {'method': 'submit_vote', 'submission_key':$submission_id, 'vote':$vote, 'response':$response},
+                success: function(response){
+                    var parsed = jQuery.parseJSON(response)
+                    if (parsed != null && parsed.flags_left_today == -1) {
+                        alert("You don't have any more flags left.")
                     }
-                })
+                    else {
+                        if ($vote == "flag") {
+                            alert("You have " + parsed.flags_left_today + " flags left")
+                        }
+
+                        $initiator.button("option", "label", "Submitted");
+                        // Disable the other controls
+                        $initiator.parent().find("textarea").attr("disabled", "disabled").css("font-style", "italic");
+                        $initiator.parent().find("input[type=radio]").button("option", "disabled", true);
+                        $initiator.parent().css("background", "bisque");
+
+                        $('#submissionFeedbacksContainer').show()
+                        $('#submissionFeedbacksContainer').insertAfter($initiator.parent())
+
+                        // Get the in_jeeqs
+                        $.ajax({
+                            url: "/rpc",
+                            async: true,
+                            type: "GET",
+                            data: {'method': 'get_in_jeeqs', 'submission_key':$submission_id},
+                            success: function(response) {
+                                // The sever sends an HTML
+                                $('#submissionFeedbacks').html(response);
+                            },
+                            error: function(response) {
+                                $('#submissionFeedbacks').html("Could not retrieve other In Jeeqs")
+                            }
+                        })
+                    }
+                }
             })
-
-            $( ".correct-button" ).button({
-                icons: {
-                    primary: "ui-icon-check"
-                },
-                text: false
-            }).bind('click', function() {
-                $(this).css("color", "green");
-            });
-
-            $(":button").button();
-
-            $(".feedback-buttons").buttonset();
-
-            // Needed to make the accordion adjust its height when ajax content is loaded into it
-            $('#submissionFeedbacksContainer').accordion({clearStyle: true, autoHeight: false});
         })
-    </script>
 
-{% endblock script %}
+        $( ".correct-button" ).button({
+            icons: {
+                primary: "ui-icon-check"
+            },
+            text: false
+        }).bind('click', function() {
+            $(this).css("color", "green");
+        });
 
-{% block container_header %}
-    {% include "challenge.html" %}
-{% endblock container_header %}
+        $(":button").button();
 
-{% block column1 %}
+        $(".feedback-buttons").buttonset();
 
-    <div id="submissions" style="margin-top: 20px">
-        {% if submissions|length == 0 %}
-            {%if not qualified %}
-             <h3>You are not qualified to review this challenge.
-                To qualify you have to solve this challenge yourself. </h3>
-            {%endif%}
-            <div style="color:grey"> No Submissions are available to review at this time! Please check back later!</div>
-        {% else %}
-            <h2>Submissions available for review: </h2>
-            {% for submission in submissions %}
-                <div class="submission-placeholder">
-                    <h3>Submitted by {{ submission.author.displayname }} </h3>
-                    <div style="overflow: scroll">
-                        {{ submission.content|safe }}
-                    </div>
-                    <div class="submission-feedback">
-                        <span class="feedback-buttons">
-                            <input type="radio" id="incorrect_{{ submission.key() }}" name="feedback_{{ submission.key() }}"
-                                   value="incorrect"/>
-                            <label for="incorrect_{{ submission.key() }}"  class="incorrect_label" title="Incorrect or Incomplete"><span class="ui-icon ui-icon-closethick"></span></label>
+        // Needed to make the accordion adjust its height when ajax content is loaded into it
+        $('#submissionFeedbacksContainer').accordion({clearStyle: true, autoHeight: false});
+    })
+</script>
 
-                            <input type="radio" id="correct_{{ submission.key() }}" name="feedback_{{ submission.key() }}"
-                                   value="correct"/>
-                            <label for="correct_{{ submission.key() }}" class="correct_label" title="Correct"><span class="ui-icon ui-icon-check"></span></label>
-
-                            <input type="radio" id="flag_{{ submission.key() }}" name="feedback_{{ submission.key() }}"
-                                   value="flag" class="flag_checkbox"/>
-                            <label for="flag_{{ submission.key() }}" title="Spam!" class="flag_label"><span class="ui-icon ui-icon-flag"></span></label>
-                        </span>
-                        <div>
-                            <textarea id="response__{{ submission.key() }}" rows="5" style="width: 50%;"></textarea>
-                        </div>
-                        {% set submitted = 'Submitted' %}
-                        {% if not submission.voted %}
-                            {% set submitted = 'Submit' %}
-                        {% endif %}
-                        <button class="submit-vote" id="submit__{{ submission.key() }}" style="float:right">{{ submitted }}</button>
-                    </div>
+<div id="submissions" style="margin-top: 20px">
+    {% if submissions|length == 0 %}
+        {%if not qualified %}
+         <h3>You are not qualified to review this challenge.
+            To qualify you have to solve this challenge yourself. </h3>
+        {%endif%}
+        <div style="color:grey"> No Submissions are available to review at this time! Please check back later!</div>
+    {% else %}
+        <h2>Submissions available for review: </h2>
+        {% for submission in submissions %}
+            <div class="submission-placeholder" style="float:left; clear:left; width: 100%">
+                <h3>Submitted by {{ submission.author.displayname }} </h3>
+                <div style="overflow: scroll">
+                    {{ submission.content|safe }}
                 </div>
-            {% endfor %}
-        {% endif %}
+                <div class="submission-feedback">
+                    <span class="feedback-buttons">
+                        <input type="radio" id="incorrect_{{ submission.key() }}" name="feedback_{{ submission.key() }}"
+                               value="incorrect"/>
+                        <label for="incorrect_{{ submission.key() }}"  class="incorrect_label" title="Incorrect or Incomplete"><span class="ui-icon ui-icon-closethick"></span></label>
+
+                        <input type="radio" id="correct_{{ submission.key() }}" name="feedback_{{ submission.key() }}"
+                               value="correct"/>
+                        <label for="correct_{{ submission.key() }}" class="correct_label" title="Correct"><span class="ui-icon ui-icon-check"></span></label>
+
+                        <input type="radio" id="flag_{{ submission.key() }}" name="feedback_{{ submission.key() }}"
+                               value="flag" class="flag_checkbox"/>
+                        <label for="flag_{{ submission.key() }}" title="Spam!" class="flag_label"><span class="ui-icon ui-icon-flag"></span></label>
+                    </span>
+                    <div>
+                        <textarea id="response__{{ submission.key() }}" rows="5" style="width: 50%;"></textarea>
+                    </div>
+                    {% set submitted = 'Submitted' %}
+                    {% if not submission.voted %}
+                        {% set submitted = 'Submit' %}
+                    {% endif %}
+                    <button class="submit-vote" id="submit__{{ submission.key() }}" style="float:right">{{ submitted }}</button>
+                </div>
+            </div>
+        {% endfor %}
+    {% endif %}
+</div>
+
+<div id="submissionFeedbacksContainer" class="accordion" style="width:100%; float:left; clear:both; margin: 10px; display:none">
+    <h3><a href="#">Other In Jeeqs </a></h3>
+    <div id="submissionFeedbacks">
+        {% include "in_jeeqs_list.html" %}
     </div>
-{% endblock column1 %}
-{% block column2 %}
-    <div id="submissionFeedbacksContainer" class="accordion" style="width:100%; float:right; clear:right; margin: 10px;">
-        <h3><a href="#">Other In Jeeqs </a></h3>
-        <div id="submissionFeedbacks">
-            {% include "in_jeeqs_list.html" %}
-        </div>
-    </div>
-{% endblock column2 %}
+</div>
 

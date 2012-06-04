@@ -532,9 +532,6 @@ class RPCHandler(webapp2.RequestHandler):
                 self.error(StatusCode.forbidden)
                 return
 
-        template_file = os.path.join(os.path.dirname(__file__), 'templates',
-            'templates/in_jeeqs_list.html')
-
         feedbacks = Feedback.all()\
             .filter('attempt = ', submission)\
             .filter('flagged = ', False)\
@@ -546,10 +543,12 @@ class RPCHandler(webapp2.RequestHandler):
             prettify_injeeqs(feedbacks)
 
         vars = add_common_vars({
-            'feedbacks' : feedbacks
+            'feedbacks' : feedbacks,
+            'jeeqser': self.jeeqser
         })
 
-        rendered = template.render(template_file, vars)
+        template = jinja_environment.get_template('in_jeeqs_list.html')
+        rendered = template.render(vars)
         self.response.write(rendered)
 
 

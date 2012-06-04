@@ -171,6 +171,30 @@
                 })
             })
 
+            review_page_loaded = false
+            $('#submissions, #all_submissions').tabs({
+                select: function(event, ui){
+                    // Load the review page using ajax
+                    if (review_page_loaded)
+                        return;
+
+                    $('#all_submissions').html('Loading ... ')
+                    $.ajax({
+                        url: "/review/?ch={{ challenge.key() }}",
+                        async: true,
+                        type: "GET",
+                        success: function(response) {
+                            $('#all_submissions').html(response);
+                            review_page_loaded = true
+                        },
+                        error: function(response) {
+                            $('#all_submissions').html('An Error occurred while loading this page. Please try again later ...');
+                        }
+                    })
+
+                }
+            })
+
         })
     </script>
 {% endblock script %}
@@ -296,7 +320,7 @@
             </div>
 
         </div>
-        <div id="all_submissions">
-        </div>
+
+        <div id="all_submissions" style="margin-top: 20px"></div>
     </div>
 {% endblock container_header %}
