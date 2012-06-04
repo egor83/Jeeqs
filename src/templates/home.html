@@ -106,7 +106,8 @@
                     }
             )
 
-            $(".challenge_stats").on('click', function() {
+            $(".challenge_stats").on('click', function(event) {
+                event.stopPropagation();
                 var $avatars = $(this).parents('.challenge_in_list').find('.challenge_avatars')
                 if ($avatars.css('display') == 'none') {
                     // Get people who solved this challenge
@@ -126,6 +127,11 @@
                     $avatars.hide()
                 }
             })
+
+            $(".challenge_in_list").on('click', function() {
+                window.location=$(this).find("a").attr("href");
+                return false;
+            });
         });
     </script>
 {% endblock script %}
@@ -140,7 +146,7 @@
     </h2>
     <div id="challenge-list" class="accordion accordion-open" style="float:left; margin: 10px;max-height: 400px; overflow:auto;">
         <h3><a href="#">Challenges</a></h3>
-        <div class="challenge-list-div">
+        <div class="challenge-list-div" style="cursor: pointer">
             <div style="width:100%; font-family: monaco; cell-padding: 5px;">
                 {% for challenge in challenges %}
                     <div class="challenge_in_list">
