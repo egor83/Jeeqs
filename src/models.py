@@ -129,6 +129,9 @@ class Challenge(db.Model):
     # true iff this challenge is to be reviewed by the server
     automatic_review = db.BooleanProperty()
 
+    # true if this challenge has public submissions
+    public_submissions = db.BooleanProperty(default=False)
+
     # the course breadcrumb
     breadcrumb_persisted = db.StringProperty(verbose_name="breadcrumb")
 

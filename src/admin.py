@@ -9,7 +9,7 @@ from google.appengine.ext.db import djangoforms
 from django import forms
 
 from models import *
-from jeeqs import authenticate, _DEBUG, add_common_vars
+from jeeqs import authenticate, _DEBUG, add_common_vars, jinja_environment
 
 class ChallengeForm(djangoforms.ModelForm):
     class Meta:
@@ -57,8 +57,9 @@ class ChallengePage(webapp.RequestHandler):
             'login_url': users.create_login_url(self.request.url),
             'logout_url': users.create_logout_url(self.request.url)
         })
-        template_file = os.path.join(os.path.dirname(__file__), 'templates', 'new_challenge.html')
-        rendered = webapp.template.render(template_file, vars, debug=_DEBUG)
+
+        template = jinja_environment.get_template('new_challenge.html')
+        rendered = template.render(vars)
         self.response.out.write(rendered)
 
     @authenticate(required=True)
