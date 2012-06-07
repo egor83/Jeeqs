@@ -367,7 +367,7 @@ class ReviewHandler(webapp2.RequestHandler):
             submissions = submissions_query.fetch(20)
 
             # TODO: replace this iteration with a data oriented approach
-            submissions[:] = [submission for submission in submissions if not (submission.author.key() == self.jeeqser.key() or self.jeeqser.key() in submission.users_voted)]
+            submissions[:] = [submission for submission in submissions if not (submission.author.key() == self.jeeqser.key())] # or self.jeeqser.key() in submission.users_voted)]
         else:
              submissions = []
 
