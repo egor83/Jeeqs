@@ -348,14 +348,14 @@ class ReviewHandler(webapp2.RequestHandler):
                 self.error(StatusCode.forbidden)
                 return
 
-        # Check if the user has solved this      
+        # determine if the user is qualified to review this challenge's submissions
         if not users.is_current_user_admin():
             self_challenge = get_JC(self.jeeqser,challenge)
-            qualified = self_challenge and self_challenge[0].status == 'correct'
+            review_qualified = self_challenge and self_challenge[0].status == 'correct'
         else: 
-            qualified = True
+            review_qualified = True
 
-        if qualified:
+        if review_qualified or challenge.public_submissions:
             # Retrieve other users' submissions
             submissions_query = db.GqlQuery(" SELECT * "
                                               " FROM Attempt "
@@ -380,7 +380,7 @@ class ReviewHandler(webapp2.RequestHandler):
                 'challenge' : challenge,
                 'challenge_key' : challenge.key(),
                 'submissions' : submissions,
-                'qualified' : qualified
+                'review_qualified' : review_qualified
         })
 
         template = jinja_environment.get_template('review_a_challenge.html')

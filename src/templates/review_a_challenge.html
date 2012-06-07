@@ -93,44 +93,45 @@
     })
 </script>
 
-<div id="submissions" style="margin-top: 20px">
+<div id="submissions">
     {% if submissions|length == 0 %}
-        {%if not qualified %}
-         <h3>You are not qualified to review this challenge.
-            To qualify you have to solve this challenge yourself. </h3>
-        {%endif%}
-        <div style="color:grey"> No Submissions are available to review at this time! Please check back later!</div>
+        {%if not review_qualified and not challenge.public_submissions%}
+            <div style="color:grey">The submissions to this challenge are only visible to users who have solved the challenge.</div>
+        {% else %}
+            <div style="color:grey"> No Submissions are available to review at this time! Please check back later!</div>
+        {% endif %}
     {% else %}
-        <h2>Submissions available for review: </h2>
         {% for submission in submissions %}
             <div class="submission-placeholder" style="float:left; clear:left; width: 100%">
-                <h3>Submitted by {{ submission.author.displayname }} </h3>
+                <div style="color: grey">Submitted by {{ submission.author.displayname }} </div>
                 <div style="overflow: scroll">
                     {{ submission.content|safe }}
                 </div>
-                <div class="submission-feedback">
-                    <span class="feedback-buttons">
-                        <input type="radio" id="incorrect_{{ submission.key() }}" name="feedback_{{ submission.key() }}"
-                               value="incorrect"/>
-                        <label for="incorrect_{{ submission.key() }}"  class="incorrect_label" title="Incorrect or Incomplete"><span class="ui-icon ui-icon-closethick"></span></label>
+                {% if review_qualified %}
+                    <div class="submission-feedback">
+                        <span class="feedback-buttons">
+                            <input type="radio" id="incorrect_{{ submission.key() }}" name="feedback_{{ submission.key() }}"
+                                   value="incorrect"/>
+                            <label for="incorrect_{{ submission.key() }}"  class="incorrect_label" title="Incorrect or Incomplete"><span class="ui-icon ui-icon-closethick"></span></label>
 
-                        <input type="radio" id="correct_{{ submission.key() }}" name="feedback_{{ submission.key() }}"
-                               value="correct"/>
-                        <label for="correct_{{ submission.key() }}" class="correct_label" title="Correct"><span class="ui-icon ui-icon-check"></span></label>
+                            <input type="radio" id="correct_{{ submission.key() }}" name="feedback_{{ submission.key() }}"
+                                   value="correct"/>
+                            <label for="correct_{{ submission.key() }}" class="correct_label" title="Correct"><span class="ui-icon ui-icon-check"></span></label>
 
-                        <input type="radio" id="flag_{{ submission.key() }}" name="feedback_{{ submission.key() }}"
-                               value="flag" class="flag_checkbox"/>
-                        <label for="flag_{{ submission.key() }}" title="Spam!" class="flag_label"><span class="ui-icon ui-icon-flag"></span></label>
-                    </span>
-                    <div>
-                        <textarea id="response__{{ submission.key() }}" rows="5" style="width: 50%;"></textarea>
+                            <input type="radio" id="flag_{{ submission.key() }}" name="feedback_{{ submission.key() }}"
+                                   value="flag" class="flag_checkbox"/>
+                            <label for="flag_{{ submission.key() }}" title="Spam!" class="flag_label"><span class="ui-icon ui-icon-flag"></span></label>
+                        </span>
+                        <div>
+                            <textarea id="response__{{ submission.key() }}" rows="5" style="width: 50%;"></textarea>
+                        </div>
+                        {% set submitted = 'Submitted' %}
+                        {% if not submission.voted %}
+                            {% set submitted = 'Submit' %}
+                        {% endif %}
+                        <button class="submit-vote" id="submit__{{ submission.key() }}" style="float:right">{{ submitted }}</button>
                     </div>
-                    {% set submitted = 'Submitted' %}
-                    {% if not submission.voted %}
-                        {% set submitted = 'Submit' %}
-                    {% endif %}
-                    <button class="submit-vote" id="submit__{{ submission.key() }}" style="float:right">{{ submitted }}</button>
-                </div>
+                {% endif %}
             </div>
         {% endfor %}
     {% endif %}

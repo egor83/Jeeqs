@@ -67,8 +67,11 @@ def compile_and_run(program, output):
                     if hasattr(math.__dict__.get(item), '__call__'):
                         builtins[item] = math.__dict__.get(item)
 
-                exec compiled in {'__builtins__': builtins}, {}
-                
+                program_module.__builtins__ = builtins
+
+                exec compiled in program_module.__dict__
+                #exec compiled in {'__builtins__': builtins}, {}
+
             finally:
                 sys.stdout = old_stdout
                 sys.stderr = old_stderr
