@@ -4,46 +4,29 @@
     a.noline { text-decoration: none;}
 </style>
 
-<div id="userInfo" style="width:100%; text-align: right; z-index: 999">
-    <div style="float:left; margin:5px; margin-left: 20px">
-        <a href="/" class="noline" style="color: black">
-        <span style="font-size: 1.5em; font-weight: bold">Jeeqs</span>
-        <img style="margin-left: 5px" src="/static/favicon.ico"/>
-        </a>
-    </div>
-    <div style="float:right; margin: 5px; margin-right: 20px">
-        <span>
-{#            <a class="noline" href="/" style="color: black">Home</a> |#}
-            {% if jeeqser %}
-                <span>
-                    <img width="40px" height="40px" src="{{ jeeqser.gravatar_url }}" style="vertical-align: middle; border-radius: 5px"/>
-                    <span class="username">
-                        <a class="noline" href="/user/" style="color: black">{{ jeeqser.displayname }}
-                            {% if jeeqser.suspended_until %}
-                                <strong style="color:red" title="Your account is suspended until {{ jeeqser.suspended_until }}">!</strong>
-                            {% endif %}
+<div id="userInfo" class="navbar navbar-fixed-top" style="text-align: right;">
+    <div class="navbar-inner">
+        <div class="container">
+            <a class="brand" href="/">Jeeqs<img style="margin-left: 10px" src="/static/favicon.ico"/></a>
+            <ul class="nav pull-right">
+                {# class="active" will highlight the navigation item! #}
+                {% if jeeqser %}
+                    <li class="divider-vertical"></li>
+                    <li><img width="35px" height="35px" src="{{ jeeqser.gravatar_url }}" style="vertical-align: middle; border-radius: 5px"/></li>
+                    <li style="font-weight: bold">
+                        <a href="/user/" >{{ jeeqser.displayname }}
+                        {% if jeeqser.suspended_until %}
+                            <strong style="color:red" title="Your account is suspended until {{ jeeqser.suspended_until }}">!</strong>
+                        {% endif %}
                         </a>
-                    </span>
-                </span>
-                | <a class="noline" href="{{ logout_url }}" style="color: black">Log out</a>
-            {% else %}
-                <a class="noline" href="{{ login_url }}" style="color: black">Log in </a>
-            {% endif %}
-            | <a class="noline" href="/about/" style="color: black">About</a>
-        </span>
+                    </li>
+                    <li><a href="{{ logout_url }}">Log-out</a></li>
+                {% else %}
+                    <li><a href="{{ login_url }}">Log-in</a></li>
+                {% endif %}
+                <li class="divider-vertical"></li>
+                <li><a href="/about/">About</a></li>
+            </ul>
+        </div>
     </div>
 </div>
-
-<script>
-    $(document).ready(function() {
-        var div = $('#userInfo');
-        var start = $(div).offset().top;
-
-        $.event.add(window, "scroll", function() {
-            // Keep the toolbar on top
-            var p = $(window).scrollTop();
-            $(div).css('position',((p)>start) ? 'fixed' : 'static');
-            $(div).css('top',((p)>start) ? '0px' : '');
-        });
-    })
-</script>
