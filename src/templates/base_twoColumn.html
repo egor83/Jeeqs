@@ -1,24 +1,22 @@
 {% extends "base.html" %}
 
 {% block container %}
-  <div class="container">
     <div id="container_header" class="container row">
         {% block container_header %}
         {% endblock container_header %}
     </div>
-    <div id="column1" class="{%block column1_style%}ten columns{%endblock%}">
-        {% block column1 %}{% endblock %}
+    <div class="row-fluid">
+        <div id="column1" class="span8">
+            {% block column1 %}{% endblock %}
+        </div>
+        <div id="column2" class="span4">
+            {% include "advertisement.html" %}
+            {% block column2 %}
+            {% endblock %}
+        </div>
     </div>
-    <div id="column2" class="{% block column2_style %}six columns{% endblock %}">
-        {#        {% if not local %}#}
-        {#{% include "advertisement.html" %}#}
-        {#        {% endif %}#}
-        {% block column2 %}
-        {% endblock %}
+    <div id="container_footer" class="container row ">
+        {% block container_footer %}
+        {% endblock container_footer %}
     </div>
-  </div>
-  <div id="container_footer" class="container row ">
-    {% block container_footer %}
-    {% endblock container_footer %}
-  </div>
 {% endblock %}

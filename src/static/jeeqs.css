@@ -67,16 +67,6 @@ a img {
     background: white;
 }
 
-#container {
-    width: 80%;
-    margin-top: 0em;
-    margin-bottom: 5em;
-    margin-left: 5em;
-    margin-right: 5em;
-    float:left;
-    padding:2em;
-}
-
 .codehilite {
     background: #EED;
 }
