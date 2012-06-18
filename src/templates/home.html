@@ -151,7 +151,6 @@
                 {% for challenge in challenges %}
                     <div class="challenge_in_list">
                         <div style="float:left; margin-bottom: 2px">
-                            {% if challenge.automatic_review %} <span title="Jeeqs will reviews this!" class="ui-icon ui-icon-transferthick-e-w" style="float:left"></span>{% endif %}
                             <a class="noline" href="/challenge/?ch={{ challenge.key() }}" style="color:
                                     {% if challenge.status == 'correct' %}
                                         #089619
@@ -161,6 +160,7 @@
                                     {% endif %}
                                 ">
                                 {{ challenge.name }}
+                                {% if challenge.automatic_review %} <i title="Jeeqs will reviews this!" class="icon-refresh"></i>{% endif %}
                             </a>
                         </div>
                         <div style="float:right; margin-bottom: 2px">
@@ -253,7 +253,7 @@
 {% block column2 %}
     {% if not jeeqser.took_tour %}
         <div id="tour" style="float:right; margin: 10px; width: 100%; text-align: center">
-            <button id="take_tour" style="color:#EB8F00;">Take a Tour</button>
+            <button class="btn" id="take_tour" style="color:#EB8F00;">Take a Tour</button>
         </div>
     {% endif %}
     <div id="all_activities" class="accordion accordion-open" style="width:90%; float:right; clear:right; margin: 10px;max-height: 500px; overflow:auto;">
