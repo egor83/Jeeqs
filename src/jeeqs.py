@@ -186,6 +186,7 @@ class UserHandler(webapp2.RequestHandler):
 
     @authenticate(False)
     def get(self):
+        target_jeeqser = None
         jeeqser_key = self.request.get('jk')
 
         if jeeqser_key:
@@ -193,8 +194,10 @@ class UserHandler(webapp2.RequestHandler):
             if not target_jeeqser:
                 self.error(StatusCode.forbidden)
                 return
-        else:
+        elif self.jeeqser:
             target_jeeqser = self.jeeqser
+        else:
+            self.redirect('/')
 
         vars = add_common_vars({
                 'jeeqser' : self.jeeqser,

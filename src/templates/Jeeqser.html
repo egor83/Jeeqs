@@ -32,7 +32,7 @@
 {% endblock script %}
 
 {% block container %}
-    {% if jeeqser == target_jeeqser %}
+    {% if jeeqser == target_jeeqser and jeeqser %}
         <h1> Hello {{ jeeqser.displayname }}! </h1>
 
         {% if jeeqser.suspended_until %}
