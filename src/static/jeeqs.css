@@ -1,5 +1,5 @@
 body {
-    font-family: monospace;
+    /*font-family: monospace;*/
     font-size: 14px;
 }
 
@@ -94,8 +94,4 @@ div.submission-feedback .ui-state-active.flag_label {background: grey;}
 
 .jeeqser-value {
     margin-left: 20px;
-}
-
-.challenge-list-div {
-    font-size: 14px;
 }

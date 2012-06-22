@@ -144,102 +144,109 @@
         <span class="ui-icon ui-icon-extlink" style="float:right"></span>
     </a>
     </h2>
-    <div id="challenge-list" class="accordion accordion-open" style="float:left; margin: 10px;max-height: 400px; overflow:auto;">
-        <h3><a href="#">Challenges</a></h3>
-        <div class="challenge-list-div" style="cursor: pointer">
-            <div style="width:100%; font-family: monaco; cell-padding: 5px;">
-                {% for challenge in challenges %}
-                    <div class="challenge_in_list">
-                        <div style="float:left; margin-bottom: 2px">
-                            <a class="noline" href="/challenge/?ch={{ challenge.key() }}" style="color:
-                                    {% if challenge.status == 'correct' %}
-                                        #089619
-                                    {% endif %}
-                                    {% if challenge.status == 'incorrect' %}
-                                        #960D22
-                                    {% endif %}
-                                ">
-                                {{ challenge.name }}
-                                {% if challenge.automatic_review %} <i title="Jeeqs will reviews this!" class="icon-refresh"></i>{% endif %}
-                            </a>
-                        </div>
-                        <div style="float:right; margin-bottom: 2px">
-                            <span>
-                                <a class="noline" href="/challenge/?ch={{ challenge.key() }}" title="Solve this challenge">
-                                    {% if challenge.status == 'correct' %}
-                                        <span class="ui-icon ui-icon-unlocked" style="float:left"></span>
-                                    {% else %}
-                                        <span class="ui-icon ui-icon-key" style="float:left"></span>
-                                    {% endif %}
-                                </a>
-                            </span>
-                        </div>
-                        <div style="float: right; clear:right">
-                            {%if challenge.num_jeeqsers_solved > 0 %}
-                                {% set cursor = 'pointer' %}
-                            {% else %}
-                                {% set cursor = 'default' %}
-                            {% endif %}
-                            <span class="challenge_stats" style="cursor: {{ cursor }}; color: #808080; font-size: smaller; float:left; margin-left: 20px; background: #d3d3d3">
-                                <span style="float:left">
-                                    <span title="jeeqsers solved this challenge" style="color:green"> <b>{{ challenge.num_jeeqsers_solved|d('0')}}</b></span>
-                                    <span class="solved_submitted_stats" style="display:none; color:green"> solved</span>
-                                    /
-                                    <span title="jeeqsers submitted a solution for this challenge"> <b> {{ challenge.num_jeeqsers_submitted|d('0') }}</b></span>
-                                    <span class="solved_submitted_stats" style="display:none"> submitted</span>
-                                </span>
-                            </span>
-                        </div>
+    <div id="challenge-list" style="float:left; margin: 10px;font-size: 14px; cell-padding: 5px;">
+        <ul class="nav nav-tabs">
+            <li class="active">
+                <a href="#">Challenges</a>
+            </li>
+        </ul>
 
-                        {% if challenge.exercise_number %}
-                            <div style="float: left; clear:left; font-size: smaller; margin-left: 10px">
-                                {{ challenge.exercise_number}}&nbsp;
-                            </div>
-                        {% endif %}
-
-                        {% if challenge.exercise_number %}
-                            <div style="float:left; font-size: smaller" title="{{ challenge.exercise_course_name }}">
-                                {{ challenge.exercise_course_code }} &nbsp;
-                            </div>
-                            <div style="float: left; font-size: smaller;">
-                                {{ challenge.exercise_program }}&nbsp;{{ challenge.exercise_university }}
-                            </div>
-                        {% endif %}
-
-                        {% if challenge.submitted %}
-                            <div style="float: left; clear:left;">
-                                {% with submission=challenge.jc %}
-                                    {% include "attempt_score.html"%}
-                                {% endwith %}
-                            </div>
-                        {% endif %}
-
-                        {% if challenge.last_solver %}
-                            <div style="float: right; clear:right; margin-top: 5px">
-                                {% with  %}
-                                    {% set jeeqser_key = challenge.last_solver.key() %}
-                                    {% set avatar_url = challenge.last_solver.gravatar_url %}
-                                    {% set style = 'float:right' %}
-                                    {% include "jeeqser_avatar.html" %}
-                                {% endwith %}
-                            </div>
-                        {% endif %}
-
-                        <div class="challenge_avatars" style="display:none; float:left; clear:both; margin: 5px; background: #60c464">
-                            <input type=hidden name="challenge_key" value="{{ challenge.key() }}" style="display: none"/>
-                            <span style="color:#d3d3d3;">Loading ...</span>
-                        </div>
-
-                        <div style="padding-top: 10px; clear:both"></div>
+        <div style="cursor: pointer; overflow: auto; max-height: 400px; font-family: monaco">
+            {% for challenge in challenges %}
+                <div class="challenge_in_list"">
+                    <div style="float:left; margin-bottom: 2px">
+                        <a class="noline" href="/challenge/?ch={{ challenge.key() }}" style="color:
+                                {% if challenge.status == 'correct' %}
+                                    #089619
+                                {% endif %}
+                                {% if challenge.status == 'incorrect' %}
+                                    #960D22
+                                {% endif %}
+                            ">
+                            {{ challenge.name }}
+                            {% if challenge.automatic_review %} <i title="Jeeqs will reviews this!" class="icon-refresh"></i>{% endif %}
+                        </a>
                     </div>
-                {% endfor %}
-            </div>
+                    <div style="float:right; margin-bottom: 2px">
+                        <span>
+                            <a class="noline" href="/challenge/?ch={{ challenge.key() }}" title="Solve this challenge">
+                                {% if challenge.status == 'correct' %}
+                                    <span class="ui-icon ui-icon-unlocked" style="float:left"></span>
+                                {% else %}
+                                    <span class="ui-icon ui-icon-key" style="float:left"></span>
+                                {% endif %}
+                            </a>
+                        </span>
+                    </div>
+                    <div style="float: right; clear:right">
+                        {%if challenge.num_jeeqsers_solved > 0 %}
+                            {% set cursor = 'pointer' %}
+                        {% else %}
+                            {% set cursor = 'default' %}
+                        {% endif %}
+                        <span class="challenge_stats" style="cursor: {{ cursor }}; color: #808080; font-size: smaller; float:left; margin-left: 20px; background: #d3d3d3">
+                            <span style="float:left">
+                                <span title="jeeqsers solved this challenge" style="color:green"> <b>{{ challenge.num_jeeqsers_solved|d('0')}}</b></span>
+                                <span class="solved_submitted_stats" style="display:none; color:green"> solved</span>
+                                /
+                                <span title="jeeqsers submitted a solution for this challenge"> <b> {{ challenge.num_jeeqsers_submitted|d('0') }}</b></span>
+                                <span class="solved_submitted_stats" style="display:none"> submitted</span>
+                            </span>
+                        </span>
+                    </div>
+
+                    {% if challenge.exercise_number %}
+                        <div style="float: left; clear:left; font-size: smaller; margin-left: 10px">
+                            {{ challenge.exercise_number}}&nbsp;
+                        </div>
+                    {% endif %}
+
+                    {% if challenge.exercise_number %}
+                        <div style="float:left; font-size: smaller" title="{{ challenge.exercise_course_name }}">
+                            {{ challenge.exercise_course_code }} &nbsp;
+                        </div>
+                        <div style="float: left; font-size: smaller;">
+                            {{ challenge.exercise_program }}&nbsp;{{ challenge.exercise_university }}
+                        </div>
+                    {% endif %}
+
+                    {% if challenge.submitted %}
+                        <div style="float: left; clear:left;">
+                            {% with submission=challenge.jc %}
+                                {% include "attempt_score.html"%}
+                            {% endwith %}
+                        </div>
+                    {% endif %}
+
+                    {% if challenge.last_solver %}
+                        <div style="float: right; clear:right; margin-top: 5px">
+                            {% with  %}
+                                {% set jeeqser_key = challenge.last_solver.key() %}
+                                {% set avatar_url = challenge.last_solver.gravatar_url %}
+                                {% set style = 'float:right' %}
+                                {% include "jeeqser_avatar.html" %}
+                            {% endwith %}
+                        </div>
+                    {% endif %}
+
+                    <div class="challenge_avatars" style="display:none; float:left; clear:both; margin: 5px; background: #60c464">
+                        <input type=hidden name="challenge_key" value="{{ challenge.key() }}" style="display: none"/>
+                        <span style="color:#d3d3d3;">Loading ...</span>
+                    </div>
+
+                    <div style="padding-top: 10px; clear:both"></div>
+                </div>
+            {% endfor %}
         </div>
     </div>
 
-    <div id="all-jeeqs-in-list" class="accordion accordion-open" style="float:left; margin:10px; max-height: 600px; overflow:auto;">
-        <h3><a href="#">In Jeeqs</a></h3>
-        <div class="jeeqs-list">
+    <div id="all-jeeqs-in-list" style="float:left; margin:10px; ">
+        <ul class="nav nav-tabs">
+            <li class="active">
+                <a href="#">In Jeeqs</a>
+            </li>
+        </ul>
+        <div class="jeeqs-list" style="max-height: 600px; overflow: auto">
             {% with %}
                 {% set feedbacks = injeeqs %}
                 {% set write_challenge_name = 'true' %}
@@ -256,9 +263,13 @@
             <button class="btn" id="take_tour" style="color:#EB8F00;">Take a Tour</button>
         </div>
     {% endif %}
-    <div id="all_activities" class="accordion accordion-open" style="width:90%; float:right; clear:right; margin: 10px;max-height: 500px; overflow:auto;">
-        <h3><a href="#">Activities</a></h3>
-        <div class>
+    <div id="all_activities" style="width:90%; float:right; clear:right; margin: 10px;">
+        <ul class="nav nav-tabs">
+            <li class="active">
+                <a href="#">Activities</a>
+            </li>
+        </ul>
+        <div style="max-height: 500px; overflow: auto; ">
             {% include "activities_list.html"%}
         </div>
     </div>
