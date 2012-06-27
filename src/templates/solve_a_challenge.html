@@ -135,11 +135,6 @@
             {% endif %}
 
 
-            $('.accordion-closed').accordion({
-                collapsible: true,
-                active: false
-            })
-
             $('#feedbacks').accordion({collapsible:true});
 
             $(':button').button();
@@ -164,9 +159,10 @@
                 })
             })
 
+            // select Your submissions tab
+            $('#submissions a:first').tab('show');
             review_page_loaded = false
-            $('#submissions, #all_submissions').tabs({
-                select: function(event, ui){
+            $('#submissions a[href="#all_submissions"]').on('shown', function(e){
                     // Load the review page using ajax
                     if (review_page_loaded)
                         return;
@@ -184,8 +180,6 @@
                             $('#all_submissions').html('An Error occurred while loading this page. Please try again later ...');
                         }
                     })
-
-                }
             })
 
         })
@@ -195,48 +189,48 @@
 {% block container_header %}
     {% include "challenge.html" %}
 
-    <div id="submissions" class="tabs" style="float:left; clear:left; width: 100%; margin-top: 20px">
-        <ul>
-            <li><a href="#your_submission">Your Submission</a></li>
-            <li><a href="#all_submissions">All Submissions</a></li>
+    <div id="submissions" style="float:left; clear:left; width: 100%; margin-top: 20px">
+        <ul id="submissions_tabs" class="nav nav-tabs">
+            <li><a href="#your_submission" data-toggle="tab">Your Submission</a></li>
+            <li><a href="#all_submissions" data-toggle="tab">All Submissions</a></li>
         </ul>
-        <div id="your_submission">
-            <div id="submission" style="padding:15px; clear:both">
-                {% if submission %}
-                    {% set active = 'Active' %}
-                    {% if not submission.active %}
-                        {% set active = 'Not Active' %}
-                    {% endif %}
-                    <h3> Submitted for review ({{ active }})</h3>
-                    <div id="submission-content" style="overflow:auto">
-                        {{ submission.content|safe}}
-                    </div>
-                {% else %}
-                    <div style="color:grey">
-                        No submission found! Please Submit a solution!
-                    </div>
-                {% endif %}
-            </div>
-
-            <div id="your_submission_column_2" style="float:left; clear:both; width: 100%; margin-top:10px;">
-                {% if submission %}
-                    <ul class="nav nav-tabs">
-                        <li class="active">
-                            <a href="#">In Jeeqs</a>
-                        </li>
-                    </ul>
-                    <div style="max-height: 300px; overflow: auto; margin: 10px;">
-                        <div>
-                            <h4>Submission score: {{ submission.vote_average}}/4 based on votes by {{ submission.vote_count }} Jeeqsers</h4>
-                            {% include "attempt_score.html"%}
+        <div id="submissions_tabs_content" class="tab-content">
+            <div id="your_submission" class="fade tab-pane">
+                <div id="submission" style="padding:15px; clear:both">
+                    {% if submission %}
+                        {% set active = 'Active' %}
+                        {% if not submission.active %}
+                            {% set active = 'Not Active' %}
+                        {% endif %}
+                        <h3> Submitted for review ({{ active }})</h3>
+                        <div id="submission-content" style="overflow:auto">
+                            {{ submission.content|safe}}
                         </div>
-                        {% include "in_jeeqs_list.html" %}
-                    </div>
-                {% endif %}
-            </div>
+                    {% else %}
+                        <div style="color:grey">
+                            No submission found! Please Submit a solution!
+                        </div>
+                    {% endif %}
+                </div>
 
-            <div id="your_submission_column_1" style="float:left; clear:both; width: 100%; margin-top:10px;">
-                <div id="new_submission">
+                <div id="your_submission_in_jeeqs" style="float:left; clear:both; width: 100%; margin-top:10px;">
+                    {% if submission %}
+                        <ul class="nav nav-tabs">
+                            <li class="active">
+                                <a href="#">In Jeeqs</a>
+                            </li>
+                        </ul>
+                        <div style="max-height: 300px; overflow: auto; margin: 10px;">
+                            <div>
+                                <h4>Submission score: {{ submission.vote_average}}/4 based on votes by {{ submission.vote_count }} Jeeqsers</h4>
+                                {% include "attempt_score.html"%}
+                            </div>
+                            {% include "in_jeeqs_list.html" %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div id="new_submission" style="float:left; clear:both; width: 100%; margin-top:10px;">
                     <form id="answerForm" action="shell.runProgram" method="get">
                         <input type="hidden" name="challenge_key" id="challenge_key" value="{{ challenge_key }}" />
 
@@ -272,10 +266,8 @@
                         <br/>
                     </form>
                 </div>
-            </div>
 
-            <div id="your_submission_container_footer" style="float:left; clear: both; width: 100%;">
-                <div id="console">
+                <div id="console" style="float:left; clear: both; width: 100%;">
                     <ul class="nav nav-tabs">
                         <li class="active">
                             <a href="#">Sandbox</a>
@@ -304,30 +296,30 @@
                             <button id="submit_program" type=button>Submit</button>
                         {% endif %}
                     </div>
-                </div>
 
-                <div id="recent-attempts" style="margin-top: 10px; width: 100%;">
-                    <ul class="nav nav-tabs">
-                        <li class="active">
-                            <a href="#">Your Recent Submissions</a>
-                        </li>
-                    </ul>
-                    <div class="recent-jeeqs">
-                        {% if jeeqser %}
-                            {% for attempt in attempts %}
-                                <p> <a class="noline" href="/challenge/?ch={{ challenge.key() }}&att={{ attempt.key() }}"> Attempt #{{ attempt.index }}</a> at: {{ attempt.date }}</p>
-                                <div>
-                                    {{ attempt.content|safe }}
-                                </div>
-                                <hr/>
-                            {% endfor %}
-                        {% endif %}
+                    <div id="recent-attempts" style="margin-top: 10px; width: 100%;">
+                        <ul class="nav nav-tabs">
+                            <li class="active">
+                                <a href="#">Your Recent Submissions</a>
+                            </li>
+                        </ul>
+                        <div class="recent-jeeqs">
+                            {% if jeeqser %}
+                                {% for attempt in attempts %}
+                                    <p> <a class="noline" href="/challenge/?ch={{ challenge.key() }}&att={{ attempt.key() }}"> Attempt #{{ attempt.index }}</a> at: {{ attempt.date }}</p>
+                                    <div>
+                                        {{ attempt.content|safe }}
+                                    </div>
+                                    <hr/>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
+
             </div>
 
+            <div id="all_submissions" style="margin-top: 20px" class="fade tab-pane"></div>
         </div>
-
-        <div id="all_submissions" style="margin-top: 20px"></div>
     </div>
 {% endblock container_header %}

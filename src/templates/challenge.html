@@ -1,9 +1,11 @@
 <script>
-    {% if not challenge.markdown and challenge.document_id and challenge.access_key %}
         $(document).ready(function() {
-            $( "#challenge" ).tabs( "option", "selected", 2 );
+            {% if not challenge.markdown and challenge.document_id and challenge.access_key %}
+                $( '#challenge_tabs a[href="#source-pdf"]' ).tab('show');
+            {% else %}
+                $( '#challenge_tabs a:first' ).tab('show');
+            {% endif %}
         })
-    {% endif %}
 
     $(document).ready(function() {
         $('#submit_challenge_vertical_scroll').bind('click', function(event, ui) {
@@ -31,73 +33,75 @@
 <div class="challenge" style="float:left; width:100%;">
     <h1> {{ challenge.name }} </h1>
     <h3> {% include "exercise_breadcrumbs.html" %} </h3>
-    <div id="challenge" class="tabs" style="height: 450px; overflow: auto">
-        <ul>
-            <li><a href="#tabs-1">Problem</a></li>
-            <li><a href="#tabs-2">Source</a></li>
-            <li><a href="#source-pdf">PDF</a></li>
+    <div id="challenge" style="height: 450px; margin: 10px">
+        <ul id = "challenge_tabs" class="nav nav-tabs">
+            <li><a href="#tabs-1" data-toggle="tab">Problem</a></li>
+            <li><a href="#tabs-2" data-toggle="tab">Source</a></li>
+            <li><a href="#source-pdf" data-toggle="tab">PDF</a></li>
             {% if challenge.attribution %}
-                <li><a href="#challenge_info">Info</a></li>
+                <li><a href="#challenge_info" data-toggle="tab">Info</a></li>
             {% endif %}
         </ul>
-        <div id="tabs-1">
-            {% if challenge.content  %}
-                <p> {{ challenge.content|safe }} </p>
-            {% else %}
-                <p> To be completed! </p>
-            {% endif %}
-        </div>
-        <div id="tabs-2">
-            <textarea id="challenge-source" {% if not isadmin %}readonly="true" {% endif %}rows="20" style="width: 100%;">{{ challenge.markdown }}</textarea>
-            {% if isadmin %}
-                <button type="button" id="submitChallengeSource">Update</button>
-            {% endif %}
-        </div>
-        <div id="source-pdf">
-            {% if challenge.document_id and challenge.access_key %}
-                <div id='embedded_challenge' style="width: 100%;"></div>
-                <script type="text/javascript">
-                    var document_id = '{{ challenge.document_id }}';
-                    var access_key = '{{ challenge.access_key }}';
-
-                    var scribd_doc = scribd.Document.getDoc(document_id, access_key);
-
-                    var onDocReady = function(e){
-                        {% if challenge.vertical_scroll %}
-                            scribd_doc.api.setVerticalScroll({{ challenge.vertical_scroll }});
-                        {% endif %}
-                    }
-
-                    scribd_doc.addParam('jsapi_version', 2);
-                    scribd_doc.addParam('width', $('#embedded_challenge').width() - 50);
-                    scribd_doc.addParam('height', 500);
-                    scribd_doc.addParam('default_embed_format', 'flash');
-                    scribd_doc.addEventListener('docReady', onDocReady);
-                    scribd_doc.write('embedded_challenge');
-                </script>
-                {% if isadmin %}
-                    <button style="margin-top: 10px" type="button" id="submit_challenge_vertical_scroll">Update Vertical Scroll</button>
+        <div id="challenge_tab_contents" class="tab-content">
+            <div id="tabs-1" class="fade tab-pane">
+                {% if challenge.content  %}
+                    <p> {{ challenge.content|safe }} </p>
+                {% else %}
+                    <p> To be completed! </p>
                 {% endif %}
-            {% endif %}
-        </div>
-        <div id="challenge_info">
-            {% if challenge.exercise %}
-                <p>
-                    <strong>Course</strong>
-                    <br/>
-                    <small>{{ challenge.exercise_university }}, {{ challenge.exercise_program }} : {{ challenge.exercise_course_name }}</small>
-                </p>
-            {%  endif %}
-            {% if challenge.attribution %}
-                <p> <strong>Attribution</strong>
-                    <br/>
-                    <small>{{ challenge.attribution }}</small>
-                </p>
-            {% endif %}
-            {% if challenge.source %}
-                <p> <strong>Source</strong>
-                    <br/><small><a class="noline" target="_blank" href="{{ challenge.source }}">{{ challenge.source}}</a></small></p>
-            {% endif %}
+            </div>
+            <div id="tabs-2" class="fade tab-pane">
+                <textarea id="challenge-source" {% if not isadmin %}readonly="true" {% endif %}rows="20" style="width: 100%;">{{ challenge.markdown }}</textarea>
+                {% if isadmin %}
+                    <button type="button" id="submitChallengeSource">Update</button>
+                {% endif %}
+            </div>
+            <div id="source-pdf" class="tab-pane fade">
+                {% if challenge.document_id and challenge.access_key %}
+                    <div id='embedded_challenge' style="width: 100%;"></div>
+                    <script type="text/javascript">
+                        var document_id = '{{ challenge.document_id }}';
+                        var access_key = '{{ challenge.access_key }}';
+
+                        var scribd_doc = scribd.Document.getDoc(document_id, access_key);
+
+                        var onDocReady = function(e){
+                            {% if challenge.vertical_scroll %}
+                                scribd_doc.api.setVerticalScroll({{ challenge.vertical_scroll }});
+                            {% endif %}
+                        }
+
+                        scribd_doc.addParam('jsapi_version', 2);
+                        scribd_doc.addParam('width', $('#challenge_tab_contents').width() - 50);
+                        scribd_doc.addParam('height', 500);
+                        scribd_doc.addParam('default_embed_format', 'flash');
+                        scribd_doc.addEventListener('docReady', onDocReady);
+                        scribd_doc.write('embedded_challenge');
+                    </script>
+                    {% if isadmin %}
+                        <button style="margin-top: 10px" type="button" id="submit_challenge_vertical_scroll">Update Vertical Scroll</button>
+                    {% endif %}
+                {% endif %}
+            </div>
+            <div id="challenge_info" class="tab-pane fade">
+                {% if challenge.exercise %}
+                    <p>
+                        <strong>Course</strong>
+                        <br/>
+                        <small>{{ challenge.exercise_university }}, {{ challenge.exercise_program }} : {{ challenge.exercise_course_name }}</small>
+                    </p>
+                {%  endif %}
+                {% if challenge.attribution %}
+                    <p> <strong>Attribution</strong>
+                        <br/>
+                        <small>{{ challenge.attribution }}</small>
+                    </p>
+                {% endif %}
+                {% if challenge.source %}
+                    <p> <strong>Source</strong>
+                        <br/><small><a class="noline" target="_blank" href="{{ challenge.source }}">{{ challenge.source}}</a></small></p>
+                {% endif %}
+            </div>
         </div>
     </div>
 </div>
