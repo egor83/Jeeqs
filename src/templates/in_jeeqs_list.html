@@ -45,7 +45,7 @@
             </div>
             <input type="hidden" name="feedback-id" value="{{ feedback.key() }}"/>
             {%if jeeqser.key() not in feedback.flagged_by  %}
-                <div style="float:right"><a class="feedback-flag-button" href="#"><span class="ui-icon ui-icon-flag" style="float:left"></span></a></div>
+                <div style="float:right"><a class="feedback-flag-button" href="#"><span class="icon-flag" style="float:left"></span></a></div>
             {% endif %}
         </div>
     {% endfor %}

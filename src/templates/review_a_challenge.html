@@ -78,7 +78,7 @@
 
         $( ".correct-button" ).button({
             icons: {
-                primary: "ui-icon-check"
+                primary: "icon-ok"
             },
             text: false
         }).bind('click', function() {
@@ -88,9 +88,6 @@
         $(":button").button();
 
         $(".feedback-buttons").buttonset();
-
-        // Needed to make the accordion adjust its height when ajax content is loaded into it
-        $('#submissionFeedbacksContainer').accordion({clearStyle: true, autoHeight: false});
     })
 </script>
 
@@ -113,15 +110,15 @@
                         <span class="feedback-buttons">
                             <input type="radio" id="incorrect_{{ submission.key() }}" name="feedback_{{ submission.key() }}"
                                    value="incorrect"/>
-                            <label for="incorrect_{{ submission.key() }}"  class="incorrect_label" title="Incorrect or Incomplete"><span class="ui-icon ui-icon-closethick"></span></label>
+                            <label for="incorrect_{{ submission.key() }}"  class="incorrect_label" title="Incorrect or Incomplete"><span class="icon-remove"></span></label>
 
                             <input type="radio" id="correct_{{ submission.key() }}" name="feedback_{{ submission.key() }}"
                                    value="correct"/>
-                            <label for="correct_{{ submission.key() }}" class="correct_label" title="Correct"><span class="ui-icon ui-icon-check"></span></label>
+                            <label for="correct_{{ submission.key() }}" class="correct_label" title="Correct"><span class="icon-ok"></span></label>
 
                             <input type="radio" id="flag_{{ submission.key() }}" name="feedback_{{ submission.key() }}"
                                    value="flag" class="flag_checkbox"/>
-                            <label for="flag_{{ submission.key() }}" title="Spam!" class="flag_label"><span class="ui-icon ui-icon-flag"></span></label>
+                            <label for="flag_{{ submission.key() }}" title="Spam!" class="flag_label"><span class="icon-flag"></span></label>
                         </span>
                         <div class="btn-group" data-toggle="buttons-radio">
                             {#  Use this to get the value: $(‘button[name="rating"].active’).val(); #}
@@ -144,7 +141,7 @@
     {% endif %}
 </div>
 
-<div id="submissionFeedbacksContainer" class="accordion" style="width:100%; float:left; clear:both; margin: 10px; display:none">
+<div id="submissionFeedbacksContainer" style="width:100%; float:left; clear:both; margin: 10px; display:none">
     <h3><a href="#">Other In Jeeqs </a></h3>
     <div id="submissionFeedbacks">
         {% include "in_jeeqs_list.html" %}

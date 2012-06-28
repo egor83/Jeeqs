@@ -77,46 +77,6 @@ shell.getXmlHttpRequest = function() {
 };
 
 /**
- * This is the prompt textarea's onkeypress handler. Depending on the key that
- * was pressed, it will run the statement, navigate the history, or update the
- * current statement in the history.
- *
- * @param {Event} event the keypress event
- * @return {Boolean} false to tell the browser not to submit the form.
- */
-shell.onPromptKeyPress = function(event) {
-  var statement = document.getElementById('statement');
-
-  if (this.historyCursor == this.history.length - 1) {
-    // we're on the current statement. update it in the history before doing
-    // anything.
-    this.history[this.historyCursor] = statement.value;
-  }
-
-  // should we pull something from the history?
-  if (event.ctrlKey && event.keyCode == 38 /* up arrow */) {
-    if (this.historyCursor > 0) {
-      statement.value = this.history[--this.historyCursor];
-    }
-    return false;
-  } else if (event.ctrlKey && event.keyCode == 40 /* down arrow */) {
-    if (this.historyCursor < this.history.length - 1) {
-      statement.value = this.history[++this.historyCursor];
-    }
-    return false;
-  } else if (!event.altKey) {
-    // probably changing the statement. update it in the history.
-    this.historyCursor = this.history.length - 1;
-    this.history[this.historyCursor] = statement.value;
-  }
-
-  // should we submit?
-  if (event.keyCode == 13 /* enter */ && !event.altKey && !event.shiftKey) {
-    return this.runStatement();
-  }
-};
-
-/**
  * Runs the program written in the text area and returns stdout and stderror in "output"
  * text area.
  * @return {Boolean} false to tell the browser not to submit the form.
@@ -225,56 +185,3 @@ shell.done = function(req) {
     }
   }
 };
-
-/**
- * This is the form's onsubmit handler. It sends the python statement to the
- * server, and registers shell.done() as the callback to run when it returns.
- *
- * @return {Boolean} false to tell the browser not to submit the form.
- */
-shell.runStatement = function() {
-  var form = $('#form')
-
-  // build a XmlHttpRequest
-  var req = this.getXmlHttpRequest();
-  if (!req) {
-    return false;
-  }
-
-  req.onreadystatechange = function() { shell.done(req); };
-
-  // build the query parameter string
-  var params = '';
-  for (i = 0; i < form.elements.length; i++) {
-    var elem = form.elements[i];
-    if (elem.type != 'submit' && elem.type != 'button' && elem.id != 'caret') {
-      var value = escape(elem.value).replace(/\+/g, '%2B'); // escape ignores +
-      params += '&' + elem.name + '=' + value;
-    }
-  }
-
-  // send the request and tell the user.
-  $('#statement').className = 'prompt processing';
-  req.open(form.method, form.action + '?' + params, true);
-  req.setRequestHeader('Content-type',
-                       'application/x-www-form-urlencoded;charset=UTF-8');
-  req.send(null);
-
-  return false;
-};
-
-$(document).ready(function() {
-    $('.accordion-closed').accordion({
-        collapsible: true,
-        active: false
-    })
-
-
-    $('.accordion-open').accordion({
-        collapsible: false
-    })
-});
-
-$(document).ready(function() {
-    $('.tabs').tabs();
-})

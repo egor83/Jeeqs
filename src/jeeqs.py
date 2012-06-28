@@ -114,13 +114,13 @@ def get_JC(jeeqser, challenge):
 def prettify_injeeqs(injeeqs):
     for jeeq in injeeqs:
         if jeeq.vote == 'correct':
-            jeeq.icon = 'ui-icon-check'
+            jeeq.icon = 'icon-ok'
             jeeq.background = '#EBFFEB'
         elif jeeq.vote == 'incorrect':
-            jeeq.icon = 'ui-icon-closethick'
+            jeeq.icon = 'icon-remove'
             jeeq.background = '#FFE3E3'
         elif jeeq.vote == 'flag':
-            jeeq.icon = 'ui-icon-flag'
+            jeeq.icon = 'icon-flag'
             jeeq.background = 'lightgrey'
 
 class FrontPageHandler(webapp2.RequestHandler):

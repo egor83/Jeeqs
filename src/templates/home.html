@@ -87,7 +87,6 @@
             $('#take_tour').on('click', function() {
                 guiders.show('first')
             })
-            $('#take_tour').effect('highlight', 2000)
 
             $('#show_tour').on('click', function(event) {
                 event.preventDefault()
@@ -141,7 +140,7 @@
     <a class="noline"
        href="http://ocw.mit.edu/courses/electrical-engineering-and-computer-science/6-189-a-gentle-introduction-to-programming-using-python-january-iap-2011/"
        target="_blank">
-        <span class="ui-icon ui-icon-extlink" style="float:right"></span>
+        <i class="icon-share-alt" style="float: right"></i>
     </a>
     </h2>
     <div id="challenge-list" style="float:left; margin: 10px;font-size: 14px; cell-padding: 5px;">
@@ -173,7 +172,7 @@
                                 {% if challenge.status == 'correct' %}
                                     <span class="ui-icon ui-icon-unlocked" style="float:left"></span>
                                 {% else %}
-                                    <span class="ui-icon ui-icon-key" style="float:left"></span>
+                                    <span class="icon-lock" style="float:left"></span>
                                 {% endif %}
                             </a>
                         </span>
@@ -260,7 +259,7 @@
 {% block column2 %}
     {% if not jeeqser.took_tour %}
         <div id="tour" style="float:right; margin: 10px; width: 100%; text-align: center">
-            <button class="btn" id="take_tour" style="color:#EB8F00;">Take a Tour</button>
+            <button class="btn btn-info" id="take_tour">Take a Tour</button>
         </div>
     {% endif %}
     <div id="all_activities" style="width:90%; float:right; clear:right; margin: 10px;">

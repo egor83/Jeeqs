@@ -8,6 +8,27 @@
         })
 
     $(document).ready(function() {
+        $('#submitChallengeSource').bind('click', function(event, ui) {
+            $(this).attr("disabled", "disabled");
+            var $newSource = $('#challenge-source').val();
+            var $challengeKey = $('#challenge_key').val();
+            $initiator = $(this)
+
+            $.ajax({
+                url: "/rpc",
+                async: true,
+                type: "POST",
+                data: {'method': 'submit_challenge_source', 'challenge_key': $challengeKey, 'source':$newSource},
+                success: function(response){
+                    $initiator.button('updated');
+                    window.location.reload();
+                },
+                error: function(response) {
+                    $initiator.button('error');
+                }
+            })
+        })
+
         $('#submit_challenge_vertical_scroll').bind('click', function(event, ui) {
             $(this).attr("disabled", "disabled");
             var $new_vertical_scroll = scribd_doc.api.getVerticalScroll()
@@ -19,11 +40,11 @@
                 type: "POST",
                 data: {'method': 'submit_challenge_vertical_scroll', 'challenge_key': '{{ challenge.key() }}', 'vertical_scroll':$new_vertical_scroll},
                 success: function(response){
-                    $initiator.button("option", "label", "Updated");
+                    $initiator.button('updated');
                     window.location.reload();
                 },
                 error: function(response) {
-                    $initiator.button("option", "label", "Oops!");
+                    $initiator.button('error');
                 }
             })
         })
@@ -42,7 +63,7 @@
                 <li><a href="#challenge_info" data-toggle="tab">Info</a></li>
             {% endif %}
         </ul>
-        <div id="challenge_tab_contents" class="tab-content">
+        <div id="challenge_tab_contents" class="tab-content" style="max-height: 400px">
             <div id="tabs-1" class="fade tab-pane">
                 {% if challenge.content  %}
                     <p> {{ challenge.content|safe }} </p>
@@ -51,9 +72,9 @@
                 {% endif %}
             </div>
             <div id="tabs-2" class="fade tab-pane">
-                <textarea id="challenge-source" {% if not isadmin %}readonly="true" {% endif %}rows="20" style="width: 100%;">{{ challenge.markdown }}</textarea>
+                <textarea id="challenge-source" {% if not isadmin %}readonly="true" {% endif %}rows="18" style="width: 100%; padding: 0px">{{ challenge.markdown }}</textarea>
                 {% if isadmin %}
-                    <button type="button" id="submitChallengeSource">Update</button>
+                    <button class="btn btn-large btn-primary" data-updated-text="Updated" data-error-text="Oops!!" id="submitChallengeSource" style="margin-top: 10px">Update</button>
                 {% endif %}
             </div>
             <div id="source-pdf" class="tab-pane fade">
@@ -79,7 +100,7 @@
                         scribd_doc.write('embedded_challenge');
                     </script>
                     {% if isadmin %}
-                        <button style="margin-top: 10px" type="button" id="submit_challenge_vertical_scroll">Update Vertical Scroll</button>
+                        <button class="btn btn-large btn-primary" data-updated-text="Updated" data-error-text="Oops!!" id="submit_challenge_vertical_scroll" style="margin-top: 20px">Update Vertical Scroll</button>
                     {% endif %}
                 {% endif %}
             </div>
