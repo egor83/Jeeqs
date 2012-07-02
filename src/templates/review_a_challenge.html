@@ -120,11 +120,11 @@
                                    value="flag" class="flag_checkbox"/>
                             <label for="flag_{{ submission.key() }}" title="Spam!" class="flag_label"><span class="icon-flag"></span></label>
                         </span>
-                        <div class="btn-group" data-toggle="buttons-radio">
+                        <div class="btn-group" data-toggle="buttons-radio" style="margin: 10px; margin-left: 0px;">
                             {#  Use this to get the value: $(‘button[name="rating"].active’).val(); #}
-                            <button class="btn">Left</button>
-                            <button class="btn">Middle</button>
-                            <button class="btn">Right</button>
+                            <button class="btn"><i class="icon-ok"></i></button>
+                            <button class="btn"><i class="icon-remove"></i></button>
+                            <button class="btn"><i class="icon-flag"></i></button>
                         </div>
                         <div>
                             <textarea id="response__{{ submission.key() }}" rows="5" style="width: 50%;"></textarea>
@@ -133,7 +133,7 @@
                         {% if not submission.voted %}
                             {% set submitted = 'Submit' %}
                         {% endif %}
-                        <button class="submit-vote" id="submit__{{ submission.key() }}" style="float:right">{{ submitted }}</button>
+                        <button class="submit-vote btn btn-primary" id="submit__{{ submission.key() }}" style="float:right">{{ submitted }}</button>
                     </div>
                 {% endif %}
             </div>

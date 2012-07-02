@@ -109,7 +109,7 @@ shell.onRunKeyClick = function(program, isSubmission) {
     }
 
     // send the request and tell the user.
-    req.open(answerForm.method, answerForm.action + '?' + params, true);
+    req.open("get", "shell.runProgram" + '?' + params, true);
     req.setRequestHeader('Content-type',
         'application/x-www-form-urlencoded;charset=UTF-8');
     req.send(null);

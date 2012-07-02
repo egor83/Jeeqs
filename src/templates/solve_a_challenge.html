@@ -56,6 +56,7 @@
                     data: {'method': 'submit_solution', 'challenge_key': $challengeKey, 'solution':$solution},
                     success: function(response){
                         $initiator.button('submitted');
+                        $initiator.attr("disabled", "disabled");
                         window.location.replace("/");
                     }
                 })
@@ -262,13 +263,13 @@
                         </div>
                         <div class="clearfix"></div>
                         <br/>
-                        <button type="button" onclick="clearOutput()">Clear Console</button>
-                        <button type="button" onclick="runProgram()">Run</button>
+                        <button class="btn" onclick="clearOutput()">Clear Console</button>
+                        <button class="btn" onclick="runProgram()">Run</button>
 
                         {% if not challenge.automatic_review %}
-                            <button id ="insert_program" type=button>Use as Solution</button>
+                            <button id ="insert_program" class="btn">Use as Solution</button>
                         {% else %}
-                            <button id="submit_program" type=button>Submit</button>
+                            <button id="submit_program" class="btn">Submit</button>
                         {% endif %}
                     </div>
 
