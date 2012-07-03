@@ -185,3 +185,60 @@ shell.done = function(req) {
     }
   }
 };
+
+$('.submit-vote').live('click', function() {
+
+    $initiator = $(this)
+
+    $submission_id = $(this).attr("id").split("__")[1];
+    $response = $('#response__'+$submission_id).val();
+    $vote = $(this).siblings('.feedback-buttons').children('.active').val();
+
+    if (!$vote || $response.length < 10) {
+        alert('Please enter your vote and a 10 character minimum response!');
+        return;
+    }
+
+    $(this).attr("disabled", "disabled");
+    $.ajax({
+        url: "/rpc",
+        async: true,
+        type: "POST",
+        data: {'method': 'submit_vote', 'submission_key':$submission_id, 'vote':$vote, 'response':$response},
+        success: function(response){
+            var parsed = jQuery.parseJSON(response)
+            if (parsed != null && parsed.flags_left_today == -1) {
+                alert("You don't have any more flags left.")
+            }
+            else {
+                if ($vote == "flag") {
+                    alert("You have " + parsed.flags_left_today + " flags left")
+                }
+
+                $initiator.button('submitted');
+                // Disable the other controls
+                $initiator.parent().find("textarea").attr("disabled", "disabled").css("font-style", "italic");
+                $initiator.parent().find("input[type=radio]").button("option", "disabled", true);
+                $initiator.parent().css("background", "bisque");
+
+                $('#submissionFeedbacksContainer').show()
+                $('#submissionFeedbacksContainer').insertAfter($initiator.parent())
+
+                // Get the in_jeeqs
+                $.ajax({
+                    url: "/rpc",
+                    async: true,
+                    type: "GET",
+                    data: {'method': 'get_in_jeeqs', 'submission_key':$submission_id},
+                    success: function(response) {
+                        // The sever sends an HTML
+                        $('#submissionFeedbacks').html(response);
+                    },
+                    error: function(response) {
+                        $('#submissionFeedbacks').html("Could not retrieve other In Jeeqs")
+                    }
+                })
+            }
+        }
+    })
+})

@@ -149,7 +149,8 @@
                         async: true,
                         type: "GET",
                         success: function(response) {
-                            $('#all_submissions').html(response);
+                            // Jquery's html() will strip scripts.
+                            $('#all_submissions')[0].innerHTML = response;
                             review_page_loaded = true
                         },
                         error: function(response) {
