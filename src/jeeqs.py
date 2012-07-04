@@ -822,87 +822,83 @@ class RPCHandler(webapp2.RequestHandler):
                 self.error(StatusCode.forbidden)
                 return
         
-        if not self.jeeqser.key() in submission.users_voted:
-            jeeqser_challenge = get_JC(submission.author,submission.challenge)
+        jeeqser_challenge = get_JC(submission.author,submission.challenge)
 
-            if len(jeeqser_challenge) == 0:
-                # should never happen but let's guard against it!
-                logging.error("Jeeqser_Challenge not available! for jeeqser : " + submission.author.user.email() + " and challenge : " + submission.challenge.name)
-                jeeqser_challenge = Jeeqser_Challenge(
-                    parent = submission.author,
-                    jeeqser = submission.author,
-                    challenge = submission.challenge,
-                    active_attempt = submission)
-                jeeqser_challenge.put()
-            else:
-                jeeqser_challenge = jeeqser_challenge[0]
+        if len(jeeqser_challenge) == 0:
+            # should never happen but let's guard against it!
+            logging.error("Jeeqser_Challenge not available! for jeeqser : " + submission.author.user.email() + " and challenge : " + submission.challenge.name)
+            jeeqser_challenge = Jeeqser_Challenge(
+                parent = submission.author,
+                jeeqser = submission.author,
+                challenge = submission.challenge,
+                active_attempt = submission)
+            jeeqser_challenge.put()
+        else:
+            jeeqser_challenge = jeeqser_challenge[0]
 
-            feedback = Feedback(
-                parent=submission,
-                attempt=submission,
-                author=self.jeeqser,
-                attempt_author=submission.author,
-                markdown=self.request.get('response'),
-                content=markdown.markdown(self.request.get('response'), ['codehilite', 'mathjax']),
-                vote=vote)
+        feedback = Feedback(
+            parent=submission,
+            attempt=submission,
+            author=self.jeeqser,
+            attempt_author=submission.author,
+            markdown=self.request.get('response'),
+            content=markdown.markdown(self.request.get('response'), ['codehilite', 'mathjax']),
+            vote=vote)
 
-            ns.submission = submission
-            ns.jeeqser_challenge = jeeqser_challenge
-            ns.jeeqser = self.jeeqser
+        ns.submission = submission
+        ns.jeeqser_challenge = jeeqser_challenge
+        ns.jeeqser = self.jeeqser
 
-            def persist_vote():
-                # get all the objects that will be updated
-                submission = Attempt.get(ns.submission.key())
-                jeeqser_challenge = Jeeqser_Challenge.get(ns.jeeqser_challenge.key())
-                jeeqser = Jeeqser.get(ns.jeeqser.key())
-                submission.author = Jeeqser.get(ns.submission.author.key())
+        def persist_vote():
+            # get all the objects that will be updated
+            submission = Attempt.get(ns.submission.key())
+            jeeqser_challenge = Jeeqser_Challenge.get(ns.jeeqser_challenge.key())
+            jeeqser = Jeeqser.get(ns.jeeqser.key())
+            submission.author = Jeeqser.get(ns.submission.author.key())
 
-                # check flagging limit
-                if vote == 'flag':
-                    flags_left = spam_manager.check_and_update_flag_limit(jeeqser)
-                    response = {'flags_left_today':flags_left}
-                    out_json = json.dumps(response)
-                    self.response.write(out_json)
-                    if flags_left == -1:
-                        raise Rollback()
+            # check flagging limit
+            if vote == 'flag':
+                flags_left = spam_manager.check_and_update_flag_limit(jeeqser)
+                response = {'flags_left_today':flags_left}
+                out_json = json.dumps(response)
+                self.response.write(out_json)
+                if flags_left == -1:
+                    raise Rollback()
 
-                submission.users_voted.append(jeeqser.key())
-                submission.vote_count += 1
+            submission.users_voted.append(jeeqser.key())
+            submission.vote_count += 1
 
-                submission.vote_sum += float(RPCHandler.get_vote_numeric_value(vote))
-                submission.vote_average = float(submission.vote_sum / submission.vote_count)
-                RPCHandler.update_submission(submission, jeeqser_challenge, vote, jeeqser)
+            submission.vote_sum += float(RPCHandler.get_vote_numeric_value(vote))
+            submission.vote_average = float(submission.vote_sum / submission.vote_count)
+            RPCHandler.update_submission(submission, jeeqser_challenge, vote, jeeqser)
 
-                # update stats
-                jeeqser.reviews_out_num += 1
-                submission.author.reviews_in_num +=1
+            # update stats
+            jeeqser.reviews_out_num += 1
+            submission.author.reviews_in_num +=1
 
-                jeeqser_challenge.put()
-                submission.put()
-                submission.challenge.put()
-                jeeqser.put()
-                submission.author.put()
-                feedback.put()
+            jeeqser_challenge.put()
+            submission.put()
+            submission.challenge.put()
+            jeeqser.put()
+            submission.author.put()
+            feedback.put()
 
-            xg_on = db.create_transaction_options(xg=True)
-            db.run_in_transaction_options(xg_on, persist_vote)
+        xg_on = db.create_transaction_options(xg=True)
+        db.run_in_transaction_options(xg_on, persist_vote)
 
-            Activity(
-                type='voting',
-                done_by = self.jeeqser,
-                done_by_displayname=self.jeeqser.displayname,
-                done_by_gravatar = self.jeeqser.gravatar_url,
-                challenge=submission.challenge,
-                challenge_name=submission.challenge.name,
-                submission=submission,
-                submission_author=submission.author,
-                submission_author_displayname=submission.author.displayname,
-                submission_author_gravatar = submission.author.gravatar_url,
-                feedback=feedback
-            ).put()
-        else: # should not happen!
-            self.error(StatusCode.forbidden)
-            return
+        Activity(
+            type='voting',
+            done_by = self.jeeqser,
+            done_by_displayname=self.jeeqser.displayname,
+            done_by_gravatar = self.jeeqser.gravatar_url,
+            challenge=submission.challenge,
+            challenge_name=submission.challenge.name,
+            submission=submission,
+            submission_author=submission.author,
+            submission_author_displayname=submission.author.displayname,
+            submission_author_gravatar = submission.author.gravatar_url,
+            feedback=feedback
+        ).put()
 
 
     def flag_feedback(self):

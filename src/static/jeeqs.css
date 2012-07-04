@@ -72,7 +72,7 @@ a img {
     font-family: sans-serif;
 }
 
-.submission-feedback { padding: 10px !important; }
+.submission-feedback { !important; }
 div.submission-feedback .ui-state-active.correct_label {background:green}
 div.submission-feedback .ui-state-active.incorrect_label {background: #ff5967}
 div.submission-feedback .ui-state-active.flag_label {background: grey;}

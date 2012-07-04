@@ -216,6 +216,7 @@ $('.submit-vote').live('click', function() {
                 }
 
                 $initiator.button('submitted');
+                $initiator.attr("disabled", "disabled");
                 // Disable the other controls
                 $initiator.parent().find("textarea").attr("disabled", "disabled").css("font-style", "italic");
                 $initiator.parent().find("input[type=radio]").button("option", "disabled", true);
