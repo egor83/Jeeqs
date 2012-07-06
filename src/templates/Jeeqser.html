@@ -15,14 +15,14 @@
                 data: {'method': 'update_displayname', 'display_name':$displayname},
                 success: function(response){
                     if (response != 'not_unique') {
-                        $initiator.button("option", "label", "Updated to " + $displayname);
+                        $initiator.button('updated');
                     }
                     else{
-                        $initiator.button("option", "label", "Username not unique. Try again!")
+                        $initiator.button('duplicate')
                     }
                 },
                 error: function(response) {
-                    $initiator.button("option", "label", "Ooops. Something went wrong!")
+                    $initiator.button('error')
                 }
             })
 
@@ -44,10 +44,12 @@
             </div>
         {% endif %}
 
-        <h3>Display name</h3>
-        <div class="jeeqser-value">
-            <input type="text" id="displayname" value="{{ jeeqser.displayname }}" style="font-size: 1em;" maxlength="10">
-            <button type="button" id = "updateDisplayName" style="color:orange; font-size: 1em">Update</button>
+        <div class="well">
+            <h3>Display name</h3>
+            <div class="jeeqser-value">
+                <input type="text" id="displayname" value="{{ jeeqser.displayname }}" style="font-size: 1em; margin-top: 20px" maxlength="10">
+                <button class="btn" data-updated-text="Updated!" data-error-text="Oops! Try again!" data-duplicate-text="Username taken already. Please select a different one!" id = "updateDisplayName">Update</button>
+            </div>
         </div>
 
         <h3>Profile Picture</h3>
