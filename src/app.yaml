@@ -1,5 +1,5 @@
 application: jeeqsy
-version: alpha
+version: oauth-test
 runtime: python27
 api_version: 1
 threadsafe: no
@@ -24,9 +24,13 @@ handlers:
 #- url: /remote_api
 #  script: $PYTHON_LIB/google/appengine/ext/remote_api/handler.py
 
+- url: /oauth2callback
+  script: oauth2client.appengine.application
+
 - url: /admin/.*
   script: admin.py
   login: admin
 
 - url: .*
   script: jeeqs.py
+
