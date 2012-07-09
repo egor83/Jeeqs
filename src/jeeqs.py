@@ -256,6 +256,10 @@ class AboutHandler(webapp2.RequestHandler):
     @authenticate(required=False)
     @decorator.oauth_required
     def get(self):
+        http = decorator.http()
+        user = service.people().get(userId='me').execute(http)
+        self.jeeqser.gravatar_url = user['image']['url']
+
         vars = add_common_vars({
                 'jeeqser' : self.jeeqser,
                 'gravatar_url' : self.jeeqser.gravatar_url if self.jeeqser else None,
