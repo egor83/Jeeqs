@@ -39,8 +39,10 @@ jinja_environment.filters['timesince'] = timesince
 ###############
 
 import httplib2
+from apiclient.errors import HttpError
 
 from apiclient.discovery import build
+from oauth2client.client import AccessTokenRefreshError
 from oauth2client.appengine import oauth2decorator_from_clientsecrets
 from google.appengine.api import memcache
 
@@ -225,8 +227,11 @@ class UserHandler(webapp2.RequestHandler):
     """Renders User's profile page"""
 
     @authenticate(False)
+    @decorator.oauth_aware
     def get(self):
         target_jeeqser = None
+        gplus_profile_picture = None
+        has_credentials = decorator.has_credentials()
         jeeqser_key = self.request.get('jk')
 
         if jeeqser_key:
@@ -236,6 +241,16 @@ class UserHandler(webapp2.RequestHandler):
                 return
         elif self.jeeqser:
             target_jeeqser = self.jeeqser
+
+            if decorator.has_credentials():
+                try:
+                    http = decorator.http()
+                    user = service.people().get(userId='me').execute(http)
+                    gplus_profile_picture = user['image']['url']
+
+                except (AccessTokenRefreshError, HttpError):
+                    has_credentials = False
+                    pass
         else:
             self.redirect('/')
 
@@ -243,7 +258,10 @@ class UserHandler(webapp2.RequestHandler):
                 'jeeqser' : self.jeeqser,
                 'target_jeeqser' : target_jeeqser,
                 'login_url': users.create_login_url(self.request.url),
-                'logout_url': users.create_logout_url(self.request.url)
+                'logout_url': users.create_logout_url(self.request.url),
+                'google_plus_auth_url': decorator.authorize_url(),
+                'has_google_plus_credentials': has_credentials,
+                'gplus_profile_picture': gplus_profile_picture
         })
 
         template = jinja_environment.get_template('Jeeqser.html')
@@ -254,12 +272,7 @@ class AboutHandler(webapp2.RequestHandler):
     """Renders the About page """
 
     @authenticate(required=False)
-    @decorator.oauth_required
     def get(self):
-        http = decorator.http()
-        user = service.people().get(userId='me').execute(http)
-        self.jeeqser.gravatar_url = user['image']['url']
-
         vars = add_common_vars({
                 'jeeqser' : self.jeeqser,
                 'gravatar_url' : self.jeeqser.gravatar_url if self.jeeqser else None,

@@ -33,7 +33,9 @@
 
 {% block container %}
     {% if jeeqser == target_jeeqser and jeeqser %}
-        <h1> Hello {{ jeeqser.displayname }}! </h1>
+        <div style="margin-bottom: 50px">
+            <h1> Hello {{ jeeqser.displayname }}! </h1>
+        </div>
 
         {% if jeeqser.suspended_until %}
             <h3>Suspension</h3>
@@ -44,46 +46,92 @@
             </div>
         {% endif %}
 
-        <div class="well">
-            <h3>Display name</h3>
-            <div class="jeeqser-value">
-                <input type="text" id="displayname" value="{{ jeeqser.displayname }}" style="font-size: 1em; margin-top: 20px" maxlength="10">
-                <button class="btn" data-updated-text="Updated!" data-error-text="Oops! Try again!" data-duplicate-text="Username taken already. Please select a different one!" id = "updateDisplayName">Update</button>
+        <div class="row well">
+            <div style="margin-bottom: 20px">
+                <h3>Display name</h3>
+            </div>
+            <div class="span12">
+                    <input type="text" id="displayname" value="{{ jeeqser.displayname }}" style="font-size: 1em; margin-top: 20px" maxlength="10">
+                    <button class="btn" data-updated-text="Updated!" data-error-text="Oops! Try again!" data-duplicate-text="Username taken already. Please select a different one!" id = "updateDisplayName">Update</button>
             </div>
         </div>
 
-        <h3>Profile Picture</h3>
-        <div class="jeeqser-value">
-            <img src="{{ jeeqser.gravatar_url }}" style="border-radius: 5px"/>
-            <br/>
-            <br/>
-            <small>We are using <a href="http://www.gravatar.com">Gravatar</a> for email : {{ jeeqser.user.email }}</small>
+        <div class="row well">
+            <div class="span12">
+                <div class="row">
+                    <div style="margin-bottom: 20px">
+                        <h3>Profile Picture</h3>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="span5" style="border-right: 1px dashed gray">
+                        <div class="row">
+                            <div class="span1">
+                                <img src="/static/gravatar.jpeg" height="40px" width="40px" style="border-radius: 5px;"/> <br/>
+                            </div>
+                            <div class="span2">
+                                <small>We are using <a href="http://www.gravatar.com">Gravatar</a> for email : {{ jeeqser.user.email() }}</small>
+                            </div>
+                            <div class="span1 offset1">
+                                <img src="{{ jeeqser.gravatar_url }}" style="border-radius: 5px;  background-color: green; padding: 5px;"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="span5 offset1">
+                        <div class="row">
+                                {% if has_google_plus_credentials %}
+                                    <div class="span1">
+                                        <img src="/static/new-g-plus-icon-128.png" height="40px" width="40px" style="border-radius: 5px"/> <br/>
+                                    </div>
+                                    <div class="span2">
+                                        Your Google plus profile picture:
+                                    </div>
+                                    <div class="span1 offset1">
+                                        <img src="{{ gplus_profile_picture }}" style="border-radius: 5px"/>
+                                    </div>
+                                {% else %}
+                                    <button id="authorize_google_plus" class="btn btn-info" onclick="location.href='{{ google_plus_auth_url }}'">
+                                        Authorize Jeeqs to read your Google+ profile picture
+                                    </button>
+                                {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <h3>Email</h3>
-        <div class="jeeqser-value">
-        {{ jeeqser.user.email }}
+        <div class="row well">
+            <div class="span6">
+                <h3>Email</h3>
+                <div class="jeeqser-value">
+                {{ jeeqser.user.email() }}
+                </div>
+            </div>
         </div>
     {% endif %}
 
-    {% if jeeqser != target_jeeqser %} {#  for some other user #}
-        <h1> {{ target_jeeqser.displayname }} </h1>
-        <img src="{{ target_jeeqser.gravatar_url }}" style="border-radius: 5px"/>
-    {% endif %}
+    <div class="row well">
+        <div class="span6">
+            {% if jeeqser != target_jeeqser %} {#  for some other user #}
+                <h1> {{ target_jeeqser.displayname }} </h1>
+                <img src="{{ target_jeeqser.gravatar_url }}" style="border-radius: 5px"/>
+            {% endif %}
 
-    <h3>Out Jeeqs</h3>
-    <div class="jeeqser-value">
-        {{ target_jeeqser.reviews_out_num|d('0') }}
-    </div>
+            <h3>Out Jeeqs</h3>
+            <div class="jeeqser-value">
+                {{ target_jeeqser.reviews_out_num|d('0') }}
+            </div>
 
-    <h3>In Jeeqs</h3>
-    <div class="jeeqser-value">
-        {{ target_jeeqser.reviews_in_num|d('0') }}
-    </div>
+            <h3>In Jeeqs</h3>
+            <div class="jeeqser-value">
+                {{ target_jeeqser.reviews_in_num|d('0') }}
+            </div>
 
-    <h3>Submissions</h3>
-    <div class="jeeqser-value">
-        {{ target_jeeqser.submissions_num|d('0') }}
+            <h3>Submissions</h3>
+            <div class="jeeqser-value">
+                {{ target_jeeqser.submissions_num|d('0') }}
+            </div>
+        </div>
     </div>
 
 {% endblock container %}
