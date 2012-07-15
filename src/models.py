@@ -32,7 +32,7 @@ class Jeeqser(db.Model):
     submissions_num = db.IntegerProperty(default=0)
     gravatar_url_persisted = db.LinkProperty()
     gplus_picture_url = db.LinkProperty()
-    profile_url = db.LinkProperty()
+    profile_url_persisted = db.LinkProperty()
     is_moderator = db.BooleanProperty()
     took_tour = db.BooleanProperty()
     suspended_until = db.DateTimeProperty()
@@ -44,6 +44,18 @@ class Jeeqser(db.Model):
     last_flagged_on = db.DateTimeProperty()
     # Number of posts this jeeqser has flagged today
     num_flagged_today = db.IntegerProperty()
+
+    @property
+    def profile_url(self):
+        if self.profile_url_persisted:
+            return self.profile_url_persisted
+        else:
+            self.profile_url_persisted = self.gravatar_url
+            self.put()
+            return self.profile_url_persisted
+    @profile_url.setter
+    def profile_url(self, value):
+        self.profile_url_persisted = value
 
 
     def get_displayname(self):

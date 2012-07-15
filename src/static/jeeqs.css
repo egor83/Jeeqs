@@ -92,3 +92,6 @@ div.submission-feedback .ui-state-active.flag_label {background: grey;}
     padding: 5px;
 }
 
+.selectable_profile_picture {
+    cursor: pointer;
+}

@@ -197,7 +197,7 @@
                         <div style="float: right; clear:right; margin-top: 5px">
                             {% with  %}
                                 {% set jeeqser_key = challenge.last_solver.key() %}
-                                {% set avatar_url = challenge.last_solver.gravatar_url %}
+                                {% set avatar_url = challenge.last_solver.profile_url %}
                                 {% set style = 'float:right' %}
                                 {% include "jeeqser_avatar.html" %}
                             {% endwith %}

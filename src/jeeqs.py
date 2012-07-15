@@ -242,7 +242,7 @@ class UserHandler(webapp2.RequestHandler):
             target_jeeqser = self.jeeqser
 
             if not self.jeeqser.gplus_picture_url:
-                if decorator.has_credentials():
+                if decorator.has_credentials() and not self.jeeqser.gplus_picture_url:
                     try:
                         http = decorator.http()
                         user = service.people().get(userId='me').execute(http)
@@ -797,7 +797,7 @@ class RPCHandler(webapp2.RequestHandler):
             type='submission',
             done_by=self.jeeqser,
             done_by_displayname=self.jeeqser.displayname,
-            done_by_gravatar=self.jeeqser.gravatar_url,
+            done_by_gravatar=self.jeeqser.profile_url,
             challenge=challenge,
             challenge_name=challenge.name).put()
 
@@ -843,7 +843,12 @@ class RPCHandler(webapp2.RequestHandler):
         db.run_in_transaction_options(xg_on, persist_new_draft)
 
     def update_profile_picture(self):
-        pass
+        profile_picture_url = self.request.get('profile_picture_url')
+        if profile_picture_url == self.jeeqser.profile_url:
+            return
+
+        self.jeeqser.profile_url = profile_picture_url
+        self.jeeqser.put()
 
     def update_displayname(self):
         displayname = self.request.get('display_name')
@@ -953,13 +958,13 @@ class RPCHandler(webapp2.RequestHandler):
             type='voting',
             done_by = self.jeeqser,
             done_by_displayname=self.jeeqser.displayname,
-            done_by_gravatar = self.jeeqser.gravatar_url,
+            done_by_gravatar = self.jeeqser.profile_url,
             challenge=submission.challenge,
             challenge_name=submission.challenge.name,
             submission=submission,
             submission_author=submission.author,
             submission_author_displayname=submission.author.displayname,
-            submission_author_gravatar = submission.author.gravatar_url,
+            submission_author_gravatar = submission.author.profile_url,
             feedback=feedback
         ).put()
 

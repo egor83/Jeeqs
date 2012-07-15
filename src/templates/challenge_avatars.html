@@ -2,7 +2,7 @@
 {% for jeeqser in solver_jeeqsers %}
     {% with %}
         {% set jeeqser_key =  jeeqser.key() %}
-        {% set avatar_url = jeeqser.gravatar_url %}
+        {% set avatar_url = jeeqser.profile_url %}
         {% include "jeeqser_avatar.html" %}
     {% endwith %}
 {% endfor %}
