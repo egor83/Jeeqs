@@ -31,6 +31,8 @@ class Jeeqser(db.Model):
     reviews_in_num = db.IntegerProperty(default=0)
     submissions_num = db.IntegerProperty(default=0)
     gravatar_url_persisted = db.LinkProperty()
+    gplus_picture_url = db.LinkProperty()
+    profile_url = db.LinkProperty()
     is_moderator = db.BooleanProperty()
     took_tour = db.BooleanProperty()
     suspended_until = db.DateTimeProperty()

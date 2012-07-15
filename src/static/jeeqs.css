@@ -87,3 +87,8 @@ div.submission-feedback .ui-state-active.flag_label {background: grey;}
     margin-left: 20px;
 }
 
+.current_profile_picture {
+    background-color: green;
+    padding: 5px;
+}
+

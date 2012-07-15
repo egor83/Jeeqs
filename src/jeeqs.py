@@ -230,7 +230,6 @@ class UserHandler(webapp2.RequestHandler):
     @decorator.oauth_aware
     def get(self):
         target_jeeqser = None
-        gplus_profile_picture = None
         has_credentials = decorator.has_credentials()
         jeeqser_key = self.request.get('jk')
 
@@ -242,15 +241,17 @@ class UserHandler(webapp2.RequestHandler):
         elif self.jeeqser:
             target_jeeqser = self.jeeqser
 
-            if decorator.has_credentials():
-                try:
-                    http = decorator.http()
-                    user = service.people().get(userId='me').execute(http)
-                    gplus_profile_picture = user['image']['url']
+            if not self.jeeqser.gplus_picture_url:
+                if decorator.has_credentials():
+                    try:
+                        http = decorator.http()
+                        user = service.people().get(userId='me').execute(http)
+                        self.jeeqser.gplus_picture_url = user['image']['url']
+                        self.jeeqser.put()
 
-                except (AccessTokenRefreshError, HttpError):
-                    has_credentials = False
-                    pass
+                    except (AccessTokenRefreshError, HttpError):
+                        has_credentials = False
+                        pass
         else:
             self.redirect('/')
 
@@ -261,7 +262,6 @@ class UserHandler(webapp2.RequestHandler):
                 'logout_url': users.create_logout_url(self.request.url),
                 'google_plus_auth_url': decorator.authorize_url(),
                 'has_google_plus_credentials': has_credentials,
-                'gplus_profile_picture': gplus_profile_picture
         })
 
         template = jinja_environment.get_template('Jeeqser.html')
@@ -500,6 +500,8 @@ class RPCHandler(webapp2.RequestHandler):
             self.submit_vote()
         elif method == 'update_displayname':
             self.update_displayname()
+        elif method == 'update_profile_picture':
+            self.update_profile_picture()
         elif method == 'submit_solution':
             self.submit_solution()
         elif method == 'save_draft_solution':
@@ -839,6 +841,9 @@ class RPCHandler(webapp2.RequestHandler):
 
         xg_on = db.create_transaction_options(xg=True)
         db.run_in_transaction_options(xg_on, persist_new_draft)
+
+    def update_profile_picture(self):
+        pass
 
     def update_displayname(self):
         displayname = self.request.get('display_name')

@@ -188,7 +188,7 @@ shell.done = function(req) {
 
 $('.submit-vote').live('click', function() {
 
-    $initiator = $(this)
+    var $initiator = $(this)
 
     $submission_id = $(this).attr("id").split("__")[1];
     $response = $('#response__'+$submission_id).val();
@@ -242,4 +242,13 @@ $('.submit-vote').live('click', function() {
             }
         }
     })
+})
+
+$('.selectable_profile_picture').live('click', function() {
+    var $initiator = $(this)
+    var $img = $initiator.children('img');
+    if (!$img.hasClass('current_profile_picture')) {
+        $('.selectable_profile_picture').children().removeClass('current_profile_picture')
+        $img.addClass('current_profile_picture')
+    }
 })

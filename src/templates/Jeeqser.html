@@ -73,7 +73,14 @@
                                 <small>We are using <a href="http://www.gravatar.com">Gravatar</a> for email : {{ jeeqser.user.email() }}</small>
                             </div>
                             <div class="span1 offset1">
-                                <img src="{{ jeeqser.gravatar_url }}" style="border-radius: 5px;  background-color: green; padding: 5px;"/>
+                                {% if jeeqser.profile_url == jeeqser.gravatar_url %}
+                                    {% set gravatar_class = 'current_profile_picture' %}
+                                {% else %}
+                                    {% set gravatar_class = '' %}
+                                {% endif %}
+                                <div class="selectable_profile_picture">
+                                    <img src="{{ jeeqser.gravatar_url }}" style="border-radius: 5px;" class="{{ gravatar_class }}"/>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -87,7 +94,15 @@
                                         Your Google plus profile picture:
                                     </div>
                                     <div class="span1 offset1">
-                                        <img src="{{ gplus_profile_picture }}" style="border-radius: 5px"/>
+                                        {% if jeeqser.profile_url == jeeqser.gplus_picture_url %}
+                                            {% set gplus_picture_class = 'current_profile_picture' %}
+                                        {% else %}
+                                            {% set gplus_picture_class = '' %}
+                                        {% endif %}
+
+                                        <div class="selectable_profile_picture">
+                                            <img src="{{ jeeqser.gplus_picture_url }}" width="40px" height="40px" style="border-radius: 5px" class="{{ gplus_picture_class }}"/>
+                                        </div>
                                     </div>
                                 {% else %}
                                     <button id="authorize_google_plus" class="btn btn-info" onclick="location.href='{{ google_plus_auth_url }}'">
