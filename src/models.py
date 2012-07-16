@@ -158,6 +158,7 @@ class Challenge(db.Model):
     num_jeeqsers_solved = db.IntegerProperty(default=0)
     num_jeeqsers_submitted = db.IntegerProperty(default=0)
     last_solver = db.ReferenceProperty(Jeeqser)
+    last_solver_picture_url_persisted = db.LinkProperty()
 
 
     def get_breadcrumb(self):
@@ -250,6 +251,29 @@ class Challenge(db.Model):
             self.exercise_course_name_persisted = self.exercise.course.name
             self.put()
             return self.exercise_course_name_persisted
+
+    @property
+    def last_solver_picture_url(self):
+        if self.last_solver_picture_url_persisted:
+            return self.last_solver_picture_url_persisted
+        elif self.last_solver:
+            self.last_solver_picture_url_persisted = self.last_solver.profile_url
+            self.put()
+            return self.last_solver_picture_url_persisted
+        else:
+            return None
+
+    @last_solver_picture_url.setter
+    def last_solver_picture_url(self, value):
+        self.last_solver_picture_url_persisted = value
+
+    def update_last_solver(self, solver):
+        """
+        updates the last solver for this challenge
+        """
+        self.last_solver = solver
+        self.last_solver_picture_url = solver.profile_url if solver else None
+
 
 class Draft(db.Model):
     """Models a draft (un-submitted) attempt"""

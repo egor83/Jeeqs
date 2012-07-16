@@ -574,12 +574,12 @@ class RPCHandler(webapp2.RequestHandler):
             jeeqser_challenge.status_changed_on = datetime.now()
             if submission.status == 'correct':
                 submission.challenge.num_jeeqsers_solved += 1
-                submission.challenge.last_solver = submission.author
+                submission.challenge.update_last_solver(submission.author)
             elif submission.status == 'incorrect':
                 if previous_status == 'correct':
                     submission.challenge.num_jeeqsers_solved -= 1
                 if submission.challenge.last_solver and submission.challenge.last_solver.key() == submission.author.key():
-                    submission.challenge.last_solver = None
+                    submission.challenge.update_last_solver(None)
 
 
     @authenticate(False)
@@ -735,7 +735,7 @@ class RPCHandler(webapp2.RequestHandler):
                 challenge.num_jeeqsers_submitted += 1
 
             if challenge.last_solver and challenge.last_solver.key() == self.jeeqser.key():
-                challenge.last_solver = None
+                challenge.update_last_solver(None)
 
             challenge.put()
 
