@@ -127,7 +127,7 @@
 
             $(".challenge_in_list").on('click', function() {
                 window.location=$(this).find("a").attr("href");
-                return false;
+                // return false;
             });
         });
     </script>
@@ -183,11 +183,10 @@
                         {% endif %}
                         <span class="challenge_stats" style="cursor: {{ cursor }}; color: #808080; font-size: smaller; float:left; margin-left: 20px;">
                             <span
-                                    title="{{ challenge.num_jeeqsers_solved|d('0')}} jeeqser(s) solved and {{ challenge.num_jeeqsers_submitted|d('0')}}
-                                    jeeqser(s) submitted for this challenge" class="badge"
+                                    title="{{ challenge.num_jeeqsers_solved|d('0')}} jeeqser(s) solved and {{ challenge.num_jeeqsers_submitted|d('0')}} jeeqser(s) submitted for this challenge" class="badge"
                                     style="border-radius: 0px; float:right">
                                 <span> <b>{{ challenge.num_jeeqsers_solved|d('0')}}</b><i class="icon-ok-circle"></i></span>
-                                <span> <b>{{ challenge.num_jeeqsers_submitted|d('0')}}</b> <i class="icon-arrow-up"></i></span>
+                                <span> <b>{{ challenge.num_jeeqsers_submitted|d('0')}}</b><i class="icon-arrow-up"></i></span>
                             </span>
                         </span>
                     </div>

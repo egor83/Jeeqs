@@ -163,14 +163,19 @@
 {% endblock script %}
 
 {% block container_header %}
-    {% include "challenge.html" %}
+
+    <div class="row">
+        <div class="span9">
+            {% include "challenge.html" %}
+        </div>
+    </div>
 
     <div id="submissions" style="float:left; clear:left; width: 100%; margin-top: 20px">
         <ul id="submissions_tabs" class="nav nav-tabs">
             <li><a href="#your_submission" data-toggle="tab">Your Submission</a></li>
             <li><a href="#all_submissions" data-toggle="tab">All Submissions</a></li>
         </ul>
-        <div id="submissions_tabs_content" class="tab-content">
+        <div id="submissions_tabs_content" class="tab-content" style="min-height: 200px">
             <div id="your_submission" class="fade tab-pane">
                 <div id="submission" style="padding:15px; clear:both">
                     {% if submission %}

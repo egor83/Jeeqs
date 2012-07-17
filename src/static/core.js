@@ -263,3 +263,9 @@ $('.selectable_profile_picture').live('click', function() {
         })
     }
 })
+
+$(".challenge_avatars a").on('click', function(event) {
+    event.stopPropagation()
+    return false;
+})
+
