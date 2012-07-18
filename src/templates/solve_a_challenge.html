@@ -29,7 +29,7 @@
                 $('#wmd-input').val('{{ draft.markdown|escapejs }}')
             {% endif %}
 
-            {% if not challenge.automatic_review %}
+            {% if not challenge.automatic_review and not attempt%}
                 var converter = Markdown.getSanitizingConverter();
                 converter.hooks.chain("postConversion", function (text) {
                     return text.replace(/\s*:::(:)*python\s*\n/, "");
@@ -201,7 +201,7 @@
                                     </li>
                                 </ul>
                                 <div style="max-height: 300px; overflow: auto; margin: 10px;">
-                                    <div>
+                                    <div class="well">
                                         <h4>Submission score: {{ submission.vote_average}}/4 based on votes by {{ submission.vote_count }} Jeeqsers</h4>
                                         {% include "attempt_score.html"%}
                                     </div>
