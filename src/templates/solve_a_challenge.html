@@ -101,17 +101,18 @@
                 })
             })
 
-            // Initialize the editor
-            $editor = ace.edit("editor");
-            $editor.setTheme("ace/theme/twilight");
-            var pythonMode = require("ace/mode/python").Mode;
-            $editor.getSession().setMode(new pythonMode());
-            {% if template_code %}
-                $editor.getSession().setValue("{{ template_code|escapejs }}");
-            {% else %}
-                $editor.getSession().setValue("# Write your python code here!");
-            {% endif %}
-
+            if ($("#editor").length) {
+                // Initialize the editor
+                $editor = ace.edit("editor");
+                $editor.setTheme("ace/theme/twilight");
+                var pythonMode = require("ace/mode/python").Mode;
+                $editor.getSession().setMode(new pythonMode());
+                {% if template_code %}
+                    $editor.getSession().setValue("{{ template_code|escapejs }}");
+                {% else %}
+                    $editor.getSession().setValue("# Write your python code here!");
+                {% endif %}
+            }
 
             $(':button').button();
 
@@ -209,93 +210,94 @@
                             {% endif %}
                         </div>
 
-                        <div id="new_submission" style="float:left; clear:both; width: 100%; margin-top:10px;">
-                            <div id="answerForm">
-                                <input type="hidden" name="challenge_key" id="challenge_key" value="{{ challenge_key }}" />
+                        {% if not attempt %}
+                            <div id="new_submission" style="float:left; clear:both; width: 100%; margin-top:10px;">
+                                <div id="answerForm">
+                                    <input type="hidden" name="challenge_key" id="challenge_key" value="{{ challenge_key }}" />
 
-                                {% if not challenge.automatic_review %}
-                                    <div id="solutionContainer">
-                                        <ul class="nav nav-tabs">
-                                            <li class="active">
-                                                <a href="#">Solution</a>
-                                            </li>
-                                        </ul>
-                                        <div>
-                                            <div class="wmd-panel">
-                                                <div id="wmd-button-bar"></div>
-                                                <textarea class="wmd-input" id="wmd-input"></textarea>
-                                                <div style="float:right; font-size: x-small;"><a href="http://daringfireball.net/projects/markdown/syntax">Markdown</a> and <a href="http://www.mathjax.org/">MathJax</a> are supported.</div>
-                                            </div>
-                                            <div id="wmd-preview" class="wmd-panel wmd-preview" style="margin-top: 15px;"></div>
-                                            <div id="submitButton" style="margin-top: 10px;">
-                                                {% if jeeqser %}
-                                                    {% if jeeqser.reviews_out_num >= jeeqser.submissions_num or challenge.name == 'Factorial' or isadmin %}
-                                                        <button class="btn btn-success btn-large" data-submitted-text="Submitted!" id ="submitSolutionButton">Submit Solution</button>
+                                    {% if not challenge.automatic_review %}
+                                        <div id="solutionContainer">
+                                            <ul class="nav nav-tabs">
+                                                <li class="active">
+                                                    <a href="#">Solution</a>
+                                                </li>
+                                            </ul>
+                                            <div>
+                                                <div class="wmd-panel">
+                                                    <div id="wmd-button-bar"></div>
+                                                    <textarea class="wmd-input" id="wmd-input"></textarea>
+                                                    <div style="float:right; font-size: x-small;"><a href="http://daringfireball.net/projects/markdown/syntax">Markdown</a> and <a href="http://www.mathjax.org/">MathJax</a> are supported.</div>
+                                                </div>
+                                                <div id="wmd-preview" class="wmd-panel wmd-preview" style="margin-top: 15px;"></div>
+                                                <div id="submitButton" style="margin-top: 10px;">
+                                                    {% if jeeqser %}
+                                                        {% if jeeqser.reviews_out_num >= jeeqser.submissions_num or challenge.name == 'Factorial' or isadmin %}
+                                                            <button class="btn btn-success btn-large" data-submitted-text="Submitted!" id ="submitSolutionButton">Submit Solution</button>
+                                                        {% else %}
+                                                            <button class="btn btn-success btn-large" id="submitSolutionButton" disabled="disabled" title="Submission credit has reached 0. Please review some submissions first.">Submit Solution</button>
+                                                        {% endif %}
+                                                        <button class="btn btn-large" id="save_draft_submission_button" data-save-text="Save as Draft" data-error-text="Oops!! Try again!" data-saved-text="Saved!">Save as Draft</button>
                                                     {% else %}
-                                                        <button class="btn btn-success btn-large" id="submitSolutionButton" disabled="disabled" title="Submission credit has reached 0. Please review some submissions first.">Submit Solution</button>
+                                                        <button class="btn btn-success btn-large" id ="submitSolutionButton" disabled="disabled">Login to Submit!</button>
                                                     {% endif %}
-                                                    <button class="btn btn-large" id="save_draft_submission_button" data-save-text="Save as Draft" data-error-text="Oops!! Try again!" data-saved-text="Saved!">Save as Draft</button>
-                                                {% else %}
-                                                    <button class="btn btn-success btn-large" id ="submitSolutionButton" disabled="disabled">Login to Submit!</button>
-                                                {% endif %}
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                {% endif %} {# automatic review #}
-                                <br/>
-                            </div>
-                        </div>
-
-                        <div id="console" style="float:left; clear: both; width: 100%;">
-                            <ul class="nav nav-tabs">
-                                <li class="active">
-                                    <a href="#">Sandbox</a>
-                                </li>
-                            </ul>
-                            <div style="overflow:auto; height:100%;">
-                                <div>
-                                    <div class="eight columns">
-                                        <div id="editorContainer" style="position: relative; width: 100%; height: 300px;">
-                                            <div id="editor" style="width: 100%;height:300px; "></div>
-                                        </div>
-                                    </div>
-                                    <div class="five columns">
-                                        <textarea id="output" readonly="readonly" placeholder="Console" style="width:100%;height:270px;">
-                                        </textarea>
-                                    </div>
+                                    {% endif %} {# automatic review #}
+                                    <br/>
                                 </div>
-                                <div class="clearfix"></div>
-                                <br/>
-                                <button class="btn" onclick="clearOutput()">Clear Console</button>
-                                <button class="btn" onclick="runProgram()">Run</button>
-
-                                {% if not challenge.automatic_review %}
-                                    <button id ="insert_program" class="btn">Use as Solution</button>
-                                {% else %}
-                                    <button id="submit_program" class="btn">Submit</button>
-                                {% endif %}
                             </div>
 
-                            <div id="recent-attempts" style="margin-top: 10px; width: 100%;">
+                            <div id="console" style="float:left; clear: both; width: 100%;">
                                 <ul class="nav nav-tabs">
                                     <li class="active">
-                                        <a href="#">Your Recent Submissions</a>
+                                        <a href="#">Sandbox</a>
                                     </li>
                                 </ul>
-                                <div class="recent-jeeqs">
-                                    {% if jeeqser %}
-                                        {% for attempt in attempts %}
-                                            <p> <a class="noline" href="/challenge/?ch={{ challenge.key() }}&att={{ attempt.key() }}"> Attempt #{{ attempt.index }}</a> at: {{ attempt.date }}</p>
-                                            <div>
-                                                {{ attempt.content|safe }}
+                                <div style="overflow:auto; height:100%;">
+                                    <div>
+                                        <div class="eight columns">
+                                            <div id="editorContainer" style="position: relative; width: 100%; height: 300px;">
+                                                <div id="editor" style="width: 100%;height:300px; "></div>
                                             </div>
-                                            <hr/>
-                                        {% endfor %}
+                                        </div>
+                                        <div class="five columns">
+                                            <textarea id="output" readonly="readonly" placeholder="Console" style="width:100%;height:270px;">
+                                            </textarea>
+                                        </div>
+                                    </div>
+                                    <div class="clearfix"></div>
+                                    <br/>
+                                    <button class="btn" onclick="clearOutput()">Clear Console</button>
+                                    <button class="btn" onclick="runProgram()">Run</button>
+
+                                    {% if not challenge.automatic_review %}
+                                        <button id ="insert_program" class="btn">Use as Solution</button>
+                                    {% else %}
+                                        <button id="submit_program" class="btn">Submit</button>
                                     {% endif %}
                                 </div>
-                            </div>
-                        </div>
 
+                                <div id="recent-attempts" style="margin-top: 10px; width: 100%;">
+                                    <ul class="nav nav-tabs">
+                                        <li class="active">
+                                            <a href="#">Your Recent Submissions</a>
+                                        </li>
+                                    </ul>
+                                    <div class="recent-jeeqs">
+                                        {% if jeeqser %}
+                                            {% for attempt in attempts %}
+                                                <p> <a class="noline" href="/challenge/?ch={{ challenge.key() }}&att={{ attempt.key() }}"> Attempt #{{ attempt.index }}</a> at: {{ attempt.date }}</p>
+                                                <div>
+                                                    {{ attempt.content|safe }}
+                                                </div>
+                                                <hr/>
+                                            {% endfor %}
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
                     </div>
 
                     <div id="all_submissions" style="margin-top: 20px" class="fade tab-pane"></div>

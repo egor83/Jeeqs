@@ -315,9 +315,10 @@ class ChallengeHandler(webapp2.RequestHandler):
             challenge.content = markdown.markdown(challenge.markdown, ['codehilite', 'mathjax'])
             challenge.put()
 
+        attempt = None
         attempt_key = self.request.get('att')
         if attempt_key:
-            submission = Attempt.get(attempt_key)
+            attempt = submission = Attempt.get(attempt_key)
 
         if (self.jeeqser):
             attempts_query = db.GqlQuery(" SELECT * "
@@ -376,7 +377,8 @@ class ChallengeHandler(webapp2.RequestHandler):
                 'template_code': challenge.template_code,
                 'submission' : submission,
                 'feedbacks' : feedbacks,
-                'draft': draft
+                'draft': draft,
+                'attempt': attempt
         })
 
         template = jinja_environment.get_template('solve_a_challenge.html')
