@@ -200,6 +200,22 @@ $('.submit-vote').live('click', function() {
     }
 
     $(this).attr("disabled", "disabled");
+
+    // Get the in_jeeqs
+    $.ajax({
+        url: "/rpc",
+        async: true,
+        type: "GET",
+        data: {'method': 'get_in_jeeqs', 'submission_key':$submission_id},
+        success: function(response) {
+            // The sever sends an HTML
+            $('#submissionFeedbacks').html(response);
+        },
+        error: function(response) {
+            $('#submissionFeedbacks').html("Could not retrieve other In Jeeqs")
+        }
+    })
+
     $.ajax({
         url: "/rpc",
         async: true,
@@ -209,37 +225,21 @@ $('.submit-vote').live('click', function() {
             var parsed = jQuery.parseJSON(response)
             if (parsed != null && parsed.flags_left_today == -1) {
                 alert("You don't have any more flags left.")
+                return;
             }
-            else {
-                if ($vote == "flag") {
-                    alert("You have " + parsed.flags_left_today + " flags left")
-                }
-
-                $initiator.button('submitted');
-                $initiator.attr("disabled", "disabled");
-                // Disable the other controls
-                $initiator.parent().find("textarea").attr("disabled", "disabled").css("font-style", "italic");
-                $initiator.parent().find("input[type=radio]").button("option", "disabled", true);
-                $initiator.parent().css("background", "bisque");
-
-                $('#submissionFeedbacksContainer').show()
-                $('#submissionFeedbacksContainer').insertAfter($initiator.parent())
-
-                // Get the in_jeeqs
-                $.ajax({
-                    url: "/rpc",
-                    async: true,
-                    type: "GET",
-                    data: {'method': 'get_in_jeeqs', 'submission_key':$submission_id},
-                    success: function(response) {
-                        // The sever sends an HTML
-                        $('#submissionFeedbacks').html(response);
-                    },
-                    error: function(response) {
-                        $('#submissionFeedbacks').html("Could not retrieve other In Jeeqs")
-                    }
-                })
+            if ($vote == "flag") {
+                alert("You have " + parsed.flags_left_today + " flags left")
             }
+
+            $initiator.button('submitted');
+            $initiator.attr("disabled", "disabled");
+            // Disable the other controls
+            $initiator.parent().find("textarea").attr("disabled", "disabled").css("font-style", "italic");
+            $initiator.parent().find("input[type=radio]").button("option", "disabled", true);
+            $initiator.parent().css("background", "bisque");
+
+            $('#submissionFeedbacksContainer').show()
+            $('#submissionFeedbacksContainer').insertAfter($initiator.parent())
         }
     })
 })
