@@ -199,7 +199,8 @@ $('.submit-vote').live('click', function() {
         return;
     }
 
-    $(this).attr("disabled", "disabled");
+    $(this).addClass("disabled");
+    $(this).siblings('.feedback-buttons').children().attr('disabled', 'disabled');
 
     // Get the in_jeeqs
     $.ajax({
@@ -231,11 +232,8 @@ $('.submit-vote').live('click', function() {
                 alert("You have " + parsed.flags_left_today + " flags left")
             }
 
-            $initiator.button('submitted');
-            $initiator.attr("disabled", "disabled");
             // Disable the other controls
             $initiator.parent().find("textarea").attr("disabled", "disabled").css("font-style", "italic");
-            $initiator.parent().find("input[type=radio]").button("option", "disabled", true);
             $initiator.parent().css("background", "bisque");
 
             $('#submissionFeedbacksContainer').show()

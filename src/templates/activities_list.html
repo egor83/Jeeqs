@@ -1,13 +1,11 @@
+{% from 'avatars.html' import avatar %}
+
 {# Gets object 'activities' and renders it #}
 {% for activity in activities %}
     <div class="activity" style="margin-top: 10px; font-size:small; float:left; clear:both">
         {% if activity.type == 'submission' %}
             <div style="float:left; width: 30px">
-                {% with %}
-                    {% set jeeqser_key = activity.done_by.key()  %}
-                    {% set avatar_url = activity.done_by_gravatar %}
-                    {% include "jeeqser_avatar.html" %}
-                {% endwith %}
+                {{  avatar(jeeqser_key=activity.done_by.key(), avatar_url=activity.done_by_gravatar) }}
             </div>
             <div style="margin-left: 30px;">
                 {% with %}
@@ -22,18 +20,10 @@
         {% if activity.type == 'voting' %}
             <div style="width: 30px; float:left">
                 <div style="float:left">
-                    {% with %}
-                        {% set jeeqser_key = activity.done_by.key()  %}
-                        {% set avatar_url = activity.done_by_gravatar %}
-                        {% include "jeeqser_avatar.html" %}
-                    {% endwith %}
+                    {{  avatar(jeeqser_key=activity.done_by.key(), avatar_url=activity.done_by_gravatar) }}
                 </div>
                 <div style="float:left; clear:left">
-                    {% with  %}
-                        {% set jeeqser_key = activity.submission_author.key() %}
-                        {% set avatar_url = activity.submission_author_gravatar %}
-                        {% include "jeeqser_avatar.html"%}
-                    {% endwith %}
+                    {{  avatar(jeeqser_key=activity.submission_author.key(), avatar_url=activity.submission_author_gravatar) }}
                 </div>
             </div>
             <div style="margin-left: 30px;">

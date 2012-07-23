@@ -1,5 +1,5 @@
+{% from 'avatars.html' import avatar %}
 {% extends "base_twoColumn.html" %}
-
 {% block script %}
 
     <script>
@@ -193,12 +193,7 @@
 
                     {% if challenge.last_solver %}
                         <div style="float: right; clear:right; margin-top: 5px">
-                            {% with  %}
-                                {% set jeeqser_key = challenge.last_solver.key() %}
-                                {% set avatar_url = challenge.last_solver_picture_url %}
-                                {% set style = 'float:right' %}
-                                {% include "jeeqser_avatar.html" %}
-                            {% endwith %}
+                            {{  avatar('float:right', challenge.last_solver.key(), challenge.last_solver_picture_url) }}
                         </div>
                     {% endif %}
 

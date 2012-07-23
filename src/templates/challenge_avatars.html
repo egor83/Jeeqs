@@ -1,8 +1,5 @@
+{% from 'avatars.html' import avatar %}
 {# A list of avatars returned for a challenge's stats #}
 {% for jeeqser in solver_jeeqsers %}
-    {% with %}
-        {% set jeeqser_key =  jeeqser.key() %}
-        {% set avatar_url = jeeqser.profile_url %}
-        {% include "jeeqser_avatar.html" %}
-    {% endwith %}
+    {{  avatar(jeeqser_key=jeeqser.key(), avatar_url=jeeqser.profile_url) }}
 {% endfor %}
