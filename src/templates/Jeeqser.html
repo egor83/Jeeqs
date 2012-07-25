@@ -117,9 +117,13 @@
 
         <div class="row well">
             <div class="span6">
-                <h3>Email</h3>
+                <div class="row">
+                    <div style="margin-bottom: 20px">
+                        <h3>Email</h3>
+                    </div>
+                </div>
                 <div class="jeeqser-value">
-                {{ jeeqser.user.email() }}
+                    {{ jeeqser.user.email() }}
                 </div>
             </div>
         </div>
@@ -127,29 +131,24 @@
 
     <div class="row well">
         <div class="span6">
+            <div class="row">
+                <div style="margin-bottom: 20px">
+                    <h3>Stats</h3>
+                </div>
+            </div>
             {% if jeeqser != target_jeeqser %} {#  for some other user #}
                 <h1> {{ target_jeeqser.displayname }} </h1>
                 <img src="{{ target_jeeqser.profile_url }}" width="40px" height="40px" style="border-radius: 5px"/>
             {% endif %}
 
             <dl class="dl-horizontal">
-                <dt>test</dt>
-                <dd>test</dd>
+                <dt>Out Jeeqs</dt>
+                <dd>{{ target_jeeqser.reviews_out_num|d('0') }}</dd>
+                <dt>In Jeeqs</dt>
+                <dd>{{ target_jeeqser.reviews_in_num|d('0') }} </dd>
+                <dt>Submissions</dt>
+                <dd>{{ target_jeeqser.submissions_num|d('0') }}</dd>
             </dl>
-            <h3>Out Jeeqs</h3>
-            <div class="jeeqser-value">
-                {{ target_jeeqser.reviews_out_num|d('0') }}
-            </div>
-
-            <h3>In Jeeqs</h3>
-            <div class="jeeqser-value">
-                {{ target_jeeqser.reviews_in_num|d('0') }}
-            </div>
-
-            <h3>Submissions</h3>
-            <div class="jeeqser-value">
-                {{ target_jeeqser.submissions_num|d('0') }}
-            </div>
         </div>
     </div>
 
