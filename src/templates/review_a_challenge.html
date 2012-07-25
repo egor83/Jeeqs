@@ -15,11 +15,11 @@
                         &nbsp; <span style="color:grey; font-size:smaller;">{{ submission.date|timesince }} </span>
                     </div>
                 </div>
-                <div style="padding-top: 10px; overflow: auto; clear:left;">
+                <div style="padding: 10px; overflow: auto; clear:left;">
                     {{ submission.content|safe }}
                 </div>
                 {% if review_qualified %}
-                    <div class="submission-feedback">
+                    <div class="submission-feedback" style="padding: 5px">
                         <div class="feedback-buttons btn-group" data-toggle="buttons-radio" style="margin: 10px; margin-left: 0px;">
                             <button value="correct" class="btn"><i class="icon-ok"></i></button>
                             <button value="incorrect" class="btn"><i class="icon-remove"></i></button>

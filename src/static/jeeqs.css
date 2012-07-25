@@ -46,12 +46,9 @@ a img {
     color: #F44;
 }
 
-.submission-feedback {
-    border: 1px solid antiqueWhite;
-}
-
 .submission-placeholder {
     background: #f0f8ff;
+    padding: 5px;
 }
 
 .ui-widget-content {
