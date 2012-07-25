@@ -136,8 +136,6 @@
                 })
             })
 
-            // select Your submissions tab
-            $('#submissions a:first').tab('show');
             review_page_loaded = false
             $('#submissions a[href="#all_submissions"]').on('shown', function(e){
                     // Load the review page using ajax
@@ -159,6 +157,14 @@
                     })
             })
 
+            var activeTab = $('[href=' + location.hash + ']');
+            if (activeTab && !(window.location.hash === "")) {
+                activeTab.tab('show');
+            }
+            else {
+                // select Your submissions tab
+                $('#submissions a:first').tab('show');
+            }
         })
     </script>
 {% endblock script %}
