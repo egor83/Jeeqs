@@ -8,11 +8,15 @@
         {% endif %}
     {% else %}
         {% for submission in submissions %}
-            <div class="submission-placeholder" style="float:left; clear:left; width: 100%; margin-top: 20px">
+            <div class="submission-placeholder" style="float:left; clear:left; width: 90%; margin-top: 20px">
                 <div>
                     {{ avatar(style='float:left; margin-right: 10px;', jeeqser_key=submission.author.key(), avatar_url=submission.author.profile_url) }}
-                    <div style="float:left; color: grey">Submitted by {{ submission.author.displayname }}
+                    <div style="float:left; color: grey">
+                        Submitted by {{ submission.author.displayname }}
                         &nbsp; <span style="color:grey; font-size:smaller;">{{ submission.date|timesince }} </span>
+                    </div>
+                    <div style="float:right; color:grey; font-size: smaller">
+                        {{ submission.vote_count }} votes submitted
                     </div>
                 </div>
                 <div style="padding: 10px; overflow: auto; clear:left;">
@@ -37,6 +41,9 @@
                 {% endif %}
             </div>
         {% endfor %}
+        <div style="text-align:center; margin-top: 20px; float:left; width: 100%">
+            <button class="btn btn-info" onclick="window.location.reload()">Load more</button>
+        </div>
     {% endif %}
 </div>
 
