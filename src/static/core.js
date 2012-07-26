@@ -271,3 +271,20 @@ $(".challenge_avatars a").on('click', function(event) {
 $(document).ready(function() {
     $('a[rel=tooltip]').tooltip()
 })
+
+$('#challenge_submissions_next').on('click', function(event) {
+    alert('cursor is : ' + $(this).attr('data-cursor'));
+    $('#other_submissions').html('Loading ... ')
+    $.ajax({
+        url: "/review/?ch={{ challenge.key() }}",
+        async: true,
+        type: "GET",
+        success: function(response) {
+            $('#other_submissions').html(response);
+            review_page_loaded = true
+        },
+        error: function(response) {
+            $('#other_submissions').html('An Error occurred while loading this page. Please try again later ...');
+        }
+    })
+})

@@ -28,6 +28,10 @@ from google.appengine.ext.webapp.util import run_wsgi_app
 import lib.markdown as markdown
 from template_filters import escapejs, timesince
 
+from oauth2 import service, decorator
+from apiclient.errors import HttpError
+from oauth2client.client import AccessTokenRefreshError
+
 jinja_environment = jinja2.Environment(
                         loader=jinja2.FileSystemLoader(os.path.join(os.path.dirname(__file__), 'templates'))
                         ,extensions=['jinja2.ext.with_'])
@@ -35,52 +39,9 @@ jinja_environment = jinja2.Environment(
 jinja_environment.filters['escapejs'] = escapejs
 jinja_environment.filters['timesince'] = timesince
 
-## oauth2
-###############
-
-import httplib2
-from apiclient.errors import HttpError
-
-from apiclient.discovery import build
-from oauth2client.client import AccessTokenRefreshError
-from oauth2client.appengine import oauth2decorator_from_clientsecrets
-from google.appengine.api import memcache
-
 # Set to True if stack traces should be shown in the browser, etc.
 # TODO: should this be changed into an environment variable ?
 _DEBUG = True
-
-# CLIENT_SECRETS, name of a file containing the OAuth 2.0 information for this
-# application, including client_id and client_secret, which are found
-# on the API Access tab on the Google APIs
-# Console <http://code.google.com/apis/console>
-CLIENT_SECRETS = os.path.join(os.path.dirname(__file__), 'client_secrets.json')
-
-# Helpful message to display in the browser if the CLIENT_SECRETS file
-# is missing.
-MISSING_CLIENT_SECRETS_MESSAGE = """
-<h1>Warning: Please configure OAuth 2.0</h1>
-<p>
-To make this sample run you will need to populate the client_secrets.json file
-found at:
-</p>
-<p>
-<code>%s</code>.
-</p>
-<p>with information found on the <a
-href="https://code.google.com/apis/console">APIs Console</a>.
-</p>
-""" % CLIENT_SECRETS
-
-http = httplib2.Http(memcache)
-service = build("plus", "v1", http=http)
-decorator = oauth2decorator_from_clientsecrets(
-    CLIENT_SECRETS,
-    'https://www.googleapis.com/auth/plus.me',
-    MISSING_CLIENT_SECRETS_MESSAGE)
-
-###############
-## end of oauth2
 
 def get_jeeqs_robot():
     """
@@ -428,6 +389,7 @@ class ReviewHandler(webapp2.RequestHandler):
                                               " ORDER BY vote_count ASC ",
                                               challenge)
             submissions = submissions_query.fetch(20)
+            cursor = submissions_query.cursor()
 
             # TODO: replace this iteration with a data oriented approach
             submissions[:] = [submission for submission in submissions if not (submission.author.key() == self.jeeqser.key())] # or self.jeeqser.key() in submission.users_voted)]
@@ -443,7 +405,8 @@ class ReviewHandler(webapp2.RequestHandler):
                 'challenge' : challenge,
                 'challenge_key' : challenge.key(),
                 'submissions' : submissions,
-                'review_qualified' : review_qualified
+                'review_qualified' : review_qualified,
+                'cursor': cursor
         })
 
         template = jinja_environment.get_template('review_a_challenge.html')

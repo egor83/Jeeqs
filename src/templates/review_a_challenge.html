@@ -41,8 +41,15 @@
                 {% endif %}
             </div>
         {% endfor %}
-        <div style="text-align:center; margin-top: 20px; float:left; width: 100%">
-            <button class="btn btn-info" onclick="window.location.reload()">Load more</button>
+        <div style="margin-top: 20px; float:left;">
+            <ul class="pager">
+                <li>
+                    <a href="#">Previous</a>
+                </li>
+                <li>
+                    <a id="challenge_submissions_next" href="#" data-cursor="{{ cursor }}">Next</a>
+                </li>
+            </ul>
         </div>
     {% endif %}
 </div>
