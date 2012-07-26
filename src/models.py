@@ -18,6 +18,9 @@ appcfg.py upload_data --url=http://localhost:8080/_ah/remote_api --filename=db_b
 In order to use the remote api use the following statement:
 python /Applications/GoogleAppEngineLauncher.app/Contents/Resources/GoogleAppEngine-default.bundle/Contents/Resources/google_appengine/remote_api_shell.py -s localhost:8080/_ah/remote_api
 
+For production:
+python2.7 /Applications/GoogleAppEngineLauncher.app/Contents/Resources/GoogleAppEngine-default.bundle/Contents/Resources/google_appengine/remote_api_shell.py -s oauth-test.jeeqsy.appspot.com
+
 Initializing the submissions_without_review for challenges:
 
 from models import *
@@ -31,6 +34,20 @@ for ch in all_challenges:
        unreviewed += 1
    ch.submissions_without_review = unreviewed
    ch.put()
+
+For production:
+
+s~jeeqsy> sys.path.append('/Users/nomadali/jeeqs/Jeeqs/src')
+s~jeeqsy> from models import *
+s~jeeqsy> all_ch = Challenge.all().fetch(1000)
+s~jeeqsy> for ch in all_ch:
+...   unreviewed = 0
+...   for att in ch.attempt_set:
+...     if att.active and att.vote_count == 0:
+...        unreviewed +=1
+...   ch.submissions_without_review = unreviewed
+...   ch.put()
+...
 
 
 """
