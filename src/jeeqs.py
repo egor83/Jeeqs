@@ -583,7 +583,6 @@ class RPCHandler(webapp2.RequestHandler):
                 if submission.challenge.last_solver and submission.challenge.last_solver.key() == submission.author.key():
                     submission.challenge.update_last_solver(None)
 
-
     @authenticate(False)
     def get_in_jeeqs(self):
         submission_key = self.request.get('submission_key')
@@ -738,6 +737,8 @@ class RPCHandler(webapp2.RequestHandler):
 
             if challenge.last_solver and challenge.last_solver.key() == self.jeeqser.key():
                 challenge.update_last_solver(None)
+
+            challenge.submissions_without_review += 1
 
             challenge.put()
 
@@ -937,6 +938,8 @@ class RPCHandler(webapp2.RequestHandler):
 
             submission.users_voted.append(jeeqser.key())
             submission.vote_count += 1
+            if submission.vote_count == 1:
+                submission.challenge.submissions_without_review -= 1
 
             submission.vote_sum += float(RPCHandler.get_vote_numeric_value(vote))
             submission.vote_average = float(submission.vote_sum / submission.vote_count)

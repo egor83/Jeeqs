@@ -18,6 +18,21 @@ appcfg.py upload_data --url=http://localhost:8080/_ah/remote_api --filename=db_b
 In order to use the remote api use the following statement:
 python /Applications/GoogleAppEngineLauncher.app/Contents/Resources/GoogleAppEngine-default.bundle/Contents/Resources/google_appengine/remote_api_shell.py -s localhost:8080/_ah/remote_api
 
+Initializing the submissions_without_review for challenges:
+
+from models import *
+all_challenges = Challenge.all().fetch(1000)
+
+for ch in all_challenges:
+   unreviewed = 0
+   atts = Attempt.all().filter('challenge = ', ch).filter('active = ', True).fetch(1000)
+   for att in atts:
+     if att.vote_count == 0:
+       unreviewed += 1
+   ch.submissions_without_review = unreviewed
+   ch.put()
+
+
 """
 
 from google.appengine.ext import db
@@ -157,6 +172,8 @@ class Challenge(db.Model):
     #stats
     num_jeeqsers_solved = db.IntegerProperty(default=0)
     num_jeeqsers_submitted = db.IntegerProperty(default=0)
+    # number of submissions to this challenge that still need reviewing!
+    submissions_without_review = db.IntegerProperty(default=0)
     last_solver = db.ReferenceProperty(Jeeqser)
     last_solver_picture_url_persisted = db.LinkProperty()
 
