@@ -137,22 +137,22 @@
             })
 
             review_page_loaded = false
-            $('#submissions a[href="#all_submissions"]').on('shown', function(e){
+            $('#submissions a[href="#other_submissions"]').on('shown', function(e){
                     // Load the review page using ajax
                     if (review_page_loaded)
                         return;
 
-                    $('#all_submissions').html('Loading ... ')
+                    $('#other_submissions').html('Loading ... ')
                     $.ajax({
                         url: "/review/?ch={{ challenge.key() }}",
                         async: true,
                         type: "GET",
                         success: function(response) {
-                            $('#all_submissions').html(response);
+                            $('#other_submissions').html(response);
                             review_page_loaded = true
                         },
                         error: function(response) {
-                            $('#all_submissions').html('An Error occurred while loading this page. Please try again later ...');
+                            $('#other_submissions').html('An Error occurred while loading this page. Please try again later ...');
                         }
                     })
             })
@@ -178,7 +178,7 @@
             <div id="submissions" style="float:left; clear:left; width: 100%; margin-top: 20px">
                 <ul id="submissions_tabs" class="nav nav-tabs">
                     <li><a href="#your_submission" data-toggle="tab">Your Submission</a></li>
-                    <li><a href="#all_submissions" data-toggle="tab">All Submissions</a></li>
+                    <li><a href="#other_submissions" data-toggle="tab">Other Submissions</a></li>
                 </ul>
                 <div id="submissions_tabs_content" class="tab-content" style="min-height: 200px">
                     <div id="your_submission" class="fade tab-pane">
@@ -306,7 +306,7 @@
                         {% endif %}
                     </div>
 
-                    <div id="all_submissions" style="margin-top: 20px" class="fade tab-pane"></div>
+                    <div id="other_submissions" style="margin-top: 20px" class="fade tab-pane"></div>
                 </div>
             </div>
         </div>
