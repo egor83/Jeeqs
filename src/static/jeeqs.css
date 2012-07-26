@@ -1,5 +1,4 @@
 body {
-    /*font-family: monospace;*/
     font-size: 14px;
 }
 
@@ -91,4 +90,9 @@ div.submission-feedback .ui-state-active.flag_label {background: grey;}
 
 .selectable_profile_picture {
     cursor: pointer;
+}
+
+.badge_links {
+    text-decoration: none;
+    cursor: none;
 }

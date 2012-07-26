@@ -267,3 +267,7 @@ $(".challenge_avatars a").on('click', function(event) {
     return false;
 })
 
+
+$(document).ready(function() {
+    $('a[rel=tooltip]').tooltip()
+})
