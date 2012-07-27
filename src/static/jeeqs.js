@@ -277,6 +277,7 @@ challenge_submissions_stack = []
 
 $(document).on('click', '#challenge_submissions_next, #challenge_submissions_previous', function(event) {
     event.stopPropagation()
+    event.preventDefault();
 
     var challenge_key = $(this).attr('data-challenge_key')
     var cursor = $(this).attr('data-cursor')
@@ -291,7 +292,7 @@ $(document).on('click', '#challenge_submissions_next, #challenge_submissions_pre
             cursor = challenge_submissions_stack.pop()
         }
         else {
-            $(this).addClass('disabled')
+            $(this).css('display', 'none');
             return;
         }
     }
