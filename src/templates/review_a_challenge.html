@@ -4,7 +4,7 @@
         {%if not review_qualified and not challenge.public_submissions%}
             <div style="color:grey">The submissions to this challenge are only visible to users who have solved the challenge.</div>
         {% else %}
-            <div style="color:grey"> No Submissions are available to review at this time! Please check back later!</div>
+            <div style="color:grey"> No Submissions! </div>
         {% endif %}
     {% else %}
         {% for submission in submissions %}
