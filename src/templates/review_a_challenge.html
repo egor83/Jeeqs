@@ -41,13 +41,16 @@
                 {% endif %}
             </div>
         {% endfor %}
+    {% endif %}
+
+    {% if next_cursor or previous_cursor %}
         <div style="margin-top: 20px; float:left;">
             <ul class="pager">
                 <li>
-                    <a href="#">Previous</a>
+                    <a id="challenge_submissions_previous" href="#" data-challenge_key="{{ challenge.key() }}">Previous</a>
                 </li>
                 <li>
-                    <a id="challenge_submissions_next" href="#" data-cursor="{{ cursor }}">Next</a>
+                    <a id="challenge_submissions_next" href="#" data-cursor="{{ next_cursor }}" data-previous_cursor="{{ previous_cursor }}" data-challenge_key="{{ challenge.key() }}">Next</a>
                 </li>
             </ul>
         </div>

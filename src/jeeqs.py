@@ -372,6 +372,8 @@ class ReviewHandler(webapp2.RequestHandler):
                 self.error(StatusCode.forbidden)
                 return
 
+        cursor = self.request.get('cursor') if self.request.get('cursor') else None
+
         # determine if the user is qualified to review this challenge's submissions
         if not users.is_current_user_admin():
             self_challenge = get_JC(self.jeeqser,challenge)
@@ -386,10 +388,15 @@ class ReviewHandler(webapp2.RequestHandler):
                                               " WHERE challenge = :1 "
                                               " AND active = True "
                                               " AND flagged = False "
-                                              " ORDER BY vote_count ASC ",
+                                              " ORDER BY vote_count ASC",
                                               challenge)
-            submissions = submissions_query.fetch(20)
-            cursor = submissions_query.cursor()
+            if cursor and cursor != "None":
+                submissions_query.with_cursor(cursor)
+
+            submissions = submissions_query.fetch(5)
+
+            previous_cursor = cursor
+            next_cursor = submissions_query.cursor()
 
             # TODO: replace this iteration with a data oriented approach
             submissions[:] = [submission for submission in submissions if not (submission.author.key() == self.jeeqser.key())] # or self.jeeqser.key() in submission.users_voted)]
@@ -403,10 +410,11 @@ class ReviewHandler(webapp2.RequestHandler):
                 'login_url': users.create_login_url(self.request.url),
                 'logout_url': users.create_logout_url(self.request.url),
                 'challenge' : challenge,
-                'challenge_key' : challenge.key(),
+                'challenge' : challenge,
                 'submissions' : submissions,
                 'review_qualified' : review_qualified,
-                'cursor': cursor
+                'next_cursor': next_cursor,
+                'previous_cursor' : previous_cursor,
         })
 
         template = jinja_environment.get_template('review_a_challenge.html')

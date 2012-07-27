@@ -272,11 +272,33 @@ $(document).ready(function() {
     $('a[rel=tooltip]').tooltip()
 })
 
-$('#challenge_submissions_next').on('click', function(event) {
-    alert('cursor is : ' + $(this).attr('data-cursor'));
+// Stack of cursors
+challenge_submissions_stack = []
+
+$(document).on('click', '#challenge_submissions_next, #challenge_submissions_previous', function(event) {
+    event.stopPropagation()
+
+    var challenge_key = $(this).attr('data-challenge_key')
+    var cursor = $(this).attr('data-cursor')
+    var previous_cursor = $(this).attr('data-previous_cursor')
+    var isNext = $(this).attr('id') == 'challenge_submissions_next' ? true : false
+
+    if (isNext) {
+        challenge_submissions_stack.push(previous_cursor);
+    }
+    else {
+        if (challenge_submissions_stack.length > 0) {
+            cursor = challenge_submissions_stack.pop()
+        }
+        else {
+            $(this).addClass('disabled')
+            return;
+        }
+    }
+
     $('#other_submissions').html('Loading ... ')
     $.ajax({
-        url: "/review/?ch={{ challenge.key() }}",
+        url: "/review/?ch=" + challenge_key + "&cursor=" + cursor,
         async: true,
         type: "GET",
         success: function(response) {
