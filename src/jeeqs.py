@@ -247,6 +247,8 @@ class ReviewHandler(webapp2.RequestHandler):
                 self.error(StatusCode.forbidden)
                 return
 
+        next_cursor = None
+        previous_cursor = None
         cursor = self.request.get('cursor') if self.request.get('cursor') else None
 
         # determine if the user is qualified to review this challenge's submissions

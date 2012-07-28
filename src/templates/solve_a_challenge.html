@@ -284,22 +284,27 @@
                                     {% endif %}
                                 </div>
 
-                                <div id="recent-attempts" style="margin-top: 10px; width: 100%;">
-                                    <ul class="nav nav-tabs">
-                                        <li class="active">
-                                            <a href="#">Your Recent Submissions</a>
-                                        </li>
-                                    </ul>
-                                    <div class="recent-jeeqs">
-                                        {% if jeeqser %}
-                                            {% for attempt in attempts %}
-                                                <p style="color: grey"> <a class="noline" href="/challenge/?ch={{ challenge.key() }}&att={{ attempt.key() }}"> Attempt #{{ attempt.index }}</a>  @  {{ attempt.date|timesince }}</p>
-                                                <div>
-                                                    {{ attempt.content|safe }}
-                                                </div>
-                                                <hr/>
-                                            {% endfor %}
-                                        {% endif %}
+                                <div id="recent-attempts" class="accordion" style="margin-top: 10px; width: 100%;">
+                                    <div class="accordion-group">
+                                        <div class="accordion-heading">
+                                            <a class="accordion-toggle" data-toggle="collapse" data-parent="#recent-attempts" href="#recent-attempt-contents" style="text-decoration: none">
+                                                Your Recent Submissions
+                                            </a>
+                                        </div>
+                                        <div id="recent-attempt-contents" class="recent-jeeqs accordion-body collapse">
+                                            {% if jeeqser %}
+                                                {% if attempts|length == 0 %}
+                                                    <p style="color:grey">Nothing to show here, yet!</p>
+                                                {% endif %}
+                                                {% for attempt in attempts %}
+                                                    <p style="color: grey"> <a class="noline" href="/challenge/?ch={{ challenge.key() }}&att={{ attempt.key() }}"> Attempt #{{ attempt.index }}</a>  @  {{ attempt.date|timesince }}</p>
+                                                    <div>
+                                                        {{ attempt.content|safe }}
+                                                    </div>
+                                                    <hr/>
+                                                {% endfor %}
+                                            {% endif %}
+                                        </div>
                                     </div>
                                 </div>
                             </div>

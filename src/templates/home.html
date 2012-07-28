@@ -184,10 +184,10 @@
                             {% set cursor = 'default' %}
                         {% endif %}
                         <span class="challenge_stats" style="cursor: {{ cursor }}; color: #808080; font-size: smaller; float:left; margin-left: 20px;">
-                            <span class="badge" style="border-radius: 0px; float:right; background-color: #E2E2E2">
-                                <a style="text-decoration: none" class="badge_links" href="#" rel="tooltip" data-original-title="{{ challenge.num_jeeqsers_solved|d('0')}} jeeqser(s) solved">{{ challenge.num_jeeqsers_solved|d('0')}}<i class="icon-ok-circle"></i></a>
-                                <a style="text-decoration: none" class="badge_links" href="#" rel="tooltip" data-original-title="{{ challenge.num_jeeqsers_submitted|d('0')}} jeeqser(s) submitted for this challenge.">{{ challenge.num_jeeqsers_submitted|d('0')}}<i class="icon-arrow-up"></i></a>
-                                <a style="text-decoration: none" class="badge_links" href="#" rel="tooltip" data-original-title="{{ challenge.submissions_without_review|d('0') }} submissions don't have any reviews"> {{ challenge.submissions_without_review|d('0')}}<i class="icon-bell"></i></a>
+                            <span style="border-radius: 0px; float:right; background-color: #E2E2E2; padding: 0px 9px 0px 9px ">
+                                <a style="text-decoration: none" class="badge_links" href="#" rel="tooltip" data-original-title="{{ challenge.num_jeeqsers_solved|d('0')}} jeeqser(s) solved">{{ challenge.num_jeeqsers_solved|d('0')}}<i class="icon-ok-circle shift-right-2"></i></a>
+                                <a style="text-decoration: none" class="badge_links" href="#" rel="tooltip" data-original-title="{{ challenge.num_jeeqsers_submitted|d('0')}} jeeqser(s) submitted for this challenge.">{{ challenge.num_jeeqsers_submitted|d('0')}}<i class="shift-right-2 icon-arrow-up"></i></a>
+                                <a style="text-decoration: none" class="badge_links" href="#" rel="tooltip" data-original-title="{{ challenge.submissions_without_review|d('0') }} submissions don't have any reviews"> {{ challenge.submissions_without_review|d('0')}}<i class="shift-right-2 icon-bell"></i></a>
                             </span>
                         </span>
                     </div>

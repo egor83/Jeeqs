@@ -96,3 +96,7 @@ div.submission-feedback .ui-state-active.flag_label {background: grey;}
     text-decoration: none;
     cursor: none;
 }
+
+.shift-right-2 {
+    margin-left: 2px;
+}
