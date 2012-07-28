@@ -21,6 +21,7 @@ from models import *
 from utils import *
 from spam_manager import *
 from program_tester import *
+from user_handler import UserHandler
 
 from google.appengine.api import users
 from google.appengine.ext.webapp.util import run_wsgi_app
@@ -28,9 +29,7 @@ from google.appengine.ext.webapp.util import run_wsgi_app
 import lib.markdown as markdown
 from template_filters import escapejs, timesince
 
-from oauth2 import service, decorator
-from apiclient.errors import HttpError
-from oauth2client.client import AccessTokenRefreshError
+from core import *
 
 jinja_environment = jinja2.Environment(
                         loader=jinja2.FileSystemLoader(os.path.join(os.path.dirname(__file__), 'templates'))
@@ -42,76 +41,6 @@ jinja_environment.filters['timesince'] = timesince
 # Set to True if stack traces should be shown in the browser, etc.
 # TODO: should this be changed into an environment variable ?
 _DEBUG = True
-
-def get_jeeqs_robot():
-    """
-    Returns the robot user that runs tests over programming solutions
-    """
-    robot = Jeeqser.all().filter('user =', users.User('a.akhavan.b@gmail.com')).fetch(1)[0]
-    return robot
-
-def get_jeeqser():
-    """
-    Gets Jeeqser entity related to the given authenticated user
-    """
-    user = users.get_current_user()
-    if user is None:
-        return None
-
-    jeeqsers = Jeeqser.all().filter('user = ', user).fetch(1)
-
-    if (len(jeeqsers) == 0):
-        jeeqser = Jeeqser(user=user, displayname=user.nickname())
-        jeeqser.put()
-        return jeeqser
-    return jeeqsers[0]
-
-def add_common_vars(vars):
-    vars['local'] = os.environ['APPLICATION_ID'].startswith('dev~')
-    vars['isadmin'] = users.is_current_user_admin();
-
-    return vars
-
-
-def authenticate(required=True):
-    """ Authenticates the user and sets self.jeeqser to be the user object.
-        The handler object (self) is different for each request. so jeeqser should not leak between requests.
-        Will return with error if user is not authenticated
-    """
-    def real_decorator(func):
-        def wrapper(self):
-            user = users.get_current_user()
-            if not user and required:
-                self.error(StatusCode.unauth)
-                return
-            elif user:
-                self.jeeqser = get_jeeqser()
-            else:
-                self.jeeqser = None
-
-            # clear/check suspension!
-            if self.jeeqser and self.jeeqser.suspended_until and self.jeeqser.suspended_until < datetime.now():
-                self.jeeqser.suspended_until = None
-                self.jeeqser.put()
-
-            if required and self.jeeqser and self.jeeqser.suspended_until and self.jeeqser.suspended_until > datetime.now():
-                return
-
-            func(self)
-
-        return wrapper
-    return real_decorator
-
-
-# Get Jeeqser_Challege for user and challenge
-# TODO: move to proper file
-def get_JC(jeeqser, challenge):
-  return Jeeqser_Challenge\
-    .all()\
-    .filter('jeeqser =', jeeqser)\
-    .filter('challenge =', challenge)\
-    .fetch(1)
-
 
 # Adds icons and background to feedback objects
 def prettify_injeeqs(injeeqs):
@@ -181,51 +110,6 @@ class FrontPageHandler(webapp2.RequestHandler):
         })
 
         template = jinja_environment.get_template('home.html')
-        rendered = template.render(vars)
-        self.response.write(rendered)
-
-class UserHandler(webapp2.RequestHandler):
-    """Renders User's profile page"""
-
-    @authenticate(False)
-    @decorator.oauth_aware
-    def get(self):
-        target_jeeqser = None
-        has_credentials = decorator.has_credentials()
-        jeeqser_key = self.request.get('jk')
-
-        if jeeqser_key:
-            target_jeeqser = Jeeqser.get(jeeqser_key)
-            if not target_jeeqser:
-                self.error(StatusCode.forbidden)
-                return
-        elif self.jeeqser:
-            target_jeeqser = self.jeeqser
-
-            if not self.jeeqser.gplus_picture_url:
-                if decorator.has_credentials() and not self.jeeqser.gplus_picture_url:
-                    try:
-                        http = decorator.http()
-                        user = service.people().get(userId='me').execute(http)
-                        self.jeeqser.gplus_picture_url = user['image']['url']
-                        self.jeeqser.put()
-
-                    except (AccessTokenRefreshError, HttpError):
-                        has_credentials = False
-                        pass
-        else:
-            self.redirect('/')
-
-        vars = add_common_vars({
-                'jeeqser' : self.jeeqser,
-                'target_jeeqser' : target_jeeqser,
-                'login_url': users.create_login_url(self.request.url),
-                'logout_url': users.create_logout_url(self.request.url),
-                'google_plus_auth_url': decorator.authorize_url(),
-                'has_google_plus_credentials': has_credentials,
-        })
-
-        template = jinja_environment.get_template('Jeeqser.html')
         rendered = template.render(vars)
         self.response.write(rendered)
 
