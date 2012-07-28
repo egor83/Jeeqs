@@ -1,6 +1,16 @@
+import jinja2
 import os
 from google.appengine.api import users
 from models import *
+from template_filters import escapejs, timesince
+
+jinja_environment = jinja2.Environment(
+    loader=jinja2.FileSystemLoader(os.path.join(os.path.dirname(__file__), 'templates'))
+    ,extensions=['jinja2.ext.with_'])
+
+jinja_environment.filters['escapejs'] = escapejs
+jinja_environment.filters['timesince'] = timesince
+
 
 def get_jeeqs_robot():
     """

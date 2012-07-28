@@ -5,7 +5,6 @@ A program for managing challenges, attempt and solutions.
 
 """
 
-import jinja2
 import os
 import sys
 import logging
@@ -27,16 +26,8 @@ from google.appengine.api import users
 from google.appengine.ext.webapp.util import run_wsgi_app
 
 import lib.markdown as markdown
-from template_filters import escapejs, timesince
 
 from core import *
-
-jinja_environment = jinja2.Environment(
-                        loader=jinja2.FileSystemLoader(os.path.join(os.path.dirname(__file__), 'templates'))
-                        ,extensions=['jinja2.ext.with_'])
-
-jinja_environment.filters['escapejs'] = escapejs
-jinja_environment.filters['timesince'] = timesince
 
 # Set to True if stack traces should be shown in the browser, etc.
 # TODO: should this be changed into an environment variable ?
