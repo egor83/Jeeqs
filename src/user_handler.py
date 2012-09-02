@@ -12,15 +12,19 @@ class UserHandler(webapp2.RequestHandler):
     @authenticate(False)
     @decorator.oauth_aware
     def get(self):
-        target_jeeqser = None
-        has_credentials = decorator.has_credentials()
         jeeqser_key = self.request.get('jk')
+
+        # target_jeeqser is the jeeqser for which the stats will be generated
+        target_jeeqser = None
+
+        has_credentials = decorator.has_credentials()
 
         if jeeqser_key:
             target_jeeqser = Jeeqser.get(jeeqser_key)
             if not target_jeeqser:
                 self.error(StatusCode.forbidden)
                 return
+
         elif self.jeeqser:
             target_jeeqser = self.jeeqser
 
@@ -37,6 +41,9 @@ class UserHandler(webapp2.RequestHandler):
                         pass
         else:
             self.redirect('/')
+
+        # get challenge history for target_jeeqser
+
 
         vars = add_common_vars({
             'jeeqser' : self.jeeqser,

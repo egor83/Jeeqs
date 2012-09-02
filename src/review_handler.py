@@ -1,11 +1,8 @@
 import os
 import sys
-import google.appengine.api.users
-import google.appengine.ext.db
 import webapp2
 from core import *
 from utils import StatusCode
-from models import *
 
 class ReviewHandler(webapp2.RequestHandler):
     """renders the review template
