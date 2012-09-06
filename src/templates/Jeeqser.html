@@ -1,36 +1,5 @@
 {% extends "base.html" %}
 
-{% block script %}
-<script>
-    $(document).ready(function() {
-        $("#updateDisplayName").button().bind('click', function() {
-            $displayname = $('#displayname').val();
-            $(this).button("option", "label", "...");
-            $initiator = $(this);
-
-            $.ajax({
-                url: "/rpc",
-                async: false,
-                type: "POST",
-                data: {'method': 'update_displayname', 'display_name':$displayname},
-                success: function(response){
-                    if (response != 'not_unique') {
-                        $initiator.button('updated');
-                    }
-                    else{
-                        $initiator.button('duplicate')
-                    }
-                },
-                error: function(response) {
-                    $initiator.button('error')
-                }
-            })
-
-        });
-    })
-</script>
-{% endblock script %}
-
 {% block container %}
     {% if jeeqser == target_jeeqser and jeeqser %}
         <div style="margin-bottom: 50px">

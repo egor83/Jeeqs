@@ -4,6 +4,7 @@ from oauth2 import service, decorator
 from apiclient.errors import HttpError
 from oauth2client.client import AccessTokenRefreshError
 import webapp2
+from utils import StatusCode
 
 
 class UserHandler(webapp2.RequestHandler):
@@ -43,7 +44,10 @@ class UserHandler(webapp2.RequestHandler):
             self.redirect('/')
 
         # get challenge history for target_jeeqser
-
+        correct_jcs = Jeeqser_Challenge\
+                        .all()\
+                        .filter('jeeqser = ', target_jeeqser)\
+                        .fetch(10)
 
         vars = add_common_vars({
             'jeeqser' : self.jeeqser,
@@ -52,6 +56,7 @@ class UserHandler(webapp2.RequestHandler):
             'logout_url': users.create_logout_url(self.request.url),
             'google_plus_auth_url': decorator.authorize_url(),
             'has_google_plus_credentials': has_credentials,
+            'correct_jcs' : correct_jcs,
             })
 
         template = jinja_environment.get_template('Jeeqser.html')

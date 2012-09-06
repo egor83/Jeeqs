@@ -311,3 +311,30 @@ $(document).on('click', '#challenge_submissions_next, #challenge_submissions_pre
         }
     })
 })
+
+$(document).ready(function() {
+    $("#updateDisplayName").button().bind('click', function() {
+        $displayname = $('#displayname').val();
+        $(this).button("option", "label", "...");
+        $initiator = $(this);
+
+        $.ajax({
+            url: "/rpc",
+            async: false,
+            type: "POST",
+            data: {'method': 'update_displayname', 'display_name':$displayname},
+            success: function(response){
+                if (response != 'not_unique') {
+                    $initiator.button('updated');
+                }
+                else{
+                    $initiator.button('duplicate')
+                }
+            },
+            error: function(response) {
+                $initiator.button('error')
+            }
+        })
+
+    });
+})

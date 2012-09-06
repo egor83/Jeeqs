@@ -59,6 +59,8 @@ class FrontPageHandler(webapp2.RequestHandler):
         all_challenges.sort(
           cmp = exercise_cmp,
           key = lambda challenge:challenge.exercise_number_persisted)
+
+        # TODO: won't work if there's more than 100 challenges!
         jeeqser_challenges = Jeeqser_Challenge\
             .all()\
             .filter('jeeqser = ', self.jeeqser)\
