@@ -148,6 +148,13 @@ indexes:
   - name: status
   - name: status_changed_on
 
+- kind: Jeeqser_Challenge
+  properties:
+  - name: jeeqser
+  - name: status
+  - name: status_changed_on
+    direction: desc
+
 - kind: Solution
   properties:
   - name: __key__

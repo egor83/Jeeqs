@@ -44,10 +44,16 @@ class UserHandler(webapp2.RequestHandler):
             self.redirect('/')
 
         # get challenge history for target_jeeqser
+        # TODO: needs pagination
         correct_jcs = Jeeqser_Challenge\
                         .all()\
                         .filter('jeeqser = ', target_jeeqser)\
-                        .fetch(10)
+                        .filter('status = ', 'correct')\
+                        .order('-status_changed_on')\
+                        .fetch(100)
+        # pre-fetch the challenges
+        for jc in correct_jcs:
+            jc.challenge.key()
 
         vars = add_common_vars({
             'jeeqser' : self.jeeqser,

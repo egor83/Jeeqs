@@ -62,6 +62,7 @@ class Jeeqser(db.Model):
     reviews_out_num = db.IntegerProperty(default=0)
     reviews_in_num = db.IntegerProperty(default=0)
     submissions_num = db.IntegerProperty(default=0)
+    correct_submissions_count = db.IntegerProperty(default=0)
     gravatar_url_persisted = db.LinkProperty()
     gplus_picture_url = db.LinkProperty()
     profile_url_persisted = db.LinkProperty()

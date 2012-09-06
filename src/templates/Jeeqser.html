@@ -129,5 +129,27 @@
             </dl>
         </div>
     </div>
+    <div class="row well">
+        <div class="span6">
+            <div class="row">
+                <div style="margin-bottom: 20px">
+                    <h3>Challenges Solved: {{ target_jeeqser.correct_submissions_count }}</h3>
+                </div>
+                <table class="table">
+                    {% for jc in correct_jcs %}
+                        <tr>
+                            <td><a href="/challenge/?ch={{ jc.challenge.key() }}"> {{ jc.challenge.name }} </a></td>
+                            <td style="white-space: nowrap;">
+                                <div style="color: green; float:left; margin-right:5px;" title="correct votes">+{{ jc.correct_count }} </div>
+                                <div style="color: red; float: left; margin-right:10px;" title="incorrect votes">-{{ jc.incorrect_count }} </div>
+                                <div style="color: grey; float:left;" title="flag votes">{{ jc.flag_count }} </div>
+                            </td>
+                            <td>{{ jc.status_changed_on|timesince }} </td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+    </div>
 
 {% endblock container %}

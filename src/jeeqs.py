@@ -319,10 +319,22 @@ class RPCHandler(webapp2.RequestHandler):
             return 0 # flag
 
     @staticmethod
-    def update_submission(submission, jeeqser_challenge, vote, voter):
+    def vote_submitted_update(submission, jeeqser_challenge, vote, voter):
         """
-        Updates the submission based on the vote given by the voter
+        Updates the model graph based on the vote given by the voter
         """
+        submission.users_voted.append(voter.key())
+        submission.vote_count += 1
+        if submission.vote_count == 1:
+            submission.challenge.submissions_without_review -= 1
+
+        submission.vote_sum += float(RPCHandler.get_vote_numeric_value(vote))
+        submission.vote_average = float(submission.vote_sum / submission.vote_count)
+
+        # update stats
+        voter.reviews_out_num += 1
+        submission.author.reviews_in_num +=1
+
         if vote == 'correct':
             submission.correct_count += 1
             jeeqser_challenge.correct_count = submission.correct_count
@@ -337,6 +349,7 @@ class RPCHandler(webapp2.RequestHandler):
                 spam_manager.flag_author(submission.author)
             submission.flagged_by.append(voter.key())
 
+        # TODO: this is not right! The previous state should be taken from Jeeqser_challenge not submission
         previous_status = submission.status
 
         #update status on submission and jeeqser_challenge
@@ -348,12 +361,16 @@ class RPCHandler(webapp2.RequestHandler):
         # TODO: This may not scale since challenge's entity group is high traffic - use sharded counters
         if submission.status != previous_status:
             jeeqser_challenge.status_changed_on = datetime.now()
+
             if submission.status == 'correct':
                 submission.challenge.num_jeeqsers_solved += 1
                 submission.challenge.update_last_solver(submission.author)
+                submission.author.correct_submissions_count += 1
+
             elif submission.status == 'incorrect':
                 if previous_status == 'correct':
                     submission.challenge.num_jeeqsers_solved -= 1
+                    submission.author.correct_submissions_count -= 1
                 if submission.challenge.last_solver and submission.challenge.last_solver.key() == submission.author.key():
                     submission.challenge.update_last_solver(None)
 
@@ -479,14 +496,11 @@ class RPCHandler(webapp2.RequestHandler):
 
         jeeqser_challenge = get_JC(self.jeeqser, challenge)
 
-        class Namespace(object): pass
-        ns = Namespace()
-        ns.jeeqser = self.jeeqser
-        ns.jeeqser_challenge = jeeqser_challenge
+        context = {'jeeqser' : self.jeeqser, 'jeeqser_challenge': jeeqser_challenge}
 
         def persist_new_submission():
 
-            jeeqser_challenge = ns.jeeqser_challenge
+            jeeqser_challenge = context['jeeqser_challenge']
             previous_index = 0
 
             if len(jeeqser_challenge) == 1:
@@ -531,21 +545,21 @@ class RPCHandler(webapp2.RequestHandler):
             jeeqser_challenge.status = None
             jeeqser_challenge.put()
 
-            jeeqser = Jeeqser.get(ns.jeeqser.key())
+            jeeqser = Jeeqser.get(context['jeeqser'].key())
             jeeqser.submissions_num += 1
             jeeqser.put()
 
             # Pass variables up
-            ns.jeeqser = jeeqser
-            ns.attempt = attempt
-            ns.jeeqser_challenge = jeeqser_challenge
+            context['jeeqser'] = jeeqser
+            context['attempt'] = attempt
+            context['jeeqser_challenge'] = jeeqser_challenge
 
         xg_on = db.create_transaction_options(xg=True)
         db.run_in_transaction_options(xg_on, persist_new_submission)
         # Receive variables from transaction
-        self.jeeqser = ns.jeeqser
-        attempt = ns.attempt
-        jeeqser_challenge = ns.jeeqser_challenge
+        self.jeeqser = context['jeeqser']
+        attempt = context['attempt']
+        jeeqser_challenge = context['jeeqser_challenge']
 
         # delete a draft if exists
         try:
@@ -558,13 +572,16 @@ class RPCHandler(webapp2.RequestHandler):
         # run the tests and persist the results
         if challenge.automatic_review:
             feedback = run_testcases(program, challenge, attempt, get_jeeqs_robot())
-            RPCHandler.update_submission(attempt, jeeqser_challenge, feedback.vote, self.jeeqser)
+            voter = self.jeeqser
+            RPCHandler.vote_submitted_update(attempt, jeeqser_challenge, feedback.vote, voter)
 
             def persist_testcase_results():
                 feedback.put()
                 jeeqser_challenge.put()
                 attempt.put()
                 attempt.challenge.put()
+                attempt.author.put()
+                voter.put()
                 # attempt.author doesn't need to be persisted, since it will only change when an attempt is flagged.
 
             xg_on = db.create_transaction_options(xg=True)
@@ -642,8 +659,6 @@ class RPCHandler(webapp2.RequestHandler):
             return
 
     def submit_vote(self):
-        class Namespace(object): pass
-        ns = Namespace()
 
         submission_key = self.request.get('submission_key')
         vote = self.request.get('vote')
@@ -661,7 +676,7 @@ class RPCHandler(webapp2.RequestHandler):
         #Ensure non-admin user is qualified to vote
         if not users.is_current_user_admin():
             voter_challenge = get_JC(self.jeeqser, submission.challenge)
-            qualifield = voter_challenge and voter_challenge[0].status == 'correct'
+            qualified = voter_challenge and voter_challenge[0].status == 'correct'
             
             if not qualified:
                 self.error(StatusCode.forbidden)
@@ -690,16 +705,12 @@ class RPCHandler(webapp2.RequestHandler):
             content=markdown.markdown(self.request.get('response'), ['codehilite', 'mathjax']),
             vote=vote)
 
-        ns.submission = submission
-        ns.jeeqser_challenge = jeeqser_challenge
-        ns.jeeqser = self.jeeqser
-
-        def persist_vote():
+        def persist_vote(submission_key, jeeqser_challenge_key, jeeqser_key):
             # get all the objects that will be updated
-            submission = Attempt.get(ns.submission.key())
-            jeeqser_challenge = Jeeqser_Challenge.get(ns.jeeqser_challenge.key())
-            jeeqser = Jeeqser.get(ns.jeeqser.key())
-            submission.author = Jeeqser.get(ns.submission.author.key())
+            submission = Attempt.get(submission_key)
+            jeeqser_challenge = Jeeqser_Challenge.get(jeeqser_challenge_key)
+            jeeqser = Jeeqser.get(jeeqser_key)
+            submission.author = Jeeqser.get(submission.author.key())
 
             # check flagging limit
             if vote == 'flag':
@@ -707,21 +718,11 @@ class RPCHandler(webapp2.RequestHandler):
                 response = {'flags_left_today':flags_left}
                 out_json = json.dumps(response)
                 self.response.write(out_json)
+
                 if flags_left == -1:
                     raise Rollback()
 
-            submission.users_voted.append(jeeqser.key())
-            submission.vote_count += 1
-            if submission.vote_count == 1:
-                submission.challenge.submissions_without_review -= 1
-
-            submission.vote_sum += float(RPCHandler.get_vote_numeric_value(vote))
-            submission.vote_average = float(submission.vote_sum / submission.vote_count)
-            RPCHandler.update_submission(submission, jeeqser_challenge, vote, jeeqser)
-
-            # update stats
-            jeeqser.reviews_out_num += 1
-            submission.author.reviews_in_num +=1
+            RPCHandler.vote_submitted_update(submission, jeeqser_challenge, vote, jeeqser)
 
             jeeqser_challenge.put()
             submission.put()
@@ -731,7 +732,12 @@ class RPCHandler(webapp2.RequestHandler):
             feedback.put()
 
         xg_on = db.create_transaction_options(xg=True)
-        db.run_in_transaction_options(xg_on, persist_vote)
+        db.run_in_transaction_options(
+            xg_on,
+            persist_vote,
+            submission.key(),
+            jeeqser_challenge.key(),
+            self.jeeqser.key())
 
         Activity(
             type='voting',

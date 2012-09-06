@@ -76,7 +76,7 @@ def authenticate(required=True):
 # TODO: move to proper file
 def get_JC(jeeqser, challenge):
     return Jeeqser_Challenge\
-    .all()\
-    .filter('jeeqser =', jeeqser)\
-    .filter('challenge =', challenge)\
-    .fetch(1)
+            .all()\
+            .filter('jeeqser =', jeeqser)\
+            .filter('challenge =', challenge)\
+            .fetch(1)
