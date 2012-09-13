@@ -319,7 +319,7 @@ class RPCHandler(webapp2.RequestHandler):
             return 0 # flag
 
     @staticmethod
-    def vote_submitted_update(submission, jeeqser_challenge, vote, voter):
+    def update_graph_vote_submitted(submission, jeeqser_challenge, vote, voter):
         """
         Updates the model graph based on the vote given by the voter
         """
@@ -349,8 +349,7 @@ class RPCHandler(webapp2.RequestHandler):
                 spam_manager.flag_author(submission.author)
             submission.flagged_by.append(voter.key())
 
-        # TODO: this is not right! The previous state should be taken from Jeeqser_challenge not submission
-        previous_status = submission.status
+        previous_status = jeeqser_challenge.status
 
         #update status on submission and jeeqser_challenge
         if submission.correct_count > submission.incorrect_count + submission.flag_count:
@@ -359,15 +358,15 @@ class RPCHandler(webapp2.RequestHandler):
             submission.status = jeeqser_challenge.status = 'incorrect'
 
         # TODO: This may not scale since challenge's entity group is high traffic - use sharded counters
-        if submission.status != previous_status:
+        if jeeqser_challenge.status != previous_status:
             jeeqser_challenge.status_changed_on = datetime.now()
 
-            if submission.status == 'correct':
+            if jeeqser_challenge.status == 'correct':
                 submission.challenge.num_jeeqsers_solved += 1
                 submission.challenge.update_last_solver(submission.author)
                 submission.author.correct_submissions_count += 1
 
-            elif submission.status == 'incorrect':
+            elif jeeqser_challenge.status == 'incorrect':
                 if previous_status == 'correct':
                     submission.challenge.num_jeeqsers_solved -= 1
                     submission.author.correct_submissions_count -= 1
@@ -540,17 +539,19 @@ class RPCHandler(webapp2.RequestHandler):
 
             attempt.put()
 
+            if jeeqser_challenge.status == 'correct':
+                self.jeeqser.correct_submissions_count -= 1
+
             jeeqser_challenge.active_attempt = attempt
             jeeqser_challenge.correct_count = jeeqser_challenge.incorrect_count = jeeqser_challenge.flag_count = 0
             jeeqser_challenge.status = None
             jeeqser_challenge.put()
 
-            jeeqser = Jeeqser.get(context['jeeqser'].key())
-            jeeqser.submissions_num += 1
-            jeeqser.put()
+            self.jeeqser.submissions_num += 1
+            self.jeeqser.put()
 
             # Pass variables up
-            context['jeeqser'] = jeeqser
+            context['jeeqser'] = self.jeeqser
             context['attempt'] = attempt
             context['jeeqser_challenge'] = jeeqser_challenge
 
@@ -572,10 +573,11 @@ class RPCHandler(webapp2.RequestHandler):
         # run the tests and persist the results
         if challenge.automatic_review:
             feedback = run_testcases(program, challenge, attempt, get_jeeqs_robot())
-            voter = self.jeeqser
-            RPCHandler.vote_submitted_update(attempt, jeeqser_challenge, feedback.vote, voter)
+            voter = Jeeqser.get_review_user()
 
             def persist_testcase_results():
+                RPCHandler.update_graph_vote_submitted(attempt, jeeqser_challenge, feedback.vote, voter)
+
                 feedback.put()
                 jeeqser_challenge.put()
                 attempt.put()
@@ -722,7 +724,7 @@ class RPCHandler(webapp2.RequestHandler):
                 if flags_left == -1:
                     raise Rollback()
 
-            RPCHandler.vote_submitted_update(submission, jeeqser_challenge, vote, jeeqser)
+            RPCHandler.update_graph_vote_submitted(submission, jeeqser_challenge, vote, jeeqser)
 
             jeeqser_challenge.put()
             submission.put()

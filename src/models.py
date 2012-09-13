@@ -62,7 +62,7 @@ class Jeeqser(db.Model):
     reviews_out_num = db.IntegerProperty(default=0)
     reviews_in_num = db.IntegerProperty(default=0)
     submissions_num = db.IntegerProperty(default=0)
-    correct_submissions_count = db.IntegerProperty(default=0)
+    correct_submissions_count_persisted = db.IntegerProperty()
     gravatar_url_persisted = db.LinkProperty()
     gplus_picture_url = db.LinkProperty()
     profile_url_persisted = db.LinkProperty()
@@ -79,6 +79,21 @@ class Jeeqser(db.Model):
     num_flagged_today = db.IntegerProperty()
 
     @property
+    def correct_submissions_count(self):
+        if not self.correct_submissions_count_persisted:
+            # calculate submissions that are correct by this Jeqeqser
+            correct_count = Jeeqser_Challenge.all().filter('jeeqser = ', self).filter('status = ', 'correct').count()
+            self.correct_submissions_count_persisted = correct_count
+            self.put()
+            return self.correct_submissions_count_persisted
+        else:
+            return self.correct_submissions_count_persisted
+
+    @correct_submissions_count.setter
+    def correct_submissions_count(self, value):
+        self.correct_submissions_count_persisted = value
+
+    @property
     def profile_url(self):
         if self.profile_url_persisted:
             return self.profile_url_persisted
@@ -86,6 +101,7 @@ class Jeeqser(db.Model):
             self.profile_url_persisted = self.gravatar_url
             self.put()
             return self.profile_url_persisted
+
     @profile_url.setter
     def profile_url(self, value):
         self.profile_url_persisted = value
@@ -113,6 +129,12 @@ class Jeeqser(db.Model):
         self.gravatar_url_persisted = value
 
     gravatar_url = property(get_gravatar_url, set_gravatar_url, "Gravatar URL")
+
+    @classmethod
+    def get_review_user(cls):
+        # return jeeqser.moderator
+        return Jeeqser.get('agpkZXZ-amVlcXN5cg8LEgdKZWVxc2VyGMGpBww')
+
 
 class University(db.Model):
     name = db.StringProperty()
