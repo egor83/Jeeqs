@@ -13,7 +13,7 @@ Download from local datastore into a file
 appcfg.py download_data --url=http://jeeqsy.appspot.com/_ah/remote_api --filename=[db_backup_2012_May_19th] --application=s~jeeqsy
 
 Upload from a file into production:
-appcfg.py upload_data --url=http://localhost:8080/_ah/remote_api --filename=[db_backup_2012_May_19th]
+appcfg.py upload_data --url=http://localhost:8080/_ah/remote_api --filename=[db_backup_2012_May_19th] --num_threads=1
 
 In order to use the remote api use the following statement:
 python /Applications/GoogleAppEngineLauncher.app/Contents/Resources/GoogleAppEngine-default.bundle/Contents/Resources/google_appengine/remote_api_shell.py -s localhost:8080/_ah/remote_api
