@@ -1,51 +1,57 @@
 {% extends "base_twoColumn.html" %}
 
 {% block column1 %}
-    <div id="jeeqs-definition">
-        Jeeqs is a collaborative problem solving platform where Jeeqsers submit and review solutions for challenges.
-        <br/>
-        <br/>
-        Jeeqs is powered by the Google App Engine and lives on <a href="https://github.com/Jeeqs/" class="noline">github</a>
-{#        <br/>#}
-{#        You can vote on feature requests or report issues on <a class="noline" href="https://trello.com/board/bugs-and-features/4f6ec9379f50b8dd460ccb57">Trello</a>#}
-        <br/>
-        <br/>
-        <span>
-                <a class="noline" href="http://code.google.com/appengine/">
-                    <img src="/static/appengine_button_noborder.gif"
-                         style="vertical-align: middle"/></a>
-        </span>
-    </div>
-    <div>
-        <h3>How to use Jeeqs ? </h3>
-        <ol>
-            <li>
-                <Strong>  Submit solution </Strong>
-                <br/> Pick one of the challenges you like and submit a solution for it.
-            </li>
-            <br/>
-            <li>
-                <strong>Wait for feedbacks (In Jeeqs) </strong>
-                <br/>Your submission will be reviewed by other Jeeqsers who have solved this challenge. If you don't have enough positive votes, re-submit a correct solution.
-            </li>
-            <br/>
-            <li>
-                <strong>Review other solutions (Jeeqs Out)</strong>
+        <div id="jeeqs-definition" xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html">
+            <h1>About</h1>
+            <p>
+                Jeeqs is a collaborative problem solving platform where Jeeqsers submit and review solutions for challenges.
                 <br/>
-                Once your submission to a challenge has been reviewed as successful, you can review other solutions for that challenge.
-            </li>
-        </ol>
-        <h3>Rules</h3>
-        <ul>
-            <li>
-                <Strong>Contribution </Strong>
-                <br/>You need to review some solutions before you can submit further solutions.
-            </li>
-            <br/>
-            <li>
-                <strong>No Spams! </strong> <br/>
-                A post that is flagged by a few users will be removed. A Jeeqser's account will be suspended if a few of his/her posts are remove because of flagging.
-            </li>
-        </ul>
+                It is powered by the Google App Engine and lives on <a href="https://github.com/Jeeqs/" class="noline">github</a>
+        {#        <br/>#}
+        {#        You can vote on feature requests or report issues on <a class="noline" href="https://trello.com/board/bugs-and-features/4f6ec9379f50b8dd460ccb57">Trello</a>#}
+                <br/>
+                <br/>
+                <span>
+                        <a class="noline" href="http://code.google.com/appengine/">
+                            <img src="/static/appengine_button_noborder.gif"
+                                 style="vertical-align: middle"/></a>
+                </span>
+            </p>
+        </div>
+    <div>
+        <h2>How to use Jeeqs ? </h2>
+        <p>
+            <ol>
+                <li>
+                    <Strong>  Submit solution </Strong>
+                    <br/> Pick one of the challenges you like and submit a solution for it.
+                </li>
+                <br/>
+                <li>
+                    <strong>Wait for feedbacks (In Jeeqs) </strong>
+                    <br/>Your submission will be reviewed by other Jeeqsers who have solved this challenge. If you don't have enough positive votes, re-submit a correct solution.
+                </li>
+                <br/>
+                <li>
+                    <strong>Review other solutions (Jeeqs Out)</strong>
+                    <br/>
+                    Once your submission to a challenge has been reviewed as successful, you can review other solutions for that challenge.
+                </li>
+            </ol>
+        </p>
+        <h2>Rules</h2>
+        <p>
+            <ul>
+                <li>
+                    <Strong>Contribution </Strong>
+                    <br/>You need to review some solutions before you can submit further solutions.
+                </li>
+                <br/>
+                <li>
+                    <strong>No Spams! </strong> <br/>
+                    A post that is flagged by a few users will be removed. A Jeeqser's account will be suspended if a few of his/her posts are remove because of flagging.
+                </li>
+            </ul>
+        </p>
     </div>
 {% endblock %}
