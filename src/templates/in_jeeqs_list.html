@@ -37,7 +37,7 @@
                             submitted by {{ feedback.author.displayname }} @ {{ feedback.date|timesince }}
                         </span>
                         {% if write_challenge_name %}
-                            for <a class="noline" href='/challenge/?ch={{ feedback.attempt.challenge.key() }}&att={{ feedback.attempt.key() }}'>attempt #{{ feedback.attempt.index }}</a>  of {{ feedback.attempt.challenge.name }}
+                            for <a class="noline" href='/challenge/?ch={{ feedback.attempt.get().challenge }}&att={{ feedback.attempt }}'>attempt #{{ feedback.attempt.get().index }}</a>  of {{ feedback.attempt.get().challenge.get().name }}
                         {% endif %}
                 </div>
             </div>

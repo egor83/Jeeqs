@@ -56,28 +56,31 @@ from google.appengine.ext import db
 from google.appengine.ext import ndb
 from gravatar import get_profile_url
 
-class Jeeqser(db.Model):
+# Maximum number of entities to fetch
+MAX_FETCH = 1000
+
+class Jeeqser(ndb.Model):
     """ A Jeeqs User """
-    user = db.UserProperty()
-    displayname_persisted = db.StringProperty()
-    reviews_out_num = db.IntegerProperty(default=0)
-    reviews_in_num = db.IntegerProperty(default=0)
-    submissions_num = db.IntegerProperty(default=0)
-    correct_submissions_count_persisted = db.IntegerProperty()
-    gravatar_url_persisted = db.LinkProperty()
-    gplus_picture_url = db.LinkProperty()
-    profile_url_persisted = db.LinkProperty()
-    is_moderator = db.BooleanProperty()
-    took_tour = db.BooleanProperty()
-    suspended_until = db.DateTimeProperty()
-    unaccounted_flag_count = db.IntegerProperty(default=0)
+    user = ndb.UserProperty()
+    displayname_persisted = ndb.StringProperty()
+    reviews_out_num = ndb.IntegerProperty(default=0)
+    reviews_in_num = ndb.IntegerProperty(default=0)
+    submissions_num = ndb.IntegerProperty(default=0)
+    correct_submissions_count_persisted = ndb.IntegerProperty()
+    gravatar_url_persisted = ndb.StringProperty()
+    gplus_picture_url = ndb.StringProperty()
+    profile_url_persisted = ndb.StringProperty()
+    is_moderator = ndb.BooleanProperty()
+    took_tour = ndb.BooleanProperty()
+    suspended_until = ndb.DateTimeProperty()
+    unaccounted_flag_count = ndb.IntegerProperty(default=0)
     # Total number of posts by this user that are flagged
-    total_flag_count = db.IntegerProperty(default=0)
+    total_flag_count = ndb.IntegerProperty(default=0)
 
     #Flag limits
-    last_flagged_on = db.DateTimeProperty()
+    last_flagged_on = ndb.DateTimeProperty()
     # Number of posts this jeeqser has flagged today
-    num_flagged_today = db.IntegerProperty()
+    num_flagged_today = ndb.IntegerProperty()
 
     @property
     def correct_submissions_count(self):
@@ -136,7 +139,6 @@ class Jeeqser(db.Model):
         # return jeeqser.moderator
         return Jeeqser.get('agpkZXZ-amVlcXN5cg8LEgdKZWVxc2VyGMGpBww')
 
-""" University program course exercise in NDB:
 class University(ndb.Model):
     name = ndb.StringProperty()
     fullname = ndb.StringProperty()
@@ -165,44 +167,12 @@ class Exercise(ndb.Model):
 
     def __unicode__(self):
         return self.name
-"""
-
-class University(db.Model):
-    name = db.StringProperty()
-    fullname = db.StringProperty()
-
-class Program(db.Model):
-    name = db.StringProperty()
-    fullname = db.StringProperty()
-    university = db.ReferenceProperty(University, collection_name='programs')
-
-class Course(db.Model):
-    name = db.StringProperty()
-    code = db.StringProperty()
-    description = db.TextProperty()
-    level = db.StringProperty(choices=['undergraduate', 'graduate'])
-    program = db.ReferenceProperty(Program, collection_name='courses')
-    yearOffered = db.IntegerProperty()
-    monthOffered = db.StringProperty(choices=['January', 'February', 'March', 'April', 'May', 'June', 'July', 'Auguest', 'September', 'October', 'November', 'December'])
-    # Attribution for this course
-    attribution = db.TextProperty()
-
-class Exercise(db.Model):
-    # Exercise number like
-    name = db.StringProperty()
-    number = db.StringProperty()
-    course = db.ReferenceProperty(Course, collection_name='exercises')
-
-    def __unicode__(self):
-        return self.name
-
-"""NDB version of challenge:
 
 class Challenge(ndb.Model):
-    Models a challenge
+    """Models a challenge"""
     EMPTY_MARKDOWN = 'Complete me!'
 
-    name_persistent = ndb.StringProperty(verbose_name=="Name")
+    name_persistent = ndb.StringProperty(verbose_name="Name")
 
     def get_name(self):
         if self.name_persistent:
@@ -247,7 +217,7 @@ class Challenge(ndb.Model):
     num_jeeqsers_submitted = ndb.IntegerProperty(default=0)
     # number of submissions to this challenge that still need reviewing!
     submissions_without_review = ndb.IntegerProperty(default=0)
-    last_solver = ndb.KeyProperty() # TODO: add kind=Jeeqser
+    last_solver = ndb.KeyProperty(kind=Jeeqser)
     last_solver_picture_url_persisted = ndb.StringProperty()
 
 
@@ -270,81 +240,6 @@ class Challenge(ndb.Model):
     exercise_university_persisted = ndb.StringProperty()
     exercise_course_code_persisted = ndb.StringProperty()
     exercise_course_name_persisted = ndb.StringProperty()
-
-"""
-
-class Challenge(db.Model):
-    """Models a challenge"""
-    EMPTY_MARKDOWN = 'Complete me!'
-
-    name_persistent = db.StringProperty(verbose_name="Name")
-
-    def get_name(self):
-        if self.name_persistent:
-            return self.name_persistent
-        elif self.exercise and self.exercise.name:
-            self.name_persistent = self.exercise.name
-            self.put()
-            return self.name_persistent
-
-    def set_name(self, value):
-        self.name_persistent = value
-
-    name = property(get_name, set_name, "name")
-
-    #compiled markdown
-    content = db.TextProperty()
-    #non-compiled markdown
-    markdown = db.TextProperty(default=EMPTY_MARKDOWN)
-
-    template_code = db.StringProperty(multiline=True)
-    attribution_persistent = db.TextProperty(verbose_name="attribution")
-
-    # one to one relationship
-    exercise = db.ReferenceProperty(Exercise, collection_name='challenge')
-
-    # true iff this challenge is to be reviewed by the server
-    automatic_review = db.BooleanProperty()
-
-    # true if this challenge has public submissions
-    public_submissions = db.BooleanProperty(default=False)
-
-    # the course breadcrumb
-    breadcrumb_persisted = db.StringProperty(verbose_name="breadcrumb")
-
-    #scribd-related info
-    document_id = db.StringProperty()
-    access_key = db.StringProperty()
-    vertical_scroll = db.FloatProperty()
-
-    #stats
-    num_jeeqsers_solved = db.IntegerProperty(default=0)
-    num_jeeqsers_submitted = db.IntegerProperty(default=0)
-    # number of submissions to this challenge that still need reviewing!
-    submissions_without_review = db.IntegerProperty(default=0)
-    last_solver = db.ReferenceProperty(Jeeqser)
-    last_solver_picture_url_persisted = db.LinkProperty()
-
-
-    def get_breadcrumb(self):
-        if self.breadcrumb_persisted:
-            return self.breadcrumb_persisted
-        else:
-            self.breadcrumb_persisted = self.exercise.number \
-                                        + ' > ' + self.exercise.course.name \
-                                        + ' > ' + self.exercise.course.program.name \
-                                        + ' > ' + self.exercise.course.program.university.name
-            self.put()
-            return self.breadcrumb_persisted
-
-    breadcrumb = property(fget=get_breadcrumb, doc="Course Breadcrumb")
-
-    #exercise relate info
-    exercise_number_persisted = db.StringProperty()
-    exercise_program_persisted = db.StringProperty()
-    exercise_university_persisted = db.StringProperty()
-    exercise_course_code_persisted = db.StringProperty()
-    exercise_course_name_persisted = db.StringProperty()
 
     @property
     def exercise_number(self):
@@ -439,116 +334,124 @@ class Challenge(db.Model):
         self.last_solver = solver
         self.last_solver_picture_url = solver.profile_url if solver else None
 
+    @property
+    def testcases(self):
+      return TestCase.query().filter(TestCase.challenge == self.key).fetch(MAX_FETCH)
+
 
 class Draft(ndb.Model):
     """Models a draft (un-submitted) attempt"""
-    challenge = ndb.KeyProperty() # TODO kind=Challenge
-    author = ndb.KeyProperty() # TODO kind=Jeeqser
+    challenge = ndb.KeyProperty(kind=Challenge)
+    author = ndb.KeyProperty(kind=Jeeqser)
     #compiled markdown
     content = ndb.TextProperty()
     #non-compiled markdown
     markdown = ndb.TextProperty()
     date = ndb.DateTimeProperty(auto_now=True)
 
-class Attempt(db.Model):
+class Attempt(ndb.Model):
     """Models a Submission for a Challenge """
-    challenge = db.ReferenceProperty(Challenge)
-    author = db.ReferenceProperty(Jeeqser)
+    challenge = ndb.ReferenceProperty(kind=Challenge)
+    author = ndb.KeyProperty(kind=Jeeqser)
     #compiled markdown
-    content = db.TextProperty()
+    content = ndb.TextProperty()
     #non-compiled markdown
-    markdown = db.TextProperty()
-    date = db.DateTimeProperty(auto_now_add=True)
-    stdout = db.StringProperty(multiline=True)
-    stderr = db.StringProperty(multiline=True)
+    markdown = ndb.TextProperty()
+    date = ndb.DateTimeProperty(auto_now_add=True)
+    stdout = ndb.StringProperty()
+    stderr = ndb.StringProperty()
     # List of users who voted for this submission
-    users_voted = db.ListProperty(db.Key)
-    vote_count = db.IntegerProperty(default=0)
+    users_voted = ndb.KeyProperty(repeated=True)
+    vote_count = ndb.IntegerProperty(default=0)
 
-    correct_count = db.IntegerProperty(default=0)
-    incorrect_count = db.IntegerProperty(default=0)
-    flag_count = db.IntegerProperty(default=0)
+    correct_count = ndb.IntegerProperty(default=0)
+    incorrect_count = ndb.IntegerProperty(default=0)
+    flag_count = ndb.IntegerProperty(default=0)
     # Status of jeeqser's submission for this challenge
     # a challenge is solved if correct_count > incorrect_count + flag_count
-    status = db.StringProperty(choices=['correct', 'incorrect'])
+    status = ndb.StringProperty(choices=['correct', 'incorrect'])
 
     #vote quantization TODO: might be removed !?
-    vote_sum = db.FloatProperty(default=float(0))
-    vote_average = db.FloatProperty(default=float(0))
+    vote_sum = ndb.FloatProperty(default=float(0))
+    vote_average = ndb.FloatProperty(default=float(0))
 
     # is this the active submission for review ?
-    active = db.BooleanProperty(default=False)
+    active = ndb.BooleanProperty(default=False)
 
     # the index of this attempt among all attempts for a challenge.
-    index = db.IntegerProperty(default=0)
+    index = ndb.IntegerProperty(default=0)
 
     # Spam ?
-    flagged_by = db.ListProperty(db.Key)
+    flagged_by = ndb.KeyProperty(repeated=True)
     # if True, this attempt is blocked. Become true, once flag_count goes above a threshold
     flagged = db.BooleanProperty(default=False)
 
-class Jeeqser_Challenge(db.Model):
+    @property
+    def feedbacks(self):
+      return Feedback.query().filter(Feedback.attempt == self).fetch(MAX_FETCH)
+
+class Jeeqser_Challenge(ndb.Model):
     """
     Represents the relation between a Jeeqser and a Challenge
     Exists in the same entity group as the jeeqser
     """
 
-    jeeqser = db.ReferenceProperty(Jeeqser)
-    challenge = db.ReferenceProperty(Challenge)
-    active_attempt = db.ReferenceProperty(Attempt)
+    jeeqser = ndb.KeyProperty(kind=Jeeqser)
+    challenge = ndb.KeyProperty(kind=Challenge)
+    active_attempt = ndb.KeyProperty(kind=Attempt)
 
     # vote counts for the active attempt (denormalized from the active attempt)
-    correct_count = db.IntegerProperty(default=0)
-    incorrect_count = db.IntegerProperty(default=0)
-    flag_count = db.IntegerProperty(default=0)
+    correct_count = ndb.IntegerProperty(default=0)
+    incorrect_count = ndb.IntegerProperty(default=0)
+    flag_count = ndb.IntegerProperty(default=0)
     # Status of jeeqser's submission for this challenge
     # a challenge is solved if correct_count > incorrect_count + flag_count
-    status = db.StringProperty(choices=['correct', 'incorrect'])
-    status_changed_on = db.DateTimeProperty()
+    status = ndb.StringProperty(choices=['correct', 'incorrect'])
+    status_changed_on = ndb.DateTimeProperty()
 
 
-class Feedback(db.Model):
+class Feedback(ndb.Model):
     """Models feedback for submission
      Belongs to the same entity group as the attempt for which it is for.
     """
 
-    attempt = db.ReferenceProperty(Attempt, collection_name='feedbacks')
-    author = db.ReferenceProperty(Jeeqser, collection_name='feedback_out')
+    attempt = ndb.KeyProperty(kind=Attempt)
+    author = ndb.KeyProperty(kind=Jeeqser)
     # Denormalizing the attempt author
-    attempt_author = db.ReferenceProperty(Jeeqser, collection_name='feedback_in')
-    markdown = db.TextProperty()
-    content = db.TextProperty()
-    date = db.DateTimeProperty(auto_now_add=True)
-    vote = db.StringProperty(choices=['correct', 'incorrect', 'genius', 'flag'])
+    attempt_author = ndb.KeyProperty(kind=Jeeqser)
+    markdown = ndb.TextProperty()
+    content = ndb.TextProperty()
+    date = ndb.DateTimeProperty(auto_now_add=True)
+    vote = ndb.StringProperty(choices=['correct', 'incorrect', 'genius', 'flag'])
 
     # Spam ?
-    flagged_by = db.ListProperty(db.Key)
-    flag_count = db.IntegerProperty(default=0)
+    flagged_by = ndb.KeyProperty(repeated=True)
+    flag_count = ndb.IntegerProperty(default=0)
     # if True, this feedback is blocked. Becomes true, once flag_count goes above a threshold
-    flagged = db.BooleanProperty(default=False)
+    flagged = ndb.BooleanProperty(default=False)
 
-class TestCase(db.Model):
+class TestCase(ndb.Model):
     """ Models a test case"""
-    challenge = db.ReferenceProperty(Challenge, collection_name='testcases')
-    statement = db.StringProperty(multiline=True)
-    expected = db.StringProperty(multiline=True)
+    challenge = ndb.KeyProperty(kind=Challenge)
+    statement = ndb.StringProperty()
+    expected = ndb.StringProperty()
 
 class Activity(ndb.Model):
     """Models an activity done on Jeeqs"""
     type= ndb.StringProperty(choices=['submission', 'voting', 'flagging'])
-    done_by = ndb.KeyProperty() # TODO kind=Jeeqser
+    done_by = ndb.KeyProperty(kind=Jeeqser)
     done_by_displayname = ndb.StringProperty()
     done_by_gravatar = ndb.StringProperty()
     date = ndb.DateTimeProperty(auto_now_add=True)
 
-    challenge = ndb.KeyProperty() # TODO kind=Challenge
+    challenge = ndb.KeyProperty(kind=Challenge)
     challenge_name = ndb.StringProperty() #denormamlize from challenge
 
-    submission = ndb.KeyProperty() # TODO kind=Attempt
-    submission_author = ndb.KeyProperty() # TODO: kind=Jeeqser
+    submission = ndb.KeyProperty(kind=Attempt)
+    submission_author = ndb.KeyProperty(kind=Jeeqser)
     submission_author_displayname = ndb.StringProperty()
     submission_author_gravatar = ndb.StringProperty()
 
-    feedback = ndb.KeyProperty() # TODO kind=Feedback
+    feedback = ndb.KeyProperty(kind=Feedback)
 
 

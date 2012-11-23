@@ -25,10 +25,20 @@ from user_handler import UserHandler
 
 from google.appengine.api import users
 from google.appengine.ext.webapp.util import run_wsgi_app
+from google.appengine.ext import ndb
 
 import lib.markdown as markdown
 
 from core import *
+
+## This for enabling ctypes to improve jinja2 error messages, which is unfortunately not working!
+## see: http://stackoverflow.com/a/3694434/195579
+#if os.environ.get('SERVER_SOFTWARE', '').startswith('Dev'):
+#  # Enable ctypes for Jinja debugging
+#  import sys
+#  from google.appengine.tools.dev_appserver import HardenedModulesHook
+#  assert isinstance(sys.meta_path[0], HardenedModulesHook)
+#  sys.meta_path[0]._white_list_c_modules += ['_ctypes', 'gestalt']
 
 # Set to True if stack traces should be shown in the browser, etc.
 # TODO: should this be changed into an environment variable ?
@@ -84,11 +94,11 @@ class FrontPageHandler(webapp2.RequestHandler):
                     ch.submitted = False
 
             injeeqs = Feedback\
-                            .all()\
-                            .filter('attempt_author = ', self.jeeqser)\
-                            .filter('flagged = ', False)\
-                            .order('flag_count')\
-                            .order('-date')\
+                            .query()\
+                            .filter(Feedback.attempt_author == ndb.Key.from_old_key(self.jeeqser.key()))\
+                            .filter(Feedback.flagged == False)\
+                            .order(Feedback.flag_count)\
+                            .order(-Feedback.date)\
                             .fetch(10)
             prettify_injeeqs(injeeqs)
 
@@ -200,7 +210,9 @@ class ChallengeHandler(webapp2.RequestHandler):
 
             # Fetch saved draft
             try:
-                draft = Draft.query().filter(Draft.author == self.jeeqser, Draft.challenge == challenge).fetch(1)[0]
+                draft = Draft.query().filter(
+                    Draft.author == ndb.Key.from_old_key(self.jeeqser.key()),
+                    Draft.challenge == ndb.Key.from_old_key(challenge.key())).fetch(1)[0]
             except IndexError:
                 draft = None
 
@@ -564,7 +576,8 @@ class RPCHandler(webapp2.RequestHandler):
 
         # delete a draft if exists
         try:
-            draft = Draft.query(ancestor=self.jeeqser).filter(Draft.challenge == challenge).fetch(1)[0]
+            draft = Draft.query(ancestor=self.jeeqser).filter(
+                Draft.challenge == ndb.Key.from_old_key((challenge.key()))).fetch(1)[0]
             draft.delete()
         except IndexError:
             pass
@@ -622,7 +635,9 @@ class RPCHandler(webapp2.RequestHandler):
 
         def persist_new_draft():
             try:
-                draft = Draft.query(ancestor=self.jeeqser).filter(Draft.author == self.jeeqser).filter(Draft.challenge == challenge).fetch(1)[0]
+                draft = Draft.query(ancestor=self.jeeqser) \
+                    .filter(Draft.author == ndb.Key.from_old_key(self.jeeqser.key())) \
+                    .filter(Draft.challenge == ndb.Key.from_old_key(challenge.key())).fetch(1)[0]
             except IndexError:
                 draft = Draft(
                     parent=self.jeeqser,
@@ -699,7 +714,7 @@ class RPCHandler(webapp2.RequestHandler):
             jeeqser_challenge = jeeqser_challenge[0]
 
         feedback = Feedback(
-            parent=submission,
+            parent=submission.key,
             attempt=submission,
             author=self.jeeqser,
             attempt_author=submission.author,
