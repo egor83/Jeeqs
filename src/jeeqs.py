@@ -92,7 +92,7 @@ class FrontPageHandler(webapp2.RequestHandler):
                             .fetch(10)
             prettify_injeeqs(injeeqs)
 
-        all_activities = Activity.all().order('-date').fetch(10)
+        all_activities = Activity.query().order(-Activity.date).fetch(10)
 
         vars = add_common_vars({
                 'challenges': all_challenges,

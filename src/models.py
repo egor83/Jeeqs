@@ -53,6 +53,7 @@ s~jeeqsy> for ch in all_ch:
 """
 
 from google.appengine.ext import db
+from google.appengine.ext import ndb
 from gravatar import get_profile_url
 
 class Jeeqser(db.Model):
@@ -425,22 +426,22 @@ class TestCase(db.Model):
     statement = db.StringProperty(multiline=True)
     expected = db.StringProperty(multiline=True)
 
-class Activity(db.Model):
+class Activity(ndb.Model):
     """Models an activity done on Jeeqs"""
-    type=db.StringProperty(choices=['submission', 'voting', 'flagging'])
-    done_by = db.ReferenceProperty(Jeeqser)
-    done_by_displayname = db.StringProperty()
-    done_by_gravatar = db.LinkProperty()
-    date = db.DateTimeProperty(auto_now_add=True)
+    type= ndb.StringProperty(choices=['submission', 'voting', 'flagging'])
+    done_by = ndb.KeyProperty() # TODO kind=Jeeqser
+    done_by_displayname = ndb.StringProperty()
+    done_by_gravatar = ndb.StringProperty()
+    date = ndb.DateTimeProperty(auto_now_add=True)
 
-    challenge = db.ReferenceProperty(Challenge)
-    challenge_name = db.StringProperty() #denormamlize from challenge
+    challenge = ndb.KeyProperty() # TODO kind=Challenge
+    challenge_name = ndb.StringProperty() #denormamlize from challenge
 
-    submission = db.ReferenceProperty(Attempt)
-    submission_author = db.ReferenceProperty(Jeeqser, collection_name='submission_activities')
-    submission_author_displayname = db.StringProperty()
-    submission_author_gravatar = db.LinkProperty()
+    submission = ndb.KeyProperty() # TODO kind=Attempt
+    submission_author = ndb.KeyProperty() # TODO: kind=Jeeqser
+    submission_author_displayname = ndb.StringProperty()
+    submission_author_gravatar = ndb.StringProperty()
 
-    feedback = db.ReferenceProperty(Feedback)
+    feedback = ndb.KeyProperty() # TODO kind=Feedback
 
 
