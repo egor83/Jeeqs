@@ -3,6 +3,8 @@ import os
 from google.appengine.api import users
 from models import *
 from template_filters import escapejs, timesince
+import datetime
+
 
 jinja_environment = jinja2.Environment(
     loader=jinja2.FileSystemLoader(os.path.join(os.path.dirname(__file__), 'templates'))
@@ -80,3 +82,16 @@ def get_JC(jeeqser, challenge):
             .filter(Jeeqser_Challenge.jeeqser == jeeqser.key)\
             .filter(Jeeqser_Challenge.challenge == challenge.key)\
             .fetch(1)
+
+# Adds icons and background to feedback objects
+def prettify_injeeqs(injeeqs):
+  for jeeq in injeeqs:
+    if jeeq.vote == 'correct':
+      jeeq.icon = 'icon-ok'
+      jeeq.background = '#EBFFEB'
+    elif jeeq.vote == 'incorrect':
+      jeeq.icon = 'icon-remove'
+      jeeq.background = '#FFE3E3'
+    elif jeeq.vote == 'flag':
+      jeeq.icon = 'icon-flag'
+      jeeq.background = 'lightgrey'
