@@ -144,7 +144,7 @@
 
                     $('#other_submissions').html('Loading ... ')
                     $.ajax({
-                        url: "/review/?ch={{ challenge.key }}",
+                        url: "/review/?ch={{ challenge.key.urlsafe() }}",
                         async: true,
                         type: "GET",
                         success: function(response) {
@@ -297,7 +297,7 @@
                                                     <p style="color:grey">Nothing to show here, yet!</p>
                                                 {% endif %}
                                                 {% for attempt in attempts %}
-                                                    <p style="color: grey"> <a class="noline" href="/challenge/?ch={{ challenge.key }}&att={{ attempt.key }}"> Attempt #{{ attempt.index }}</a>  @  {{ attempt.date|timesince }}</p>
+                                                    <p style="color: grey"> <a class="noline" href="/challenge/?ch={{ challenge.key.urlsafe() }}&att={{ attempt.key.urlsafe() }}"> Attempt #{{ attempt.index }}</a>  @  {{ attempt.date|timesince }}</p>
                                                     <div>
                                                         {{ attempt.content|safe }}
                                                     </div>

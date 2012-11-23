@@ -10,9 +10,9 @@
         {% for submission in submissions %}
             <div class="submission-placeholder" style="float:left; clear:left; width: 90%; margin-top: 20px">
                 <div>
-                    {{ avatar(style='float:left; margin-right: 10px;', jeeqser_key=submission.author, avatar_url=submission.author.profile_url) }}
+                    {{ avatar(style='float:left; margin-right: 10px;', jeeqser_key=submission.author, avatar_url=submission.author.get().profile_url) }}
                     <div style="float:left; color: grey">
-                        Submitted by {{ submission.author.displayname }}
+                        Submitted by {{ submission.author.get().displayname }}
                         &nbsp; <span style="color:grey; font-size:smaller;">{{ submission.date|timesince }} </span>
                     </div>
                     <div style="float:right; color:grey; font-size: smaller">
@@ -48,12 +48,12 @@
             <ul class="pager">
                 {% if previous_cursor %}
                     <li>
-                        <a id="challenge_submissions_previous" href="#" data-challenge_key="{{ challenge.key }}">Previous</a>
+                        <a id="challenge_submissions_previous" href="#" data-challenge_key="{{ challenge.key.urlsafe() }}">Previous</a>
                     </li>
                 {% endif %}
                 {% if submissions|length > 0 %}
                     <li>
-                        <a id="challenge_submissions_next" href="#" data-cursor="{{ next_cursor }}" data-previous_cursor="{{ previous_cursor }}" data-challenge_key="{{ challenge.key }}">Next</a>
+                        <a id="challenge_submissions_next" href="#" data-cursor="{{ next_cursor }}" data-previous_cursor="{{ previous_cursor }}" data-challenge_key="{{ challenge.key.urlsafe() }}">Next</a>
                     </li>
                 {% endif %}
             </ul>

@@ -5,6 +5,8 @@ from core import *
 from utils import StatusCode
 from google.appengine.ext import ndb
 
+SUBMISSIONS_PER_PAGE = 5
+
 class ReviewHandler(webapp2.RequestHandler):
     """renders the review template
     """
@@ -51,15 +53,18 @@ class ReviewHandler(webapp2.RequestHandler):
                 .order(Attempt.vote_count)
 
             if cursor and cursor != "None":
-                submissions_query.with_cursor(cursor)
+              qo = ndb.QueryOptions(start_cursor=ndb.Cursor(urlsafe=cursor))
+            else:
+              qo = ndb.QueryOptions()
 
-            submissions = submissions_query.fetch(5)
+            submissions, next_cursor, more = submissions_query.fetch_page(SUBMISSIONS_PER_PAGE, options=qo)
 
+            if next_cursor:
+                next_cursor = next_cursor.urlsafe()
             previous_cursor = cursor
-            next_cursor = submissions_query.cursor()
 
             # TODO: replace this iteration with a data oriented approach
-            submissions[:] = [submission for submission in submissions if not (submission.author.key() == self.jeeqser.key())] # or self.jeeqser.key() in submission.users_voted)]
+            submissions[:] = [submission for submission in submissions if not (submission.author == self.jeeqser.key)] # or self.jeeqser.key() in submission.users_voted)]
         else:
              submissions = []
 
@@ -75,6 +80,7 @@ class ReviewHandler(webapp2.RequestHandler):
                 'review_qualified' : review_qualified,
                 'next_cursor': next_cursor,
                 'previous_cursor' : previous_cursor,
+                'more' : more
         })
 
         template = jinja_environment.get_template('review_a_challenge.html')

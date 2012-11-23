@@ -809,21 +809,21 @@ class RPCHandler(webapp2.RequestHandler):
     @authenticate(False)
     def get_challenge_avatars(self):
         logging.debug("here at get_challenge_avatatars")
-        challenge = Challenge.get(self.request.get('challenge_key'))
+        challenge = ndb.Key(urlsafe=self.request.get('challenge_key')).get()
         logging.debug("challenge key : %s" % str(challenge.key))
         solver_jc_list = Jeeqser_Challenge\
-                        .all()\
-                        .filter('challenge = ', challenge)\
-                        .filter('status = ', 'correct')\
-                        .order('status_changed_on')\
+                        .query()\
+                        .filter(Jeeqser_Challenge.challenge == challenge.key)\
+                        .filter(Jeeqser_Challenge.status == 'correct')\
+                        .order(-Jeeqser_Challenge.status_changed_on)\
                         .fetch(20)
 
         solver_keys = []
         for jc in solver_jc_list:
-            logging.debug("appending one more jeeqser's key : %s" % str(jc.jeeqser.key))
-            solver_keys.append(jc.jeeqser.key)
+            logging.debug("appending one more jeeqser's key : %s" % str(jc.jeeqser))
+            solver_keys.append(jc.jeeqser)
 
-        solver_jeeqsers = Jeeqser.get(solver_keys)
+        solver_jeeqsers = ndb.get_multi(solver_keys)
         vars = {'solver_jeeqsers' : solver_jeeqsers}
         template = jinja_environment.get_template('challenge_avatars.html')
         rendered = template.render(vars)
