@@ -200,7 +200,7 @@ class ChallengeHandler(webapp2.RequestHandler):
 
             # Fetch saved draft
             try:
-                draft = Draft.all().filter('author = ', self.jeeqser).filter('challenge = ', challenge).fetch(1)[0]
+                draft = Draft.query().filter(Draft.author == self.jeeqser, Draft.challenge == challenge).fetch(1)[0]
             except IndexError:
                 draft = None
 
@@ -564,7 +564,7 @@ class RPCHandler(webapp2.RequestHandler):
 
         # delete a draft if exists
         try:
-            draft = Draft.all().ancestor(self.jeeqser).filter('challenge = ', challenge).fetch(1)[0]
+            draft = Draft.query(ancestor=self.jeeqser).filter(Draft.challenge == challenge).fetch(1)[0]
             draft.delete()
         except IndexError:
             pass
@@ -622,7 +622,7 @@ class RPCHandler(webapp2.RequestHandler):
 
         def persist_new_draft():
             try:
-                draft = Draft.all().ancestor(self.jeeqser).filter('author = ', self.jeeqser).filter('challenge = ', challenge).fetch(1)[0]
+                draft = Draft.query(ancestor=self.jeeqser).filter(Draft.author == self.jeeqser).filter(Draft.challenge == challenge).fetch(1)[0]
             except IndexError:
                 draft = Draft(
                     parent=self.jeeqser,

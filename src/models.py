@@ -136,6 +136,36 @@ class Jeeqser(db.Model):
         # return jeeqser.moderator
         return Jeeqser.get('agpkZXZ-amVlcXN5cg8LEgdKZWVxc2VyGMGpBww')
 
+""" University program course exercise in NDB:
+class University(ndb.Model):
+    name = ndb.StringProperty()
+    fullname = ndb.StringProperty()
+
+class Program(ndb.Model):
+    name = ndb.StringProperty()
+    fullname = ndb.StringProperty()
+    university = ndb.KeyProperty(kind=University)
+
+class Course(ndb.Model):
+    name = ndb.StringProperty()
+    code = ndb.StringProperty()
+    description = ndb.TextProperty()
+    level = ndb.StringProperty(choices=['undergraduate', 'graduate'])
+    program = ndb.KeyProperty(kind=Program)
+    yearOffered = ndb.IntegerProperty()
+    monthOffered = ndb.StringProperty(choices=['January', 'February', 'March', 'April', 'May', 'June', 'July', 'Auguest', 'September', 'October', 'November', 'December'])
+    # Attribution for this course
+    attribution = ndb.TextProperty()
+
+class Exercise(ndb.Model):
+    # Exercise number like
+    name = ndb.StringProperty()
+    number = ndb.StringProperty()
+    course = ndb.KeyProperty(kind=Course)
+
+    def __unicode__(self):
+        return self.name
+"""
 
 class University(db.Model):
     name = db.StringProperty()
@@ -165,6 +195,83 @@ class Exercise(db.Model):
 
     def __unicode__(self):
         return self.name
+
+"""NDB version of challenge:
+
+class Challenge(ndb.Model):
+    Models a challenge
+    EMPTY_MARKDOWN = 'Complete me!'
+
+    name_persistent = ndb.StringProperty(verbose_name=="Name")
+
+    def get_name(self):
+        if self.name_persistent:
+            return self.name_persistent
+        elif self.exercise and self.exercise.name:
+            self.name_persistent = self.exercise.name
+            self.put()
+            return self.name_persistent
+
+    def set_name(self, value):
+        self.name_persistent = value
+
+    name = property(get_name, set_name, "name")
+
+    #compiled markdown
+    content = ndb.TextProperty()
+    #non-compiled markdown
+    markdown = ndb.TextProperty(default=EMPTY_MARKDOWN)
+
+    template_code = ndb.StringProperty()
+    attribution_persistent = ndb.TextProperty(verbose_name="attribution")
+
+    # one to one relationship
+    exercise = ndb.KeyProperty(kind=Exercise)
+
+    # true iff this challenge is to be reviewed by the server
+    automatic_review = db.BooleanProperty()
+
+    # true if this challenge has public submissions
+    public_submissions = ndb.BooleanProperty(default=False)
+
+    # the course breadcrumb
+    breadcrumb_persisted = ndb.StringProperty(verbose_name="breadcrumb")
+
+    #scribd-related info
+    document_id = ndb.StringProperty()
+    access_key = ndb.StringProperty()
+    vertical_scroll = ndb.FloatProperty()
+
+    #stats
+    num_jeeqsers_solved = ndb.IntegerProperty(default=0)
+    num_jeeqsers_submitted = ndb.IntegerProperty(default=0)
+    # number of submissions to this challenge that still need reviewing!
+    submissions_without_review = ndb.IntegerProperty(default=0)
+    last_solver = ndb.KeyProperty() # TODO: add kind=Jeeqser
+    last_solver_picture_url_persisted = ndb.StringProperty()
+
+
+    def get_breadcrumb(self):
+        if self.breadcrumb_persisted:
+            return self.breadcrumb_persisted
+        else:
+            self.breadcrumb_persisted = self.exercise.number \
+                                        + ' > ' + self.exercise.course.name \
+                                        + ' > ' + self.exercise.course.program.name \
+                                        + ' > ' + self.exercise.course.program.university.name
+            self.put()
+            return self.breadcrumb_persisted
+
+    breadcrumb = property(fget=get_breadcrumb, doc="Course Breadcrumb")
+
+    #exercise relate info
+    exercise_number_persisted = ndb.StringProperty()
+    exercise_program_persisted = ndb.StringProperty()
+    exercise_university_persisted = ndb.StringProperty()
+    exercise_course_code_persisted = ndb.StringProperty()
+    exercise_course_name_persisted = ndb.StringProperty()
+
+"""
 
 class Challenge(db.Model):
     """Models a challenge"""
@@ -333,15 +440,15 @@ class Challenge(db.Model):
         self.last_solver_picture_url = solver.profile_url if solver else None
 
 
-class Draft(db.Model):
+class Draft(ndb.Model):
     """Models a draft (un-submitted) attempt"""
-    challenge = db.ReferenceProperty(Challenge)
-    author = db.ReferenceProperty(Jeeqser)
+    challenge = ndb.KeyProperty() # TODO kind=Challenge
+    author = ndb.KeyProperty() # TODO kind=Jeeqser
     #compiled markdown
-    content = db.TextProperty()
+    content = ndb.TextProperty()
     #non-compiled markdown
-    markdown = db.TextProperty()
-    date = db.DateTimeProperty(auto_now=True)
+    markdown = ndb.TextProperty()
+    date = ndb.DateTimeProperty(auto_now=True)
 
 class Attempt(db.Model):
     """Models a Submission for a Challenge """
