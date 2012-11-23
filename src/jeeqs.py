@@ -65,27 +65,28 @@ class FrontPageHandler(webapp2.RequestHandler):
     def get(self):
         # get available challenges
         
-        all_challenges = Challenge.all().fetch(100)
+        all_challenges = Challenge.query().fetch(100)
         all_challenges.sort(
           cmp = exercise_cmp,
           key = lambda challenge:challenge.exercise_number_persisted)
 
-        # TODO: won't work if there's more than 100 challenges!
-        jeeqser_challenges = Jeeqser_Challenge\
-            .all()\
-            .filter('jeeqser = ', self.jeeqser)\
-            .fetch(100)
+        jeeqser_challenges = []
+        if self.jeeqser:
+          jeeqser_challenges = Jeeqser_Challenge\
+              .query()\
+              .filter(Jeeqser_Challenge.jeeqser == self.jeeqser.key)\
+              .fetch(100)
 
         active_submissions = {}
         for jc in jeeqser_challenges:
-            active_submissions[jc.challenge.key()] = jc
+            active_submissions[jc.challenge] = jc
 
         injeeqs = None
 
         if self.jeeqser:
             for ch in all_challenges:
-                if active_submissions.get(ch.key()):
-                    jc = active_submissions[ch.key()]
+                if active_submissions.get(ch.key):
+                    jc = active_submissions[ch.key]
                     ch.submitted = True
                     ch.status = jc.status
                     ch.jc = jc
@@ -95,7 +96,7 @@ class FrontPageHandler(webapp2.RequestHandler):
 
             injeeqs = Feedback\
                             .query()\
-                            .filter(Feedback.attempt_author == ndb.Key.from_old_key(self.jeeqser.key()))\
+                            .filter(Feedback.attempt_author == self.jeeqser.key)\
                             .filter(Feedback.flagged == False)\
                             .order(Feedback.flag_count)\
                             .order(-Feedback.date)\
@@ -154,7 +155,7 @@ class ChallengeHandler(webapp2.RequestHandler):
         challenge = None
 
         try:
-            challenge = Challenge.get(ch_key)
+            challenge = ndb.Key(urlsafe=ch_key).get()
         finally:
             if not challenge:
                 self.error(StatusCode.forbidden)
@@ -167,29 +168,24 @@ class ChallengeHandler(webapp2.RequestHandler):
         attempt = None
         attempt_key = self.request.get('att')
         if attempt_key:
-            attempt = submission = Attempt.get(attempt_key)
+            attempt = submission = ndb.Key(urlsafe=attempt_key).get()
 
         if (self.jeeqser):
-            attempts_query = db.GqlQuery(" SELECT * "
-                                   " FROM Attempt "
-                                   " WHERE author = :1 "
-                                   " AND challenge = :2 "
-                                   " ORDER BY date DESC",
-                                   self.jeeqser.key(),
-                                   challenge)
-            attempts = attempts_query.fetch(20)
+            attempts = Attempt.query()\
+                .filter(Attempt.author == self.jeeqser.key)\
+                .filter(Attempt.challenge == challenge.key)\
+                .order(-Attempt.date)\
+                .fetch(20)
+
 
             if not submission:
                 # fetch user's active submission
-                submission_query = db.GqlQuery(" SELECT * "
-                                               " FROM Attempt  "
-                                               " WHERE author = :1 "
-                                               " AND challenge = :2 "
-                                               " AND active = True "
-                                               " ORDER BY date DESC ",
-                                                self.jeeqser.key(),
-                                                challenge)
-                submissions = submission_query.fetch(1)
+                submissions = Attempt.query()\
+                    .filter(Attempt.author == self.jeeqser.key)\
+                    .filter(Attempt.challenge == challenge.key)\
+                    .filter(Attempt.active == True)\
+                    .order(-Attempt.date)\
+                    .fetch(1)
 
                 if (submissions):
                     submission = submissions[0]
@@ -198,11 +194,11 @@ class ChallengeHandler(webapp2.RequestHandler):
                     submission = None
 
             if submission:
-                feedbacks = Feedback.all()\
-                                    .filter('attempt = ', submission)\
-                                    .filter('flagged = ', False)\
-                                    .order('flag_count')\
-                                    .order('-date')\
+                feedbacks = Feedback.query()\
+                                    .filter(Feedback.attempt == submission.key)\
+                                    .filter(Feedback.flagged == False)\
+                                    .order(Feedback.flag_count)\
+                                    .order(-Feedback.date)\
                                     .fetch(10)
 
             if feedbacks:
@@ -211,8 +207,8 @@ class ChallengeHandler(webapp2.RequestHandler):
             # Fetch saved draft
             try:
                 draft = Draft.query().filter(
-                    Draft.author == ndb.Key.from_old_key(self.jeeqser.key()),
-                    Draft.challenge == ndb.Key.from_old_key(challenge.key())).fetch(1)[0]
+                    Draft.author == self.jeeqser.key,
+                    Draft.challenge == challenge.key).fetch(1)[0]
             except IndexError:
                 draft = None
 
@@ -224,7 +220,7 @@ class ChallengeHandler(webapp2.RequestHandler):
                 'logout_url': users.create_logout_url(self.request.url),
                 'attempts': attempts,
                 'challenge' : challenge,
-                'challenge_key' : challenge.key(),
+                'challenge_key' : challenge.key,
                 'template_code': challenge.template_code,
                 'submission' : submission,
                 'feedbacks' : feedbacks,
@@ -335,7 +331,7 @@ class RPCHandler(webapp2.RequestHandler):
         """
         Updates the model graph based on the vote given by the voter
         """
-        submission.users_voted.append(voter.key())
+        submission.users_voted.append(voter.key)
         submission.vote_count += 1
         if submission.vote_count == 1:
             submission.challenge.submissions_without_review -= 1
@@ -359,7 +355,7 @@ class RPCHandler(webapp2.RequestHandler):
             if (submission.flag_count > spam_manager.submission_flag_threshold) or voter.is_moderator or users.is_current_user_admin():
                 submission.flagged = True
                 spam_manager.flag_author(submission.author)
-            submission.flagged_by.append(voter.key())
+            submission.flagged_by.append(voter.key)
 
         previous_status = jeeqser_challenge.status
 
@@ -382,7 +378,7 @@ class RPCHandler(webapp2.RequestHandler):
                 if previous_status == 'correct':
                     submission.challenge.num_jeeqsers_solved -= 1
                     submission.author.correct_submissions_count -= 1
-                if submission.challenge.last_solver and submission.challenge.last_solver.key() == submission.author.key():
+                if submission.challenge.last_solver and submission.challenge.last_solver.key == submission.author.key:
                     submission.challenge.update_last_solver(None)
 
     @authenticate(False)
@@ -524,7 +520,7 @@ class RPCHandler(webapp2.RequestHandler):
                     if challenge.num_jeeqsers_solved > 0:
                         challenge.num_jeeqsers_solved -=1
                     else:
-                        logging.error("Challenge %s can not have negative solvers! " % challenge.key())
+                        logging.error("Challenge %s can not have negative solvers! " % challenge.key)
             else:
                 #create one
                 jeeqser_challenge = Jeeqser_Challenge(
@@ -534,7 +530,7 @@ class RPCHandler(webapp2.RequestHandler):
                 )
                 challenge.num_jeeqsers_submitted += 1
 
-            if challenge.last_solver and challenge.last_solver.key() == self.jeeqser.key():
+            if challenge.last_solver and challenge.last_solver.key == self.jeeqser.key:
                 challenge.update_last_solver(None)
 
             challenge.submissions_without_review += 1
@@ -542,7 +538,7 @@ class RPCHandler(webapp2.RequestHandler):
             challenge.put()
 
             attempt = Attempt(
-                author=self.jeeqser.key(),
+                author=self.jeeqser.key,
                 challenge=challenge,
                 content=markdown.markdown(solution, ['codehilite', 'mathjax']),
                 markdown=solution,
@@ -577,7 +573,7 @@ class RPCHandler(webapp2.RequestHandler):
         # delete a draft if exists
         try:
             draft = Draft.query(ancestor=self.jeeqser).filter(
-                Draft.challenge == ndb.Key.from_old_key((challenge.key()))).fetch(1)[0]
+                Draft.challenge == ndb.Key.from_old_key((challenge.key))).fetch(1)[0]
             draft.delete()
         except IndexError:
             pass
@@ -636,8 +632,8 @@ class RPCHandler(webapp2.RequestHandler):
         def persist_new_draft():
             try:
                 draft = Draft.query(ancestor=self.jeeqser) \
-                    .filter(Draft.author == ndb.Key.from_old_key(self.jeeqser.key())) \
-                    .filter(Draft.challenge == ndb.Key.from_old_key(challenge.key())).fetch(1)[0]
+                    .filter(Draft.author == ndb.Key.from_old_key(self.jeeqser.key)) \
+                    .filter(Draft.challenge == ndb.Key.from_old_key(challenge.key)).fetch(1)[0]
             except IndexError:
                 draft = Draft(
                     parent=self.jeeqser,
@@ -727,7 +723,7 @@ class RPCHandler(webapp2.RequestHandler):
             submission = Attempt.get(submission_key)
             jeeqser_challenge = Jeeqser_Challenge.get(jeeqser_challenge_key)
             jeeqser = Jeeqser.get(jeeqser_key)
-            submission.author = Jeeqser.get(submission.author.key())
+            submission.author = Jeeqser.get(submission.author.key)
 
             # check flagging limit
             if vote == 'flag':
@@ -752,9 +748,9 @@ class RPCHandler(webapp2.RequestHandler):
         db.run_in_transaction_options(
             xg_on,
             persist_vote,
-            submission.key(),
-            jeeqser_challenge.key(),
-            self.jeeqser.key())
+            submission.key,
+            jeeqser_challenge.key,
+            self.jeeqser.key)
 
         Activity(
             type='voting',
@@ -775,7 +771,7 @@ class RPCHandler(webapp2.RequestHandler):
         feedback_key = self.request.get('feedback_key')
         feedback = Feedback.get(feedback_key)
 
-        if self.jeeqser.key() not in feedback.flagged_by:
+        if self.jeeqser.key not in feedback.flagged_by:
             def persist_flag(jeeqser_key):
 
                 feedback = Feedback.get(feedback_key)
@@ -786,7 +782,7 @@ class RPCHandler(webapp2.RequestHandler):
                 response = {'flags_left_today':flags_left}
 
                 if flags_left >= 0:
-                    feedback.flagged_by.append(jeeqser.key())
+                    feedback.flagged_by.append(jeeqser.key)
                     feedback.flag_count += 1
                     if (feedback.flag_count >= spam_manager.feedback_flag_threshold) or jeeqser.is_moderator or users.is_current_user_admin():
                         feedback.flagged = True
@@ -797,7 +793,7 @@ class RPCHandler(webapp2.RequestHandler):
                 return response
 
             xg_on = db.create_transaction_options(xg=True)
-            response = db.run_in_transaction_options(xg_on, persist_flag, self.jeeqser.key())
+            response = db.run_in_transaction_options(xg_on, persist_flag, self.jeeqser.key)
 
 
             out_json = json.dumps(response)
@@ -814,7 +810,7 @@ class RPCHandler(webapp2.RequestHandler):
     def get_challenge_avatars(self):
         logging.debug("here at get_challenge_avatatars")
         challenge = Challenge.get(self.request.get('challenge_key'))
-        logging.debug("challenge key : %s" % str(challenge.key()))
+        logging.debug("challenge key : %s" % str(challenge.key))
         solver_jc_list = Jeeqser_Challenge\
                         .all()\
                         .filter('challenge = ', challenge)\
@@ -824,8 +820,8 @@ class RPCHandler(webapp2.RequestHandler):
 
         solver_keys = []
         for jc in solver_jc_list:
-            logging.debug("appending one more jeeqser's key : %s" % str(jc.jeeqser.key()))
-            solver_keys.append(jc.jeeqser.key())
+            logging.debug("appending one more jeeqser's key : %s" % str(jc.jeeqser.key))
+            solver_keys.append(jc.jeeqser.key)
 
         solver_jeeqsers = Jeeqser.get(solver_keys)
         vars = {'solver_jeeqsers' : solver_jeeqsers}

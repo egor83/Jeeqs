@@ -12,7 +12,7 @@
                     url: "/rpc",
                     async: true,
                     type: "POST",
-                    data: {'method': 'took_tour', 'jeeqser_key': "{{ jeeqser.key() }}"},
+                    data: {'method': 'took_tour', 'jeeqser_key': "{{ jeeqser.key.urlsafe() }}"},
                     success: function(response){
                     }
                 })
@@ -152,7 +152,7 @@
             {% for challenge in challenges %}
                 <div class="challenge_in_list" style="padding-right: 10px; height: 80px; clear:both">
                     <div style="float:left; margin-bottom: 2px">
-                        <a class="noline" href="/challenge/?ch={{ challenge.key() }}" style="color:
+                        <a class="noline" href="/challenge/?ch={{ challenge.key.urlsafe() }}" style="color:
                                 {% if challenge.status == 'correct' %}
                                     #089619
                                 {% endif %}
@@ -168,7 +168,7 @@
                     </div>
                     <div style="float:right; margin-bottom: 2px">
                         <span>
-                            <a class="noline" href="/challenge/?ch={{ challenge.key() }}" title="Solve this challenge">
+                            <a class="noline" href="/challenge/?ch={{ challenge.key.urlsafe() }}" title="Solve this challenge">
                                 {% if challenge.status == 'correct' %}
                                     <span class="ui-icon ui-icon-unlocked" style="float:left"></span>
                                 {% else %}
@@ -194,7 +194,7 @@
 
                     {% if challenge.last_solver %}
                         <div style="float: right; clear:right; margin-top: 5px">
-                            {{  avatar(challenge.last_solver.key(), challenge.last_solver_picture_url, style='float:right') }}
+                            {{  avatar(challenge.last_solver, challenge.last_solver_picture_url, style='float:right') }}
                         </div>
                     {% endif %}
 
@@ -222,7 +222,7 @@
                     {% endif %}
 
                     <div class="challenge_avatars" style="display:none; float:left; clear:both; margin: 5px; background-color: rgba(0, 0, 0, .05); width: 98%%; margin-left: 1%; margin-right: 1%">
-                        <input type=hidden name="challenge_key" value="{{ challenge.key() }}" style="display: none"/>
+                        <input type=hidden name="challenge_key" value="{{ challenge.key.urlsafe() }}" style="display: none"/>
                         <span style="color:#d3d3d3;">Loading ...</span>
                     </div>
 

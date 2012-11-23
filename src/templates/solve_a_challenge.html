@@ -144,7 +144,7 @@
 
                     $('#other_submissions').html('Loading ... ')
                     $.ajax({
-                        url: "/review/?ch={{ challenge.key() }}",
+                        url: "/review/?ch={{ challenge.key }}",
                         async: true,
                         type: "GET",
                         success: function(response) {
@@ -219,7 +219,7 @@
                         {% if not attempt %}
                             <div id="new_submission" style="float:left; clear:both; width: 100%; margin-top:10px;">
                                 <div id="answerForm">
-                                    <input type="hidden" name="challenge_key" id="challenge_key" value="{{ challenge_key }}" />
+                                    <input type="hidden" name="challenge_key" id="challenge_key" value="{{ challenge_key.urlsafe() }}" />
 
                                     {% if not challenge.automatic_review %}
                                         <div id="solutionContainer">
@@ -297,7 +297,7 @@
                                                     <p style="color:grey">Nothing to show here, yet!</p>
                                                 {% endif %}
                                                 {% for attempt in attempts %}
-                                                    <p style="color: grey"> <a class="noline" href="/challenge/?ch={{ challenge.key() }}&att={{ attempt.key() }}"> Attempt #{{ attempt.index }}</a>  @  {{ attempt.date|timesince }}</p>
+                                                    <p style="color: grey"> <a class="noline" href="/challenge/?ch={{ challenge.key }}&att={{ attempt.key }}"> Attempt #{{ attempt.index }}</a>  @  {{ attempt.date|timesince }}</p>
                                                     <div>
                                                         {{ attempt.content|safe }}
                                                     </div>

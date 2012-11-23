@@ -27,7 +27,7 @@ def get_jeeqser():
     if user is None:
         return None
 
-    jeeqsers = Jeeqser.all().filter('user = ', user).fetch(1)
+    jeeqsers = Jeeqser.query().filter(Jeeqser.user == user).fetch(1)
 
     if (len(jeeqsers) == 0):
         jeeqser = Jeeqser(user=user, displayname=user.nickname())
@@ -76,7 +76,7 @@ def authenticate(required=True):
 # TODO: move to proper file
 def get_JC(jeeqser, challenge):
     return Jeeqser_Challenge\
-            .all()\
-            .filter('jeeqser =', jeeqser)\
-            .filter('challenge =', challenge)\
+            .query()\
+            .filter(Jeeqser_Challenge.jeeqser == jeeqser.key)\
+            .filter(Jeeqser_Challenge.challenge == challenge.key)\
             .fetch(1)

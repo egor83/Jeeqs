@@ -3,6 +3,7 @@ import sys
 import webapp2
 from core import *
 from utils import StatusCode
+from google.appengine.ext import ndb
 
 class ReviewHandler(webapp2.RequestHandler):
     """renders the review template
@@ -24,7 +25,7 @@ class ReviewHandler(webapp2.RequestHandler):
         challenge = None
 
         try:
-            challenge = Challenge.get(ch_key)
+            challenge = ndb.Key(urlsafe=ch_key).get()
         finally:
             if not challenge:
                 self.error(StatusCode.forbidden)
@@ -43,13 +44,12 @@ class ReviewHandler(webapp2.RequestHandler):
 
         if review_qualified or challenge.public_submissions:
             # Retrieve other users' submissions
-            submissions_query = db.GqlQuery(" SELECT * "
-                                              " FROM Attempt "
-                                              " WHERE challenge = :1 "
-                                              " AND active = True "
-                                              " AND flagged = False "
-                                              " ORDER BY vote_count ASC",
-                                              challenge)
+            submissions_query = Attempt.query()\
+                .filter(Attempt.challenge == challenge.key)\
+                .filter(Attempt.active == True)\
+                .filter(Attempt.flagged == False)\
+                .order(Attempt.vote_count)
+
             if cursor and cursor != "None":
                 submissions_query.with_cursor(cursor)
 

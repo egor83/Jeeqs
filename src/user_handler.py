@@ -1,11 +1,11 @@
 from core import *
 from google.appengine.api import users
+from google.appengine.ext import ndb
 from oauth2 import service, decorator
 from apiclient.errors import HttpError
 from oauth2client.client import AccessTokenRefreshError
 import webapp2
 from utils import StatusCode
-
 
 class UserHandler(webapp2.RequestHandler):
     """Renders User's profile page"""
@@ -21,7 +21,7 @@ class UserHandler(webapp2.RequestHandler):
         has_credentials = decorator.has_credentials()
 
         if jeeqser_key:
-            target_jeeqser = Jeeqser.get(jeeqser_key)
+            target_jeeqser = ndb.Key(urlsafe=jeeqser_key).get()
             if not target_jeeqser:
                 self.error(StatusCode.forbidden)
                 return
@@ -46,14 +46,11 @@ class UserHandler(webapp2.RequestHandler):
         # get challenge history for target_jeeqser
         # TODO: needs pagination
         correct_jcs = Jeeqser_Challenge\
-                        .all()\
-                        .filter('jeeqser = ', target_jeeqser)\
-                        .filter('status = ', 'correct')\
-                        .order('-status_changed_on')\
+                        .query()\
+                        .filter(Jeeqser_Challenge.jeeqser == target_jeeqser.key)\
+                        .filter(Jeeqser_Challenge.status == 'correct')\
+                        .order(-Jeeqser_Challenge.status_changed_on)\
                         .fetch(100)
-        # pre-fetch the challenges
-        for jc in correct_jcs:
-            jc.challenge.key()
 
         vars = add_common_vars({
             'jeeqser' : self.jeeqser,

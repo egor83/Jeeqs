@@ -52,7 +52,6 @@ s~jeeqsy> for ch in all_ch:
 
 """
 
-from google.appengine.ext import db
 from google.appengine.ext import ndb
 from gravatar import get_profile_url
 
@@ -199,7 +198,7 @@ class Challenge(ndb.Model):
     exercise = ndb.KeyProperty(kind=Exercise)
 
     # true iff this challenge is to be reviewed by the server
-    automatic_review = db.BooleanProperty()
+    automatic_review = ndb.BooleanProperty()
 
     # true if this challenge has public submissions
     public_submissions = ndb.BooleanProperty(default=False)
@@ -351,7 +350,7 @@ class Draft(ndb.Model):
 
 class Attempt(ndb.Model):
     """Models a Submission for a Challenge """
-    challenge = ndb.ReferenceProperty(kind=Challenge)
+    challenge = ndb.KeyProperty(kind=Challenge)
     author = ndb.KeyProperty(kind=Jeeqser)
     #compiled markdown
     content = ndb.TextProperty()
@@ -384,7 +383,7 @@ class Attempt(ndb.Model):
     # Spam ?
     flagged_by = ndb.KeyProperty(repeated=True)
     # if True, this attempt is blocked. Become true, once flag_count goes above a threshold
-    flagged = db.BooleanProperty(default=False)
+    flagged = ndb.BooleanProperty(default=False)
 
     @property
     def feedbacks(self):
@@ -453,5 +452,3 @@ class Activity(ndb.Model):
     submission_author_gravatar = ndb.StringProperty()
 
     feedback = ndb.KeyProperty(kind=Feedback)
-
-

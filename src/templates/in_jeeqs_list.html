@@ -28,16 +28,16 @@
 </script>
 {% if feedbacks and feedbacks|length > 0 %}
     {% for feedback in feedbacks %}
-        <div style='float:left; width:100%; {%if jeeqser.key() in feedback.flagged_by  %}background-image: url("/static/flagged.png"){% endif %}'>
+        <div style='float:left; width:100%; {%if jeeqser.key in feedback.flagged_by  %}background-image: url("/static/flagged.png"){% endif %}'>
             <div style='float:left; width: 100%; background: {{ feedback.background }};'>
                 <div class="ui-icon {{ feedback.icon }}" style="float:left; clear:both;"></div>
                 <div style="float:right; font-size:small;">
-                    <img height="20px" width="20px" style="margin-right: 5px; vertical-align: middle; border-radius: 5px" src="{{ feedback.author.profile_url }}"/>
+                    <img height="20px" width="20px" style="margin-right: 5px; vertical-align: middle; border-radius: 5px" src="{{ feedback.author.get().profile_url }}"/>
                         <span>
                             submitted by {{ feedback.author.displayname }} @ {{ feedback.date|timesince }}
                         </span>
                         {% if write_challenge_name %}
-                            for <a class="noline" href='/challenge/?ch={{ feedback.attempt.get().challenge }}&att={{ feedback.attempt }}'>attempt #{{ feedback.attempt.get().index }}</a>  of {{ feedback.attempt.get().challenge.get().name }}
+                            for <a class="noline" href='/challenge/?ch={{ feedback.attempt.get().challenge.urlsafe() }}&att={{ feedback.attempt.urlsafe() }}'>attempt #{{ feedback.attempt.get().index }}</a>  of {{ feedback.attempt.get().challenge.get().name }}
                         {% endif %}
                 </div>
             </div>
@@ -45,8 +45,8 @@
             <div style="margin-top: 10px; float:left; clear:both">
                 {{ feedback.content|safe }}
             </div>
-            <input type="hidden" name="feedback-id" value="{{ feedback.key() }}"/>
-            {%if jeeqser.key() not in feedback.flagged_by  %}
+            <input type="hidden" name="feedback-id" value="{{ feedback.key }}"/>
+            {%if jeeqser.key not in feedback.flagged_by  %}
                 <div style="float:right"><a class="feedback-flag-button" href="#"><span class="icon-flag" style="float:left"></span></a></div>
             {% endif %}
         </div>
