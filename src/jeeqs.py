@@ -388,17 +388,18 @@ class RPCHandler(webapp2.RequestHandler):
         submission = None
 
         try:
-            submission = Attempt.get(submission_key)
+            submission = ndb.Key(urlsafe=submission_key).get()
         finally:
             if not submission:
                 self.error(StatusCode.forbidden)
                 return
 
-        feedbacks = Feedback.all()\
-            .filter('attempt = ', submission)\
-            .filter('flagged = ', False)\
-            .order('flag_count')\
-            .order('-date')\
+        # TODO: We can optimize these kind of calls by never retrieving submission object
+        feedbacks = Feedback.query()\
+            .filter(Feedback.attempt == submission.key)\
+            .filter(Feedback.flagged == False)\
+            .order(Feedback.flag_count)\
+            .order(-Feedback.date)\
             .fetch(10)
 
         if feedbacks:
@@ -680,7 +681,7 @@ class RPCHandler(webapp2.RequestHandler):
         submission = None
 
         try:
-            submission = Attempt.get(submission_key)
+            submission = ndb.Key(urlsafe=submission_key).get()
         finally:
             if not submission:
                 self.error(StatusCode.forbidden)
@@ -720,10 +721,10 @@ class RPCHandler(webapp2.RequestHandler):
 
         def persist_vote(submission_key, jeeqser_challenge_key, jeeqser_key):
             # get all the objects that will be updated
-            submission = Attempt.get(submission_key)
-            jeeqser_challenge = Jeeqser_Challenge.get(jeeqser_challenge_key)
-            jeeqser = Jeeqser.get(jeeqser_key)
-            submission.author = Jeeqser.get(submission.author.key)
+            submission = ndb.Key(urlsafe=submission_key).get()
+            jeeqser_challenge = ndb.Key(urlsafe=jeeqser_challenge_key).get()
+            jeeqser = ndb.Key(urlsafe=jeeqser_key).get()
+            submission.author = submission.author.get()
 
             # check flagging limit
             if vote == 'flag':

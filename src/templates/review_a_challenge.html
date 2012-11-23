@@ -30,13 +30,13 @@
                             <button value="flag" class="btn"><i class="icon-flag"></i></button>
                         </div>
                         <div>
-                            <textarea id="response__{{ submission.key }}" rows="5" style="width: 50%;"></textarea>
+                            <textarea id="response__{{ submission.key.urlsafe() }}" rows="5" style="width: 50%;"></textarea>
                         </div>
                         {% set submitted = 'Submitted' %}
                         {% if not submission.voted %}
                             {% set submitted = 'Submit' %}
                         {% endif %}
-                        <button class="submit-vote btn btn-primary" data-submitted-text="Submitted!" id="submit__{{ submission.key }}" style="float:right">{{ submitted }}</button>
+                        <button class="submit-vote btn btn-primary" data-submitted-text="Submitted!" id="submit__{{ submission.key.urlsafe() }}" style="float:right">{{ submitted }}</button>
                     </div>
                 {% endif %}
             </div>
