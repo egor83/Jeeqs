@@ -45,7 +45,7 @@ class RPCHandlerTestCase(jeeqs_test.JeeqsTestCase):
     except Exception as ex:
       self.fail()
 
-    submitter_challenge.key.get()
+    submitter_challenge = submitter_challenge.key.get()
     self.assertEquals(submitter_challenge.status, AttemptStatus.SUCCESS)
 
 if __name__ == '__main__':
