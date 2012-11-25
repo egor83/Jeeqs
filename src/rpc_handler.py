@@ -74,14 +74,14 @@ class RPCHandler(webapp2.RequestHandler):
     submission.users_voted.append(voter.key)
     submission.vote_count += 1
     if submission.vote_count == 1:
-      submission.challenge.submissions_without_review -= 1
+      submission.challenge.get().submissions_without_review -= 1
 
     submission.vote_sum += float(RPCHandler.get_vote_numeric_value(vote))
     submission.vote_average = float(submission.vote_sum / submission.vote_count)
 
     # update stats
     voter.reviews_out_num += 1
-    submission.author.reviews_in_num +=1
+    submission.author.get().reviews_in_num +=1
 
     if vote == 'correct':
       submission.correct_count += 1
@@ -94,7 +94,7 @@ class RPCHandler(webapp2.RequestHandler):
       jeeqser_challenge.flag_count = submission.flag_count
       if (submission.flag_count > spam_manager.submission_flag_threshold) or voter.is_moderator or users.is_current_user_admin():
         submission.flagged = True
-        spam_manager.flag_author(submission.author)
+        spam_manager.flag_author(submission.author.get())
       submission.flagged_by.append(voter.key)
 
     previous_status = jeeqser_challenge.status
@@ -242,7 +242,7 @@ class RPCHandler(webapp2.RequestHandler):
         new_solution += '    ' + line
       solution = new_solution
 
-    jeeqser_challenge = get_JC(self.jeeqser, challenge)
+    jeeqser_challenge = get_JC(self.jeeqser.key, challenge.key)
 
     context = {'jeeqser' : self.jeeqser, 'jeeqser_challenge': jeeqser_challenge}
 
@@ -412,11 +412,37 @@ class RPCHandler(webapp2.RequestHandler):
       self.response.write('not_unique')
       return
 
+  @ndb.transactional(xg=True)
+  def persist_vote(self, feedback, submission_key, jeeqser_challenge_key, jeeqser_key):
+    # get all the objects that will be updated
+    submission = submission_key.get()
+    jeeqser_challenge = jeeqser_challenge_key.get()
+    jeeqser = jeeqser_key.get()
+    submission.author.get()
+
+    # check flagging limit
+    if feedback.vote == 'flag':
+      flags_left = spam_manager.check_and_update_flag_limit(jeeqser)
+      response = {'flags_left_today':flags_left}
+      out_json = json.dumps(response)
+      self.response.write(out_json)
+
+      if flags_left == -1:
+        raise Rollback()
+
+    RPCHandler.update_graph_vote_submitted(submission, jeeqser_challenge, feedback.vote, jeeqser)
+
+    jeeqser_challenge.put()
+    submission.put()
+    submission.challenge.get().put()
+    jeeqser.put()
+    submission.author.get().put()
+    feedback.put()
+
   def submit_vote(self):
 
     submission_key = self.request.get('submission_key')
     vote = self.request.get('vote')
-
 
     submission = None
 
@@ -429,7 +455,7 @@ class RPCHandler(webapp2.RequestHandler):
 
     #Ensure non-admin user is qualified to vote
     if not users.is_current_user_admin():
-      voter_challenge = get_JC(self.jeeqser, submission.challenge)
+      voter_challenge = get_JC(self.jeeqser.key, submission.challenge)
       qualified = voter_challenge and voter_challenge[0].status == 'correct'
 
       if not qualified:
@@ -452,59 +478,31 @@ class RPCHandler(webapp2.RequestHandler):
 
     feedback = Feedback(
       parent=submission.key,
-      attempt=submission,
-      author=self.jeeqser,
+      attempt=submission.key,
+      author=self.jeeqser.key,
       attempt_author=submission.author,
       markdown=self.request.get('response'),
       content=markdown.markdown(self.request.get('response'), ['codehilite', 'mathjax']),
       vote=vote)
 
-    def persist_vote(submission_key, jeeqser_challenge_key, jeeqser_key):
-      # get all the objects that will be updated
-      submission = ndb.Key(urlsafe=submission_key).get()
-      jeeqser_challenge = ndb.Key(urlsafe=jeeqser_challenge_key).get()
-      jeeqser = ndb.Key(urlsafe=jeeqser_key).get()
-      submission.author = submission.author.get()
-
-      # check flagging limit
-      if vote == 'flag':
-        flags_left = spam_manager.check_and_update_flag_limit(jeeqser)
-        response = {'flags_left_today':flags_left}
-        out_json = json.dumps(response)
-        self.response.write(out_json)
-
-        if flags_left == -1:
-          raise Rollback()
-
-      RPCHandler.update_graph_vote_submitted(submission, jeeqser_challenge, vote, jeeqser)
-
-      jeeqser_challenge.put()
-      submission.put()
-      submission.challenge.put()
-      jeeqser.put()
-      submission.author.put()
-      feedback.put()
-
-    xg_on = db.create_transaction_options(xg=True)
-    db.run_in_transaction_options(
-      xg_on,
-      persist_vote,
-      submission.key,
-      jeeqser_challenge.key,
-      self.jeeqser.key)
+    self.persist_vote(
+        feedback,
+        submission.key,
+        jeeqser_challenge.key,
+        self.jeeqser.key)
 
     Activity(
       type='voting',
-      done_by = self.jeeqser,
+      done_by = self.jeeqser.key,
       done_by_displayname=self.jeeqser.displayname,
       done_by_gravatar = self.jeeqser.profile_url,
       challenge=submission.challenge,
-      challenge_name=submission.challenge.name,
-      submission=submission,
+      challenge_name=submission.challenge.get().name,
+      submission=submission.key,
       submission_author=submission.author,
-      submission_author_displayname=submission.author.displayname,
-      submission_author_gravatar = submission.author.profile_url,
-      feedback=feedback
+      submission_author_displayname=submission.author.get().displayname,
+      submission_author_gravatar = submission.author.get().profile_url,
+      feedback=feedback.key
     ).put()
 
 
@@ -549,15 +547,15 @@ class RPCHandler(webapp2.RequestHandler):
 
   @authenticate(False)
   def get_challenge_avatars(self):
-    logging.debug("here at get_challenge_avatatars")
+    logging.debug("get_challenge_avatatars Start")
     challenge = ndb.Key(urlsafe=self.request.get('challenge_key')).get()
     logging.debug("challenge key : %s" % str(challenge.key))
     solver_jc_list = Jeeqser_Challenge\
-    .query()\
-    .filter(Jeeqser_Challenge.challenge == challenge.key)\
-    .filter(Jeeqser_Challenge.status == 'correct')\
-    .order(-Jeeqser_Challenge.status_changed_on)\
-    .fetch(20)
+      .query()\
+      .filter(Jeeqser_Challenge.challenge == challenge.key)\
+      .filter(Jeeqser_Challenge.status == 'correct')\
+      .order(-Jeeqser_Challenge.status_changed_on)\
+      .fetch(20)
 
     solver_keys = []
     for jc in solver_jc_list:

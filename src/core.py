@@ -4,6 +4,7 @@ from google.appengine.api import users
 from models import *
 from template_filters import escapejs, timesince
 import datetime
+import utils
 
 
 jinja_environment = jinja2.Environment(
@@ -32,7 +33,7 @@ def get_jeeqser():
     jeeqsers = Jeeqser.query().filter(Jeeqser.user == user).fetch(1)
 
     if (len(jeeqsers) == 0):
-        jeeqser = Jeeqser(user=user, displayname=user.nickname())
+        jeeqser = Jeeqser(user=user, displayname_persisted=user.nickname())
         jeeqser.put()
         return jeeqser
     return jeeqsers[0]
@@ -53,7 +54,7 @@ def authenticate(required=True):
         def wrapper(self):
             user = users.get_current_user()
             if not user and required:
-                self.error(StatusCode.unauth)
+                self.error(utils.StatusCode.unauth)
                 return
             elif user:
                 self.jeeqser = get_jeeqser()
@@ -76,11 +77,11 @@ def authenticate(required=True):
 
 # Get Jeeqser_Challege for user and challenge
 # TODO: move to proper file
-def get_JC(jeeqser, challenge):
+def get_JC(jeeqser_key, challenge_key):
     return Jeeqser_Challenge\
             .query()\
-            .filter(Jeeqser_Challenge.jeeqser == jeeqser.key)\
-            .filter(Jeeqser_Challenge.challenge == challenge.key)\
+            .filter(Jeeqser_Challenge.jeeqser == jeeqser_key)\
+            .filter(Jeeqser_Challenge.challenge == challenge_key)\
             .fetch(1)
 
 # Adds icons and background to feedback objects
