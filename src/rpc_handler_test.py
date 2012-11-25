@@ -59,6 +59,8 @@ class RPCHandlerTestCase(jeeqs_test.JeeqsTestCase):
     self.assertEquals(submitter.correct_submissions_count, 1)
     self.assertEquals(voter.reviews_out_num, 1)
     self.assertEquals(submitter.reviews_in_num, 1)
+    self.assertEquals(challenge.num_jeeqsers_solved, 1)
+    self.assertEquals(challenge.last_solver, submitter.key)
 
 
 if __name__ == '__main__':
