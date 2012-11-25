@@ -2,26 +2,17 @@ import unittest
 from google.appengine.ext import testbed
 from google.appengine.api import users
 
-class CoreTestCase(unittest.TestCase):
-  def loginExampleUser(self):
-    self.testbed.setup_env(
-      USER_EMAIL = 'test@example.com',
-      USER_ID = '123',
-      USER_IS_ADMIN = '1',
-      overwrite = True)
+import jeeqs_test
 
+class CoreTestCase(jeeqs_test.JeeqsTestCase):
   def setUp(self):
-    self.testbed = testbed.Testbed()
-    self.testbed.activate()
-    self.testbed.init_datastore_v3_stub()
-    self.testbed.init_user_stub()
+    jeeqs_test.JeeqsTestCase.setUp(self)
 
   def tearDown(self):
-    self.testbed.deactivate()
+    jeeqs_test.JeeqsTestCase.tearDown(self)
 
-  def testLoginExampleUser(self):
-    self.loginExampleUser()
-    self.assertIsNotNone(users.get_current_user())
+  def testXYZ(self):
+    pass
 
 if __name__ == '__main__':
   unittest.main()

@@ -1,13 +1,13 @@
 import unittest
-import core_test
+import jeeqs_test
 
-class RPCHandlerTestCase(core_test.CoreTestCase):
+class RPCHandlerTestCase(jeeqs_test.JeeqsTestCase):
 
   def setUp(self):
-    core_test.CoreTestCase.setUp(self)
+    jeeqs_test.JeeqsTestCase.setUp(self)
 
   def tearDown(self):
-    core_test.CoreTestCase.tearDown(self)
+    jeeqs_test.JeeqsTestCase.tearDown(self)
 
   def testXYZ(self):
     pass
