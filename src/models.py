@@ -58,6 +58,14 @@ from gravatar import get_profile_url
 # Maximum number of entities to fetch
 MAX_FETCH = 1000
 
+class AttemptStatus():
+  """
+  The status of an attempt
+  """
+  SUCCESS = 'correct'
+  FAIL = 'incorrect'
+
+
 class Jeeqser(ndb.Model):
     """ A Jeeqs User """
     user = ndb.UserProperty()
@@ -85,7 +93,10 @@ class Jeeqser(ndb.Model):
     def correct_submissions_count(self):
         if not self.correct_submissions_count_persisted:
             # calculate submissions that are correct by this Jeqeqser
-            correct_count = Jeeqser_Challenge.all().filter('jeeqser = ', self).filter('status = ', 'correct').count()
+            correct_count = Jeeqser_Challenge.query(ancestor=self.key)\
+                .filter(Jeeqser_Challenge.jeeqser == self.key)\
+                .filter(Jeeqser_Challenge.status == AttemptStatus.SUCCESS)\
+                .count()
             self.correct_submissions_count_persisted = correct_count
             self.put()
             return self.correct_submissions_count_persisted
@@ -330,7 +341,7 @@ class Challenge(ndb.Model):
         """
         updates the last solver for this challenge
         """
-        self.last_solver = solver
+        self.last_solver = solver.key
         self.last_solver_picture_url = solver.profile_url if solver else None
 
     @property
@@ -368,7 +379,7 @@ class Attempt(ndb.Model):
     flag_count = ndb.IntegerProperty(default=0)
     # Status of jeeqser's submission for this challenge
     # a challenge is solved if correct_count > incorrect_count + flag_count
-    status = ndb.StringProperty(choices=['correct', 'incorrect'])
+    status = ndb.StringProperty(choices=[AttemptStatus.SUCCESS, AttemptStatus.FAIL])
 
     #vote quantization TODO: might be removed !?
     vote_sum = ndb.FloatProperty(default=float(0))
@@ -405,8 +416,14 @@ class Jeeqser_Challenge(ndb.Model):
     flag_count = ndb.IntegerProperty(default=0)
     # Status of jeeqser's submission for this challenge
     # a challenge is solved if correct_count > incorrect_count + flag_count
-    status = ndb.StringProperty(choices=['correct', 'incorrect'])
+    status = ndb.StringProperty(choices=[AttemptStatus.SUCCESS, AttemptStatus.FAIL])
     status_changed_on = ndb.DateTimeProperty()
+
+class Vote:
+  CORRECT = 'correct'
+  INCORRECT = 'incorrect'
+  GENIUS = 'genius'
+  FLAG = 'flag'
 
 
 class Feedback(ndb.Model):
@@ -421,7 +438,7 @@ class Feedback(ndb.Model):
     markdown = ndb.TextProperty()
     content = ndb.TextProperty()
     date = ndb.DateTimeProperty(auto_now_add=True)
-    vote = ndb.StringProperty(choices=['correct', 'incorrect', 'genius', 'flag'])
+    vote = ndb.StringProperty(choices=[Vote.CORRECT, Vote.INCORRECT, Vote.GENIUS, Vote.FLAG])
 
     # Spam ?
     flagged_by = ndb.KeyProperty(repeated=True)

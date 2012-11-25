@@ -104,13 +104,13 @@ def run_testcases(program, challenge, attempt, robot):
     output = {'result' : ''}
     success = True
 
-    vote='correct'
+    vote = Vote.CORRECT
 
     try:
         program_module = compile_and_run(program, output)
     except:
         success = False
-        vote = 'incorrect'
+        vote = Vote.INCORRECT
 
     if success:
         test_num = 0
@@ -132,7 +132,7 @@ def run_testcases(program, challenge, attempt, robot):
         elif success:
             output['result'] += 'Success! All tests ran successfully!'
         else:
-            vote = 'incorrect'
+            vote = Vote.INCORRECT
 
     feedback = Feedback(
             parent=attempt,

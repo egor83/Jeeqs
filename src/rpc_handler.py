@@ -20,8 +20,8 @@ class RPCHandler(webapp2.RequestHandler):
       self.error(utils.StatusCode.forbidden)
       return
 
-    if method == 'submit_vote':
-      self.submit_vote()
+    if method == 'submitVote':
+      self.submitVote()
     elif method == 'update_displayname':
       self.update_displayname()
     elif method == 'update_profile_picture':
@@ -59,9 +59,9 @@ class RPCHandler(webapp2.RequestHandler):
 
   @staticmethod
   def get_vote_numeric_value(vote):
-    if vote == 'correct':
+    if vote == Vote.CORRECT:
       return 2
-    elif vote == 'incorrect':
+    elif vote == Vote.INCORRECT:
       return 0
     else:
       return 0 # flag
@@ -83,13 +83,13 @@ class RPCHandler(webapp2.RequestHandler):
     voter.reviews_out_num += 1
     submission.author.get().reviews_in_num +=1
 
-    if vote == 'correct':
+    if vote == Vote.CORRECT:
       submission.correct_count += 1
       jeeqser_challenge.correct_count = submission.correct_count
-    elif vote == 'incorrect':
+    elif vote == Vote.INCORRECT:
       submission.incorrect_count += 1
       jeeqser_challenge.incorrect_count = submission.incorrect_count
-    elif vote == 'flag':
+    elif vote == Vote.FLAG:
       submission.flag_count += 1
       jeeqser_challenge.flag_count = submission.flag_count
       if (submission.flag_count > spam_manager.submission_flag_threshold) or voter.is_moderator or users.is_current_user_admin():
@@ -101,25 +101,25 @@ class RPCHandler(webapp2.RequestHandler):
 
     #update status on submission and jeeqser_challenge
     if submission.correct_count > submission.incorrect_count + submission.flag_count:
-      submission.status = jeeqser_challenge.status = 'correct'
+      submission.status = jeeqser_challenge.status = AttemptStatus.SUCCESS
     else:
-      submission.status = jeeqser_challenge.status = 'incorrect'
+      submission.status = jeeqser_challenge.status = AttemptStatus.FAIL
 
     # TODO: This may not scale since challenge's entity group is high traffic - use sharded counters
     if jeeqser_challenge.status != previous_status:
-      jeeqser_challenge.status_changed_on = datetime.now()
+      jeeqser_challenge.status_changed_on = datetime.datetime.now()
 
-      if jeeqser_challenge.status == 'correct':
-        submission.challenge.num_jeeqsers_solved += 1
-        submission.challenge.update_last_solver(submission.author)
-        submission.author.correct_submissions_count += 1
+      if jeeqser_challenge.status == AttemptStatus.SUCCESS:
+        submission.challenge.get().num_jeeqsers_solved += 1
+        submission.challenge.get().update_last_solver(submission.author.get())
+        submission.author.get().correct_submissions_count += 1
 
-      elif jeeqser_challenge.status == 'incorrect':
-        if previous_status == 'correct':
-          submission.challenge.num_jeeqsers_solved -= 1
-          submission.author.correct_submissions_count -= 1
-        if submission.challenge.last_solver and submission.challenge.last_solver.key == submission.author.key:
-          submission.challenge.update_last_solver(None)
+      elif jeeqser_challenge.status == AttemptStatus.FAIL:
+        if previous_status == AttemptStatus.SUCCESS:
+          submission.challenge.get().num_jeeqsers_solved -= 1
+          submission.author.get().correct_submissions_count -= 1
+        if submission.challenge.get().last_solver and submission.challenge.get().last_solver == submission.author:
+          submission.challenge.get().update_last_solver(None)
 
   @authenticate(False)
   def get_in_jeeqs(self):
@@ -257,7 +257,7 @@ class RPCHandler(webapp2.RequestHandler):
         jeeqser_challenge.active_attempt.put()
         previous_index = jeeqser_challenge.active_attempt.index
 
-        if jeeqser_challenge.status == 'correct' :
+        if jeeqser_challenge.status == AttemptStatus.SUCCESS :
           if challenge.num_jeeqsers_solved > 0:
             challenge.num_jeeqsers_solved -=1
           else:
@@ -265,7 +265,7 @@ class RPCHandler(webapp2.RequestHandler):
       else:
         #create one
         jeeqser_challenge = Jeeqser_Challenge(
-          parent=self.jeeqser,
+          parent=self.jeeqser.key,
           jeeqser = self.jeeqser,
           challenge = challenge
         )
@@ -288,7 +288,7 @@ class RPCHandler(webapp2.RequestHandler):
 
       attempt.put()
 
-      if jeeqser_challenge.status == 'correct':
+      if jeeqser_challenge.status == AttemptStatus.SUCCESS:
         self.jeeqser.correct_submissions_count -= 1
 
       jeeqser_challenge.active_attempt = attempt
@@ -439,7 +439,7 @@ class RPCHandler(webapp2.RequestHandler):
     submission.author.get().put()
     feedback.put()
 
-  def submit_vote(self):
+  def submitVote(self):
 
     submission_key = self.request.get('submission_key')
     vote = self.request.get('vote')
@@ -456,7 +456,7 @@ class RPCHandler(webapp2.RequestHandler):
     #Ensure non-admin user is qualified to vote
     if not users.is_current_user_admin():
       voter_challenge = get_JC(self.jeeqser.key, submission.challenge)
-      qualified = voter_challenge and voter_challenge[0].status == 'correct'
+      qualified = voter_challenge and voter_challenge[0].status == AttemptStatus.SUCCESS
 
       if not qualified:
         self.error(utils.StatusCode.forbidden)
@@ -466,12 +466,15 @@ class RPCHandler(webapp2.RequestHandler):
 
     if len(jeeqser_challenge) == 0:
       # should never happen but let's guard against it!
-      logging.error("Jeeqser_Challenge not available! for jeeqser : " + submission.author.user.email() + " and challenge : " + submission.challenge.name)
+      logging.error("Jeeqser_Challenge not available! for jeeqser : "
+          + submission.author.get().user.email()
+          + " and challenge : "
+          + submission.challenge.get().name)
       jeeqser_challenge = Jeeqser_Challenge(
         parent = submission.author,
         jeeqser = submission.author,
         challenge = submission.challenge,
-        active_attempt = submission)
+        active_attempt = submission.key)
       jeeqser_challenge.put()
     else:
       jeeqser_challenge = jeeqser_challenge[0]
@@ -553,7 +556,7 @@ class RPCHandler(webapp2.RequestHandler):
     solver_jc_list = Jeeqser_Challenge\
       .query()\
       .filter(Jeeqser_Challenge.challenge == challenge.key)\
-      .filter(Jeeqser_Challenge.status == 'correct')\
+      .filter(Jeeqser_Challenge.status == AttemptStatus.SUCCESS)\
       .order(-Jeeqser_Challenge.status_changed_on)\
       .fetch(20)
 

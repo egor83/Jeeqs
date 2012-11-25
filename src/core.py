@@ -87,12 +87,12 @@ def get_JC(jeeqser_key, challenge_key):
 # Adds icons and background to feedback objects
 def prettify_injeeqs(injeeqs):
   for jeeq in injeeqs:
-    if jeeq.vote == 'correct':
+    if jeeq.vote == Vote.CORRECT:
       jeeq.icon = 'icon-ok'
       jeeq.background = '#EBFFEB'
-    elif jeeq.vote == 'incorrect':
+    elif jeeq.vote == Vote.INCORRECT:
       jeeq.icon = 'icon-remove'
       jeeq.background = '#FFE3E3'
-    elif jeeq.vote == 'flag':
+    elif jeeq.vote == Vote.FLAG:
       jeeq.icon = 'icon-flag'
       jeeq.background = 'lightgrey'

@@ -48,7 +48,7 @@ class UserHandler(webapp2.RequestHandler):
         correct_jcs = Jeeqser_Challenge\
                         .query()\
                         .filter(Jeeqser_Challenge.jeeqser == target_jeeqser.key)\
-                        .filter(Jeeqser_Challenge.status == 'correct')\
+                        .filter(Jeeqser_Challenge.status == AttemptStatus.SUCCESS)\
                         .order(-Jeeqser_Challenge.status_changed_on)\
                         .fetch(100)
 
