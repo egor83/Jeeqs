@@ -17,7 +17,7 @@ class RPCHandlerTestCase(jeeqs_test.JeeqsTestCase):
   def tearDown(self):
     jeeqs_test.JeeqsTestCase.tearDown(self)
 
-  def testSubmitVote(self):
+  def testSubmitFirstVote(self):
     challenge = Challenge(name_persistent="Challenge X")
     challenge.put()
 

@@ -420,16 +420,6 @@ class RPCHandler(webapp2.RequestHandler):
     jeeqser = jeeqser_key.get()
     submission.author.get()
 
-    # check flagging limit
-    if feedback.vote == 'flag':
-      flags_left = spam_manager.check_and_update_flag_limit(jeeqser)
-      response = {'flags_left_today':flags_left}
-      out_json = json.dumps(response)
-      self.response.write(out_json)
-
-      if flags_left == -1:
-        raise Rollback()
-
     RPCHandler.update_graph_vote_submitted(submission, jeeqser_challenge, feedback.vote, jeeqser)
 
     jeeqser_challenge.put()
@@ -502,6 +492,16 @@ class RPCHandler(webapp2.RequestHandler):
       markdown=self.request.get('response'),
       content=markdown.markdown(self.request.get('response'), ['codehilite', 'mathjax']),
       vote=vote)
+
+    # check flagging limit
+    if feedback.vote == 'flag':
+      flags_left = spam_manager.check_and_update_flag_limit(jeeqser)
+      response = {'flags_left_today':flags_left}
+      out_json = json.dumps(response)
+      self.response.write(out_json)
+
+      if flags_left == -1:
+        return
 
     self.persist_vote(
         feedback,
