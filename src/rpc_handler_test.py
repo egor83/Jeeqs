@@ -45,8 +45,19 @@ class RPCHandlerTestCase(jeeqs_test.JeeqsTestCase):
     except Exception as ex:
       self.fail()
 
-    submitter_challenge = submitter_challenge.key.get()
+    submission, challenge, submitter_challenge, submitter, voter = ndb.get_multi(
+        [submission.key,
+        challenge.key,
+        submitter_challenge.key,
+        submitter.key,
+        voter.key])
+
     self.assertEquals(submitter_challenge.status, AttemptStatus.SUCCESS)
+    self.assertEquals(submission.status, AttemptStatus.SUCCESS)
+    self.assertEquals(submitter.correct_submissions_count, 1)
+    self.assertEquals(voter.reviews_out_num, 1)
+    self.assertEquals(submitter.reviews_in_num, 1)
+
 
 if __name__ == '__main__':
   unittest.main()

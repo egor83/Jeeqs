@@ -439,6 +439,21 @@ class RPCHandler(webapp2.RequestHandler):
     submission.author.get().put()
     feedback.put()
 
+    Activity(
+      parent=jeeqser_key,
+      type='voting',
+      done_by = jeeqser_key,
+      done_by_displayname=jeeqser_key.get().displayname,
+      done_by_gravatar = jeeqser_key.get().profile_url,
+      challenge=submission.challenge,
+      challenge_name=submission.challenge.get().name,
+      submission=submission.key,
+      submission_author=submission.author,
+      submission_author_displayname=submission.author.get().displayname,
+      submission_author_gravatar = submission.author.get().profile_url,
+      feedback=feedback.key
+    ).put()
+
   def submitVote(self):
 
     submission_key = self.request.get('submission_key')
@@ -493,21 +508,6 @@ class RPCHandler(webapp2.RequestHandler):
         submission.key,
         jeeqser_challenge.key,
         self.jeeqser.key)
-
-    Activity(
-      type='voting',
-      done_by = self.jeeqser.key,
-      done_by_displayname=self.jeeqser.displayname,
-      done_by_gravatar = self.jeeqser.profile_url,
-      challenge=submission.challenge,
-      challenge_name=submission.challenge.get().name,
-      submission=submission.key,
-      submission_author=submission.author,
-      submission_author_displayname=submission.author.get().displayname,
-      submission_author_gravatar = submission.author.get().profile_url,
-      feedback=feedback.key
-    ).put()
-
 
   def flag_feedback(self):
     feedback_key = self.request.get('feedback_key')
