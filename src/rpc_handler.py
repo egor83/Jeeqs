@@ -1,19 +1,22 @@
-from core import *
+from models import * 
+import core
 import utils
 import logging
 import webapp2
-from google.appengine.api.datastore_errors import Rollback
 import json
 import spam_manager
 import program_tester
 import datetime
 import lib.markdown as markdown
+from google.appengine.api import users
+import jeeqs_request_handler
+import jeeqs_exceptions
 
-class RPCHandler(webapp2.RequestHandler):
+class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
   """Handles RPC calls
   """
 
-  @authenticate(True)
+  @core.authenticate(True)
   def post(self):
     method = self.request.get('method')
     if (not method):
@@ -67,7 +70,7 @@ class RPCHandler(webapp2.RequestHandler):
       return 0 # flag
 
   @staticmethod
-  def update_graph_vote_submitted(submission, jeeqser_challenge, vote, voter):
+  def updateGraphVoteSubmitted(submission, jeeqser_challenge, vote, voter):
     """
     Updates the model graph based on the vote given by the voter
     """
@@ -121,7 +124,7 @@ class RPCHandler(webapp2.RequestHandler):
         if submission.challenge.get().last_solver and submission.challenge.get().last_solver == submission.author:
           submission.challenge.get().update_last_solver(None)
 
-  @authenticate(False)
+  @core.authenticate(False)
   def get_in_jeeqs(self):
     submission_key = self.request.get('submission_key')
 
@@ -143,14 +146,14 @@ class RPCHandler(webapp2.RequestHandler):
     .fetch(10)
 
     if feedbacks:
-      prettify_injeeqs(feedbacks)
+      core.prettify_injeeqs(feedbacks)
 
-    vars = add_common_vars({
+    vars = core.add_common_vars({
       'feedbacks' : feedbacks,
       'jeeqser': self.jeeqser
     })
 
-    template = jinja_environment.get_template('in_jeeqs_list.html')
+    template = core.jinja_environment.get_template('in_jeeqs_list.html')
     rendered = template.render(vars)
     self.response.write(rendered)
 
@@ -242,7 +245,7 @@ class RPCHandler(webapp2.RequestHandler):
         new_solution += '    ' + line
       solution = new_solution
 
-    jeeqser_challenge = get_JC(self.jeeqser.key, challenge.key)
+    jeeqser_challenge = getJeeqserChallenge(self.jeeqser.key, challenge.key)
 
     context = {'jeeqser' : self.jeeqser, 'jeeqser_challenge': jeeqser_challenge}
 
@@ -326,7 +329,7 @@ class RPCHandler(webapp2.RequestHandler):
       voter = Jeeqser.get_review_user()
 
       def persist_testcase_results():
-        RPCHandler.update_graph_vote_submitted(attempt, jeeqser_challenge, feedback.vote, voter)
+        RPCHandler.updateGraphVoteSubmitted(attempt, jeeqser_challenge, feedback.vote, voter)
 
         feedback.put()
         jeeqser_challenge.put()
@@ -413,22 +416,25 @@ class RPCHandler(webapp2.RequestHandler):
       return
 
   @ndb.transactional(xg=True)
-  def persist_vote(self, feedback, submission_key, jeeqser_challenge_key, jeeqser_key):
-    # get all the objects that will be updated
-    submission = submission_key.get()
-    jeeqser_challenge = jeeqser_challenge_key.get()
-    jeeqser = jeeqser_key.get()
-    submission.author.get()
+  def persistVote(self, feedback, submission_key, jeeqser_challenge_key, jeeqser_key):
+    submission, jeeqser_challenge, jeeqser = ndb.get_multi([
+      submission_key,
+      jeeqser_challenge_key,
+      jeeqser_key,
+    ])
 
-    RPCHandler.update_graph_vote_submitted(submission, jeeqser_challenge, feedback.vote, jeeqser)
+    RPCHandler.updateGraphVoteSubmitted(submission, jeeqser_challenge, feedback.vote, jeeqser)
 
-    jeeqser_challenge.put()
-    submission.put()
-    submission.challenge.get().put()
-    jeeqser.put()
-    submission.author.get().put()
-    feedback.put()
+    ndb.put_multi([
+        jeeqser,
+        submission,
+        submission.author.get(),
+        submission.challenge.get(),
+        jeeqser_challenge,
+        feedback
+    ])
 
+    # needs feedback.key!
     Activity(
       parent=jeeqser_key,
       type='voting',
@@ -444,45 +450,33 @@ class RPCHandler(webapp2.RequestHandler):
       feedback=feedback.key
     ).put()
 
-  def submitVote(self):
-
-    submission_key = self.request.get('submission_key')
-    vote = self.request.get('vote')
-
-    submission = None
-
-    try:
-      submission = ndb.Key(urlsafe=submission_key).get()
-    finally:
-      if not submission:
-        self.error(utils.StatusCode.forbidden)
-        return
-
-    #Ensure non-admin user is qualified to vote
+  def verifyReviewerQualified(self, submission):
+    """
+    Ensure non-admin user is qualified to vote
+    :param submission: The submission under review.
+    """
     if not users.is_current_user_admin():
-      voter_challenge = get_JC(self.jeeqser.key, submission.challenge)
-      qualified = voter_challenge and voter_challenge[0].status == AttemptStatus.SUCCESS
+      voter_challenge = getJeeqserChallenge(
+          self.jeeqser.key,
+          submission.challenge)
+      qualified = voter_challenge and \
+                  voter_challenge.status == AttemptStatus.SUCCESS
 
       if not qualified:
-        self.error(utils.StatusCode.forbidden)
-        return
+        raise jeeqs_exceptions.ReviewerNotQualified()
 
-    jeeqser_challenge = get_JC(submission.author,submission.challenge)
+  def submitVote(self):
 
-    if len(jeeqser_challenge) == 0:
-      # should never happen but let's guard against it!
-      logging.error("Jeeqser_Challenge not available! for jeeqser : "
-          + submission.author.get().user.email()
-          + " and challenge : "
-          + submission.challenge.get().name)
-      jeeqser_challenge = Jeeqser_Challenge(
-        parent = submission.author,
-        jeeqser = submission.author,
-        challenge = submission.challenge,
-        active_attempt = submission.key)
-      jeeqser_challenge.put()
-    else:
-      jeeqser_challenge = jeeqser_challenge[0]
+    submission_key = self.getValueInQuery('submission_key')
+    vote = self.getValueInQuery('vote')
+    submission = ndb.Key(urlsafe=submission_key).get()
+    self.verifyReviewerQualified(submission)
+
+    jeeqser_challenge = getJeeqserChallenge(
+        submission.author,
+        submission.challenge,
+        create=True,
+        submission_key=submission_key)
 
     feedback = Feedback(
       parent=submission.key,
@@ -495,7 +489,7 @@ class RPCHandler(webapp2.RequestHandler):
 
     # check flagging limit
     if feedback.vote == 'flag':
-      flags_left = spam_manager.check_and_update_flag_limit(jeeqser)
+      flags_left = spam_manager.check_and_update_flag_limit(self.jeeqser)
       response = {'flags_left_today':flags_left}
       out_json = json.dumps(response)
       self.response.write(out_json)
@@ -503,7 +497,7 @@ class RPCHandler(webapp2.RequestHandler):
       if flags_left == -1:
         return
 
-    self.persist_vote(
+    self.persistVote(
         feedback,
         submission.key,
         jeeqser_challenge.key,
@@ -548,7 +542,7 @@ class RPCHandler(webapp2.RequestHandler):
     jeeqser.took_tour = True
     jeeqser.put()
 
-  @authenticate(False)
+  @core.authenticate(False)
   def get_challenge_avatars(self):
     logging.debug("get_challenge_avatatars Start")
     challenge = ndb.Key(urlsafe=self.request.get('challenge_key')).get()
@@ -567,7 +561,7 @@ class RPCHandler(webapp2.RequestHandler):
 
     solver_jeeqsers = ndb.get_multi(solver_keys)
     vars = {'solver_jeeqsers' : solver_jeeqsers}
-    template = jinja_environment.get_template('challenge_avatars.html')
+    template = core.jinja_environment.get_template('challenge_avatars.html')
     rendered = template.render(vars)
     self.response.write(rendered)
 

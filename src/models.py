@@ -53,6 +53,7 @@ s~jeeqsy> for ch in all_ch:
 """
 
 from google.appengine.ext import ndb
+import logging
 from gravatar import get_profile_url
 
 # Maximum number of entities to fetch
@@ -469,3 +470,35 @@ class Activity(ndb.Model):
     submission_author_gravatar = ndb.StringProperty()
 
     feedback = ndb.KeyProperty(kind=Feedback)
+
+
+def getJeeqserChallenge(
+      jeeqser_key, challenge_key, create=False, submission_key=None):
+  """
+  Get a Jeeqser_Challenge entity by key
+  :param jeeqser_key: jeeqser's key
+  :param challenge_key:  challenge's key
+  :param create: create entity if not found
+  """
+  results = Jeeqser_Challenge\
+          .query()\
+          .filter(Jeeqser_Challenge.jeeqser == jeeqser_key)\
+          .filter(Jeeqser_Challenge.challenge == challenge_key)\
+          .fetch(1)
+  if len(results) == 0 and create:
+    # should never happen but let's guard against it!
+    logging.error("Jeeqser_Challenge not available! for jeeqser : "
+                  + jeeqser_key.get().user.email()
+                  + " and challenge : "
+                  + challenge_key.get().name)
+    jc = Jeeqser_Challenge(
+      parent = jeeqser_key,
+      jeeqser = jeeqser_key,
+      challenge = challenge_key,
+      active_attempt = submission_key)
+    jc.put()
+    return jc
+  else:
+    return results[0]
+
+

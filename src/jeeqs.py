@@ -13,6 +13,7 @@ import sys
 import webapp2
 import review_handler
 import rpc_handler
+import jeeqs_request_handler
 
 sys.path.append(os.path.join(os.path.dirname(__file__), 'lib'))
 
@@ -42,7 +43,7 @@ import core
 # TODO: should this be changed into an environment variable ?
 _DEBUG = True
 
-class FrontPageHandler(webapp2.RequestHandler):
+class FrontPageHandler(jeeqs_request_handler.JeeqsRequestHandler):
     """renders the home.html template
     """
 
@@ -103,7 +104,7 @@ class FrontPageHandler(webapp2.RequestHandler):
         rendered = template.render(vars)
         self.response.write(rendered)
 
-class AboutHandler(webapp2.RequestHandler):
+class AboutHandler(jeeqs_request_handler.JeeqsRequestHandler):
     """Renders the About page """
 
     @core.authenticate(required=False)
@@ -119,7 +120,7 @@ class AboutHandler(webapp2.RequestHandler):
         rendered = template.render(vars)
         self.response.write(rendered)
 
-class ChallengeHandler(webapp2.RequestHandler):
+class ChallengeHandler(jeeqs_request_handler.JeeqsRequestHandler):
     """renders the solve_a_challenge.html template
     """
 
@@ -218,7 +219,7 @@ class ChallengeHandler(webapp2.RequestHandler):
         self.response.write(rendered)
 
 
-class ProgramHandler(webapp2.RequestHandler):
+class ProgramHandler(jeeqs_request_handler.JeeqsRequestHandler):
     """Evaluates a python program and returns the result.
     """
 

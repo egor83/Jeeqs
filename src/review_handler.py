@@ -1,13 +1,13 @@
 import os
 import sys
-import webapp2
 from core import *
 from utils import StatusCode
 from google.appengine.ext import ndb
+import jeeqs_request_handler
 
 SUBMISSIONS_PER_PAGE = 5
 
-class ReviewHandler(webapp2.RequestHandler):
+class ReviewHandler(jeeqs_request_handler.JeeqsRequestHandler):
     """renders the review template
     """
 
@@ -39,8 +39,8 @@ class ReviewHandler(webapp2.RequestHandler):
 
         # determine if the user is qualified to review this challenge's submissions
         if not users.is_current_user_admin():
-            self_challenge = get_JC(self.jeeqser.key,challenge.key)
-            review_qualified = self_challenge and self_challenge[0].status == AttemptStatus.SUCCESS
+            self_challenge = getJeeqserChallenge(self.jeeqser.key,challenge.key)
+            review_qualified = self_challenge and self_challenge.status == AttemptStatus.SUCCESS
         else:
             review_qualified = True
 

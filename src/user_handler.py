@@ -4,10 +4,10 @@ from google.appengine.ext import ndb
 from oauth2 import service, decorator
 from apiclient.errors import HttpError
 from oauth2client.client import AccessTokenRefreshError
-import webapp2
 from utils import StatusCode
+import jeeqs_request_handler
 
-class UserHandler(webapp2.RequestHandler):
+class UserHandler(jeeqs_request_handler.JeeqsRequestHandler):
     """Renders User's profile page"""
 
     @authenticate(False)

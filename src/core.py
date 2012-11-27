@@ -74,16 +74,6 @@ def authenticate(required=True):
         return wrapper
     return real_decorator
 
-
-# Get Jeeqser_Challege for user and challenge
-# TODO: move to proper file
-def get_JC(jeeqser_key, challenge_key):
-    return Jeeqser_Challenge\
-            .query()\
-            .filter(Jeeqser_Challenge.jeeqser == jeeqser_key)\
-            .filter(Jeeqser_Challenge.challenge == challenge_key)\
-            .fetch(1)
-
 # Adds icons and background to feedback objects
 def prettify_injeeqs(injeeqs):
   for jeeq in injeeqs:
