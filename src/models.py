@@ -473,7 +473,10 @@ class Activity(ndb.Model):
 
 
 def getJeeqserChallenge(
-      jeeqser_key, challenge_key, create=False, submission_key=None):
+      jeeqser_key,
+      challenge_key,
+      create=False,
+      submission_key=None):
   """
   Get a Jeeqser_Challenge entity by key
   :param jeeqser_key: jeeqser's key
@@ -498,7 +501,9 @@ def getJeeqserChallenge(
       active_attempt = submission_key)
     jc.put()
     return jc
-  else:
+  elif len(results) > 0 :
     return results[0]
+  else:
+    return None
 
 

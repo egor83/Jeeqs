@@ -37,13 +37,13 @@ class JeeqsTestCase(unittest.TestCase):
 
   def CreateChallenge(self, name_persistent="Challenge X"):
     """Creates and returns a new challenge."""
-    challenge = Challenge(name_persistent)
+    challenge = Challenge(name_persistent=name_persistent)
     challenge.put()
     return challenge
 
   def CreateJeeqser(self, email="random@wrong_domain.com"):
     """Creates and returns a new Jeeqser object."""
-    jeeqser = Jeeqser(user=users.User(email))
+    jeeqser = Jeeqser(user=users.User(email=email))
     jeeqser.put()
     return jeeqser
 

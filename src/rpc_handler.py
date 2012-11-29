@@ -29,8 +29,8 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
       self.update_displayname()
     elif method == 'update_profile_picture':
       self.update_profile_picture()
-    elif method == 'submitSolution':
-      self.submitSolution()
+    elif method == 'submitAttempt':
+      self.submitAttempt()
     elif method == 'save_draft_solution':
       self.save_draft_solution()
     elif method == 'flag_feedback':
@@ -218,110 +218,81 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
     challenge.content = markdown.markdown(challenge.markdown, ['codehilite', 'mathjax'])
     challenge.put()
 
-  def submitSolution(self):
-    """
-    Submits a solution
-    """
-    program = solution = self.request.get('solution')
-    if not solution:
-      return
-
-    # retrieve the challenge
-    challenge_key = self.request.get('challenge_key')
-    if not challenge_key:
-      self.error(utils.StatusCode.forbidden)
-      return
-
-    challenge = None
-
-    try:
-      challenge = Challenge.get(challenge_key);
-    finally:
-      if not challenge:
-        self.error(utils.StatusCode.forbidden)
-
+  def appendLanguagePrefixForAutomaticReview(self, challenge, solution):
+    """Appends the proper language prefix"""
     if challenge.automatic_review:
       new_solution = '    :::python' + '\n'
       for line in solution.splitlines(True):
         new_solution += '    ' + line
-      solution = new_solution
+      return new_solution
+    return solution
 
-    jeeqser_challenge = getJeeqserChallenge(self.jeeqser.key, challenge.key)
+  @ndb.transactional(xg=True)
+  def persistAttempt(self, challenge_key, solution):
+    """persists new attempt."""
+    self.jeeqser, challenge = ndb.get_multi([self.jeeqser.key, challenge_key])
 
-    context = {'jeeqser' : self.jeeqser, 'jeeqser_challenge': jeeqser_challenge}
-
-    def persist_new_submission():
-
-      jeeqser_challenge = context['jeeqser_challenge']
-      previous_index = 0
-
-      if len(jeeqser_challenge) == 1:
-        jeeqser_challenge = jeeqser_challenge[0]
-        jeeqser_challenge.active_attempt.active = False
-        jeeqser_challenge.active_attempt.put()
-        previous_index = jeeqser_challenge.active_attempt.index
-
-        if jeeqser_challenge.status == AttemptStatus.SUCCESS :
-          if challenge.num_jeeqsers_solved > 0:
-            challenge.num_jeeqsers_solved -=1
-          else:
-            logging.error("Challenge %s can not have negative solvers! " % challenge.key)
-      else:
-        #create one
-        jeeqser_challenge = Jeeqser_Challenge(
-          parent=self.jeeqser.key,
-          jeeqser = self.jeeqser,
-          challenge = challenge
-        )
-        challenge.num_jeeqsers_submitted += 1
-
-      if challenge.last_solver and challenge.last_solver.key == self.jeeqser.key:
-        challenge.update_last_solver(None)
-
-      challenge.submissions_without_review += 1
-
-      challenge.put()
-
-      attempt = Attempt(
-        author=self.jeeqser.key,
-        challenge=challenge,
-        content=markdown.markdown(solution, ['codehilite', 'mathjax']),
-        markdown=solution,
-        active=True,
-        index=previous_index + 1)
-
-      attempt.put()
-
+    jeeqser_challenge = getJeeqserChallenge(self.jeeqser.key, challenge_key)
+    previous_index = 0
+    if jeeqser_challenge == 1:
+      jeeqser_challenge.active_attempt.active = False
+      jeeqser_challenge.active_attempt.put()
+      previous_index = jeeqser_challenge.active_attempt.index
       if jeeqser_challenge.status == AttemptStatus.SUCCESS:
-        self.jeeqser.correct_submissions_count -= 1
+        challenge.num_jeeqsers_solved -=1
+    else:
+      jeeqser_challenge = Jeeqser_Challenge(
+        parent=self.jeeqser.key,
+        jeeqser = self.jeeqser.key,
+        challenge = challenge_key
+      )
+      challenge.num_jeeqsers_submitted += 1
+    if challenge.last_solver and challenge.last_solver.key == self.jeeqser.key:
+      challenge.update_last_solver(None)
+    challenge.submissions_without_review += 1
+    challenge.put()
 
-      jeeqser_challenge.active_attempt = attempt
-      jeeqser_challenge.correct_count = jeeqser_challenge.incorrect_count = jeeqser_challenge.flag_count = 0
-      jeeqser_challenge.status = None
-      jeeqser_challenge.put()
+    attempt = Attempt(
+      author=self.jeeqser.key,
+      challenge=challenge,
+      content=markdown.markdown(solution, ['codehilite', 'mathjax']),
+      markdown=solution,
+      active=True,
+      index=previous_index + 1)
+    attempt.put()
 
-      self.jeeqser.submissions_num += 1
-      self.jeeqser.put()
+    if jeeqser_challenge.status == AttemptStatus.SUCCESS:
+      self.jeeqser.correct_submissions_count -= 1
 
-      # Pass variables up
-      context['jeeqser'] = self.jeeqser
-      context['attempt'] = attempt
-      context['jeeqser_challenge'] = jeeqser_challenge
+    jeeqser_challenge.active_attempt = attempt.key
+    jeeqser_challenge.correct_count = jeeqser_challenge.incorrect_count = jeeqser_challenge.flag_count = 0
+    jeeqser_challenge.status = None
+    jeeqser_challenge.put()
 
-    xg_on = db.create_transaction_options(xg=True)
-    db.run_in_transaction_options(xg_on, persist_new_submission)
+    self.jeeqser.submissions_num += 1
+    self.jeeqser.put()
+
+  def submitAttempt(self):
+    """
+    Submits a solution
+    """
+    program = solution = self.getValueInQuery('solution')
+    challenge_key = self.getValueInQuery('challenge_key')
+    # no need to test if challenge exists, since if it doesn't we will throw
+    # here and the upper stream will convert the exception to user output
+    challenge = ndb.Key(urlsafe=challenge_key).get()
+    solution = self.appendLanguagePrefixForAutomaticReview(challenge, solution)
+    self.persistAttempt(challenge_key, solution)
     # Receive variables from transaction
     self.jeeqser = context['jeeqser']
     attempt = context['attempt']
     jeeqser_challenge = context['jeeqser_challenge']
 
     # delete a draft if exists
-    try:
-      draft = Draft.query(ancestor=self.jeeqser).filter(
-        Draft.challenge == ndb.Key.from_old_key((challenge.key))).fetch(1)[0]
-      draft.delete()
-    except IndexError:
-      pass
+    draft = Draft.query(ancestor=self.jeeqser).filter(
+        Draft.challenge == challenge_key).fetch(1)
+    if draft and len(draft) > 0:
+      draft[0].delete()
 
     # TODO: Do this asynchronously!
     # run the tests and persist the results
