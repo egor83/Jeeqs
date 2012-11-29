@@ -53,7 +53,10 @@
                     url: "/rpc",
                     async: true,
                     type: "POST",
-                    data: {'method': 'submit_solution', 'challenge_key': $challengeKey, 'solution':$solution},
+                    data: {
+                        'method': 'submitSolution',
+                        'challenge_key': $challengeKey,
+                        'solution':$solution},
                     success: function(response){
                         $initiator.button('submitted');
                         $initiator.attr("disabled", "disabled");
@@ -93,7 +96,10 @@
                     url: "/rpc",
                     async: true,
                     type: "POST",
-                    data: {'method': 'submit_solution', 'challenge_key': $challengeKey, 'solution':$solution},
+                    data: {
+                        'method': 'submitSoluption',
+                        'challenge_key': $challengeKey,
+                        'solution':$solution},
                     success: function(response){
                         $initiator.button("option", "label", "Submitted");
                         location.reload()

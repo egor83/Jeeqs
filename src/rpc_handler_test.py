@@ -17,28 +17,22 @@ class RPCHandlerTestCase(jeeqs_test.JeeqsTestCase):
   def tearDown(self):
     jeeqs_test.JeeqsTestCase.tearDown(self)
 
-  def testSubmitFirstVote(self):
-    challenge = Challenge(name_persistent="Challenge X")
-    challenge.put()
+  def testSubmitSolution(self):
+    pass
 
-    submitter = Jeeqser(user=users.User(email="random@wrong_domain.com"))
-    submitter.put()
-
+  def testSubmitFirstCorrectVote(self):
+    """Tests submitting a first correct vote to a submission."""
+    challenge = self.CreateChallenge()
+    submitter = self.CreateJeeqser()
     submitter_challenge = Jeeqser_Challenge(parent=submitter.key, challenge=challenge.key, jeeqser=submitter.key)
     submitter_challenge.put()
-
-    voter = Jeeqser(user=users.User(email="voter@wrong_domain.com"))
-    voter.put()
-
+    voter = self.CreateJeeqser(email="voter@wrong_domain.com")
     submission = Attempt(author=submitter.key, challenge=challenge.key)
     submission.put()
-
     # Qualify the voter
     voter_challenge = Jeeqser_Challenge(parent=voter.key, challenge=challenge.key, jeeqser=voter.key, status=AttemptStatus.SUCCESS)
     voter_challenge.put()
-
     self.loginUser('voter@wrong_domain.com', 'voter')
-
     params = {'method': 'submitVote', 'submission_key': submission.key.urlsafe(), 'vote': Vote.CORRECT}
     try:
       self.testapp.post('/rpc', params)

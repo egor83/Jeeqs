@@ -35,5 +35,17 @@ class JeeqsTestCase(unittest.TestCase):
     self.loginExampleUser()
     self.assertIsNotNone(users.get_current_user())
 
+  def CreateChallenge(self, name_persistent="Challenge X"):
+    """Creates and returns a new challenge."""
+    challenge = Challenge(name_persistent)
+    challenge.put()
+    return challenge
+
+  def CreateJeeqser(self, email="random@wrong_domain.com"):
+    """Creates and returns a new Jeeqser object."""
+    jeeqser = Jeeqser(user=users.User(email))
+    jeeqser.put()
+    return jeeqser
+
 if __name__ == '__main__':
   unittest.main()

@@ -29,8 +29,8 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
       self.update_displayname()
     elif method == 'update_profile_picture':
       self.update_profile_picture()
-    elif method == 'submit_solution':
-      self.submit_solution()
+    elif method == 'submitSolution':
+      self.submitSolution()
     elif method == 'save_draft_solution':
       self.save_draft_solution()
     elif method == 'flag_feedback':
@@ -74,6 +74,7 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
     """
     Updates the model graph based on the vote given by the voter
     """
+    # TODO: refactor to simpler and more modularized logic
     submission.users_voted.append(voter.key)
     submission.vote_count += 1
     if submission.vote_count == 1:
@@ -108,11 +109,11 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
     else:
       submission.status = jeeqser_challenge.status = AttemptStatus.FAIL
 
-    # TODO: This may not scale since challenge's entity group is high traffic - use sharded counters
     if jeeqser_challenge.status != previous_status:
       jeeqser_challenge.status_changed_on = datetime.datetime.now()
 
       if jeeqser_challenge.status == AttemptStatus.SUCCESS:
+        # TODO: This may not scale since challenge's entity group is high traffic - use sharded counters
         submission.challenge.get().num_jeeqsers_solved += 1
         submission.challenge.get().update_last_solver(submission.author.get())
         submission.author.get().correct_submissions_count += 1
@@ -217,7 +218,7 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
     challenge.content = markdown.markdown(challenge.markdown, ['codehilite', 'mathjax'])
     challenge.put()
 
-  def submit_solution(self):
+  def submitSolution(self):
     """
     Submits a solution
     """
@@ -325,7 +326,11 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
     # TODO: Do this asynchronously!
     # run the tests and persist the results
     if challenge.automatic_review:
-      feedback = program_tester.run_testcases(program, challenge, attempt, get_jeeqs_robot())
+      feedback = program_tester.run_testcases(
+          program,
+          challenge,
+          attempt,
+          core.get_jeeqs_robot())
       voter = Jeeqser.get_review_user()
 
       def persist_testcase_results():
