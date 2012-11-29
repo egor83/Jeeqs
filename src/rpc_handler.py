@@ -272,6 +272,34 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
     self.jeeqser.submissions_num += 1
     self.jeeqser.put()
 
+  def handleAutomaticReview(self, attempt, challenge, program):
+    """Handles submission review for automatic review challenges."""
+    # TODO: Do this asynchronously!
+    # run the tests and persist the results
+    if challenge.automatic_review:
+      feedback = program_tester.run_testcases(
+        program,
+        challenge,
+        attempt,
+        core.get_jeeqs_robot())
+      voter = Jeeqser.get_review_user()
+
+      def persist_testcase_results():
+        RPCHandler.updateGraphVoteSubmitted(attempt, jeeqser_challenge,
+                                            feedback.vote, voter)
+
+        feedback.put()
+        jeeqser_challenge.put()
+        attempt.put()
+        attempt.challenge.put()
+        attempt.author.put()
+        voter.put()
+        # attempt.author doesn't need to be persisted,
+        # since it will only change when an attempt is flagged.
+
+      xg_on = db.create_transaction_options(xg=True)
+      db.run_in_transaction_options(xg_on, persist_testcase_results)
+
   def submitAttempt(self):
     """
     Submits a solution
@@ -294,29 +322,7 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
     if draft and len(draft) > 0:
       draft[0].delete()
 
-    # TODO: Do this asynchronously!
-    # run the tests and persist the results
-    if challenge.automatic_review:
-      feedback = program_tester.run_testcases(
-          program,
-          challenge,
-          attempt,
-          core.get_jeeqs_robot())
-      voter = Jeeqser.get_review_user()
-
-      def persist_testcase_results():
-        RPCHandler.updateGraphVoteSubmitted(attempt, jeeqser_challenge, feedback.vote, voter)
-
-        feedback.put()
-        jeeqser_challenge.put()
-        attempt.put()
-        attempt.challenge.put()
-        attempt.author.put()
-        voter.put()
-        # attempt.author doesn't need to be persisted, since it will only change when an attempt is flagged.
-
-      xg_on = db.create_transaction_options(xg=True)
-      db.run_in_transaction_options(xg_on, persist_testcase_results)
+    self.handleAutomaticReview(attempt, challenge, program)
 
     Activity(
       type='submission',
