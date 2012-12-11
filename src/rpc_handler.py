@@ -234,10 +234,10 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
 
     jeeqser_challenge = getJeeqserChallenge(self.jeeqser.key, challenge_key)
     previous_index = 0
-    if jeeqser_challenge == 1:
-      jeeqser_challenge.active_attempt.active = False
-      jeeqser_challenge.active_attempt.put()
-      previous_index = jeeqser_challenge.active_attempt.index
+    if jeeqser_challenge:
+      previous_index = jeeqser_challenge.active_attempt.get().index
+      jeeqser_challenge.active_attempt.get().active = False
+      jeeqser_challenge.active_attempt.get().put()
       if jeeqser_challenge.status == AttemptStatus.SUCCESS:
         challenge.num_jeeqsers_solved -=1
     else:
@@ -250,11 +250,12 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
     if challenge.last_solver and challenge.last_solver.key == self.jeeqser.key:
       challenge.update_last_solver(None)
     challenge.submissions_without_review += 1
-    challenge.put()
 
+    challenge.put()
     attempt = Attempt(
+      parent=self.jeeqser.key,
       author=self.jeeqser.key,
-      challenge=challenge,
+      challenge=challenge_key,
       content=markdown.markdown(solution, ['codehilite', 'mathjax']),
       markdown=solution,
       active=True,
@@ -272,7 +273,35 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
     self.jeeqser.submissions_num += 1
     self.jeeqser.put()
 
-  def handleAutomaticReview(self, attempt, challenge, program):
+    Activity(
+      type='submission',
+      done_by=self.jeeqser.key,
+      done_by_displayname=self.jeeqser.displayname,
+      done_by_gravatar=self.jeeqser.profile_url,
+      challenge=challenge.key,
+      challenge_name=challenge.name).put()
+
+    return self.jeeqser, attempt, jeeqser_challenge
+
+  @ndb.transactional(xg=True)
+  def persist_testcase_results(attempt_key, jeeqser_challenge_key, feedback, voter_key):
+    attempt, jeeqser_challenge, voter = ndb.get_multi([attempt_key, jeeqser_challenge_key, voter_key])
+    RPCHandler.updateGraphVoteSubmitted(
+      attempt,
+      jeeqser_challenge,
+      feedback.vote,
+      voter)
+
+    feedback.put()
+    jeeqser_challenge.put()
+    attempt.put()
+    attempt.challenge.get().put()
+    attempt.author.get().put()
+    voter.put()
+    # attempt.author doesn't need to be persisted,
+    # since it will only change when an attempt is flagged.
+
+  def handleAutomaticReview(self, attempt, challenge, jeeqser_challenge, program):
     """Handles submission review for automatic review challenges."""
     # TODO: Do this asynchronously!
     # run the tests and persist the results
@@ -282,55 +311,28 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
         challenge,
         attempt,
         core.get_jeeqs_robot())
-      voter = Jeeqser.get_review_user()
-
-      def persist_testcase_results():
-        RPCHandler.updateGraphVoteSubmitted(attempt, jeeqser_challenge,
-                                            feedback.vote, voter)
-
-        feedback.put()
-        jeeqser_challenge.put()
-        attempt.put()
-        attempt.challenge.put()
-        attempt.author.put()
-        voter.put()
-        # attempt.author doesn't need to be persisted,
-        # since it will only change when an attempt is flagged.
-
-      xg_on = db.create_transaction_options(xg=True)
-      db.run_in_transaction_options(xg_on, persist_testcase_results)
+      voter = Jeeqser.get_automatic_review_user()
+      self.persist_testcase_results(attempt.key, jeeqser_challenge.key, feedback, voter.key)
 
   def submitAttempt(self):
     """
     Submits a solution
     """
     program = solution = self.getValueInQuery('solution')
-    challenge_key = self.getValueInQuery('challenge_key')
+    challenge_key = ndb.Key(urlsafe=self.getValueInQuery('challenge_key'))
     # no need to test if challenge exists, since if it doesn't we will throw
     # here and the upper stream will convert the exception to user output
-    challenge = ndb.Key(urlsafe=challenge_key).get()
+    challenge = challenge_key.get()
     solution = self.appendLanguagePrefixForAutomaticReview(challenge, solution)
-    self.persistAttempt(challenge_key, solution)
-    # Receive variables from transaction
-    self.jeeqser = context['jeeqser']
-    attempt = context['attempt']
-    jeeqser_challenge = context['jeeqser_challenge']
+    self.jeeqser, attempt, jeeqser_challenge = self.persistAttempt(challenge_key, solution)
 
     # delete a draft if exists
-    draft = Draft.query(ancestor=self.jeeqser).filter(
+    draft = Draft.query(ancestor=self.jeeqser.key).filter(
         Draft.challenge == challenge_key).fetch(1)
     if draft and len(draft) > 0:
       draft[0].delete()
 
-    self.handleAutomaticReview(attempt, challenge, program)
-
-    Activity(
-      type='submission',
-      done_by=self.jeeqser,
-      done_by_displayname=self.jeeqser.displayname,
-      done_by_gravatar=self.jeeqser.profile_url,
-      challenge=challenge,
-      challenge_name=challenge.name).put()
+    self.handleAutomaticReview(attempt, challenge, jeeqser_challenge, program)
 
   def save_draft_solution(self):
     """

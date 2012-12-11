@@ -135,8 +135,8 @@ def run_testcases(program, challenge, attempt, robot):
             vote = Vote.INCORRECT
 
     feedback = Feedback(
-            parent=attempt,
-            attempt=attempt,
+            parent=attempt.key,
+            attempt=attempt.key,
             author=robot,
             attempt_author=attempt.author,
             markdown=output['result'],

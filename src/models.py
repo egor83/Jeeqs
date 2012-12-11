@@ -146,9 +146,9 @@ class Jeeqser(ndb.Model):
     gravatar_url = property(get_gravatar_url, set_gravatar_url, "Gravatar URL")
 
     @classmethod
-    def get_review_user(cls):
+    def get_automatic_review_user(cls):
         # return jeeqser.moderator
-        return Jeeqser.get('agpkZXZ-amVlcXN5cg8LEgdKZWVxc2VyGMGpBww')
+        return ndb.Key(urlsafe='agpkZXZ-amVlcXN5cg8LEgdKZWVxc2VyGMGpBww').get()
 
 class University(ndb.Model):
     name = ndb.StringProperty()
@@ -484,7 +484,7 @@ def getJeeqserChallenge(
   :param create: create entity if not found
   """
   results = Jeeqser_Challenge\
-          .query()\
+          .query(ancestor=jeeqser_key)\
           .filter(Jeeqser_Challenge.jeeqser == jeeqser_key)\
           .filter(Jeeqser_Challenge.challenge == challenge_key)\
           .fetch(1)
