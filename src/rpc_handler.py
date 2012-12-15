@@ -537,7 +537,7 @@ def handleAutomaticReview(
     challenge,
     attempt,
     core.get_jeeqs_robot())
-  voter = Jeeqser.get_automatic_review_user()
+  voter = core.get_jeeqs_robot()
   persist_testcase_results(attempt.key, jeeqser_challenge.key, feedback, voter.key)
 
 @ndb.transactional(xg=True)

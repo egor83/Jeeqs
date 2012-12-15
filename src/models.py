@@ -145,11 +145,6 @@ class Jeeqser(ndb.Model):
 
     gravatar_url = property(get_gravatar_url, set_gravatar_url, "Gravatar URL")
 
-    @classmethod
-    def get_automatic_review_user(cls):
-        # return jeeqser.moderator
-        return ndb.Key(urlsafe='agpkZXZ-amVlcXN5cg8LEgdKZWVxc2VyGMGpBww').get()
-
 class University(ndb.Model):
     name = ndb.StringProperty()
     fullname = ndb.StringProperty()
