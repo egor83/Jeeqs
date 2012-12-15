@@ -6,6 +6,7 @@ threadsafe: no
 
 builtins:
   - remote_api: on
+  - deferred: on
 
 libraries:
 - name: jinja2

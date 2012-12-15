@@ -9,6 +9,7 @@ import program_tester
 import datetime
 import lib.markdown as markdown
 from google.appengine.api import users
+from google.appengine.ext import deferred
 import jeeqs_request_handler
 import jeeqs_exceptions
 
@@ -301,18 +302,18 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
     # attempt.author doesn't need to be persisted,
     # since it will only change when an attempt is flagged.
 
-  def handleAutomaticReview(self, attempt, challenge, jeeqser_challenge, program):
+  def handleAutomaticReview(
+      self, attempt_key, challenge_key, jeeqser_challenge_key, program):
     """Handles submission review for automatic review challenges."""
-    # TODO: Do this asynchronously!
-    # run the tests and persist the results
-    if challenge.automatic_review:
-      feedback = program_tester.run_testcases(
-        program,
-        challenge,
-        attempt,
-        core.get_jeeqs_robot())
-      voter = Jeeqser.get_automatic_review_user()
-      self.persist_testcase_results(attempt.key, jeeqser_challenge.key, feedback, voter.key)
+    attempt, challenge, jeeqser_challenge = ndb.get_multi(
+        [attempt_key, challenge_key, jeeqser_challenge_key])
+    feedback = program_tester.run_testcases(
+      program,
+      challenge,
+      attempt,
+      core.get_jeeqs_robot())
+    voter = Jeeqser.get_automatic_review_user()
+    self.persist_testcase_results(attempt.key, jeeqser_challenge.key, feedback, voter.key)
 
   def submitAttempt(self):
     """
@@ -332,7 +333,13 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
     if draft and len(draft) > 0:
       draft[0].delete()
 
-    self.handleAutomaticReview(attempt, challenge, jeeqser_challenge, program)
+    if challenge.automatic_review:
+      deferred.defer(
+          self.handleAutomaticReview,
+          attempt.key,
+          challenge.key,
+          jeeqser_challenge.key,
+          program)
 
   def save_draft_solution(self):
     """
