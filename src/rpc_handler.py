@@ -248,7 +248,7 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
         challenge = challenge_key
       )
       challenge.num_jeeqsers_submitted += 1
-    if challenge.last_solver and challenge.last_solver.key == self.jeeqser.key:
+    if challenge.last_solver and challenge.last_solver == self.jeeqser.key:
       challenge.update_last_solver(None)
     challenge.submissions_without_review += 1
 
@@ -284,39 +284,6 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
 
     return self.jeeqser, attempt, jeeqser_challenge
 
-  @ndb.transactional(xg=True)
-  def persist_testcase_results(
-      attempt_key, jeeqser_challenge_key, feedback, voter_key):
-    attempt, jeeqser_challenge, voter = ndb.get_multi(
-        [attempt_key, jeeqser_challenge_key, voter_key])
-    RPCHandler.updateGraphVoteSubmitted(
-      attempt,
-      jeeqser_challenge,
-      feedback.vote,
-      voter)
-
-    feedback.put()
-    jeeqser_challenge.put()
-    attempt.put()
-    attempt.challenge.get().put()
-    attempt.author.get().put()
-    voter.put()
-    # attempt.author doesn't need to be persisted,
-    # since it will only change when an attempt is flagged.
-
-  def handleAutomaticReview(
-      attempt_key, challenge_key, jeeqser_challenge_key, program):
-    """Handles submission review for automatic review challenges."""
-    attempt, challenge, jeeqser_challenge = ndb.get_multi(
-        [attempt_key, challenge_key, jeeqser_challenge_key])
-    feedback = program_tester.run_testcases(
-      program,
-      challenge,
-      attempt,
-      core.get_jeeqs_robot())
-    voter = Jeeqser.get_automatic_review_user()
-    RPCHandler.persist_testcase_results(attempt.key, jeeqser_challenge.key, feedback, voter.key)
-
   def submitAttempt(self):
     """
     Submits a solution
@@ -337,7 +304,7 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
 
     if challenge.automatic_review:
       deferred.defer(
-          RPCHandler.handleAutomaticReview,
+          handleAutomaticReview,
           attempt.key.urlsafe(),
           challenge.key.urlsafe(),
           jeeqser_challenge.key.urlsafe(),
@@ -558,3 +525,37 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
     rendered = template.render(vars)
     self.response.write(rendered)
 
+def handleAutomaticReview(
+    attempt_key, challenge_key, jeeqser_challenge_key, program):
+  """Handles submission review for automatic review challenges."""
+  attempt, challenge, jeeqser_challenge = ndb.get_multi(
+    [ndb.Key(urlsafe=attempt_key),
+     ndb.Key(urlsafe=challenge_key),
+     ndb.Key(urlsafe=jeeqser_challenge_key)])
+  feedback = program_tester.run_testcases(
+    program,
+    challenge,
+    attempt,
+    core.get_jeeqs_robot())
+  voter = Jeeqser.get_automatic_review_user()
+  persist_testcase_results(attempt.key, jeeqser_challenge.key, feedback, voter.key)
+
+@ndb.transactional(xg=True)
+def persist_testcase_results(
+    attempt_key, jeeqser_challenge_key, feedback, voter_key):
+  attempt, jeeqser_challenge, voter = ndb.get_multi(
+    [attempt_key, jeeqser_challenge_key, voter_key])
+  RPCHandler.updateGraphVoteSubmitted(
+    attempt,
+    jeeqser_challenge,
+    feedback.vote,
+    voter)
+
+  feedback.put()
+  jeeqser_challenge.put()
+  attempt.put()
+  attempt.challenge.get().put()
+  attempt.author.get().put()
+  voter.put()
+  # attempt.author doesn't need to be persisted,
+  # since it will only change when an attempt is flagged.

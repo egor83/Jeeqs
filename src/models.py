@@ -342,7 +342,7 @@ class Challenge(ndb.Model):
         """
         updates the last solver for this challenge
         """
-        self.last_solver = solver.key
+        self.last_solver = solver.key if solver else None
         self.last_solver_picture_url = solver.profile_url if solver else None
 
     @property

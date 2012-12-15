@@ -137,7 +137,7 @@ def run_testcases(program, challenge, attempt, robot):
     feedback = Feedback(
             parent=attempt.key,
             attempt=attempt.key,
-            author=robot,
+            author=robot.key,
             attempt_author=attempt.author,
             markdown=output['result'],
             content=markdown.markdown(output['result'], ['codehilite', 'mathjax']),

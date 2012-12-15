@@ -19,7 +19,7 @@ def get_jeeqs_robot():
     """
     Returns the robot user that runs tests over programming solutions
     """
-    robot = Jeeqser.all().filter('user =', users.User('a.akhavan.b@gmail.com')).fetch(1)[0]
+    robot = Jeeqser.query().filter(Jeeqser.user == users.User('a.akhavan.b@gmail.com')).fetch(1)[0]
     return robot
 
 def get_jeeqser():
