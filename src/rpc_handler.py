@@ -285,8 +285,10 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
     return self.jeeqser, attempt, jeeqser_challenge
 
   @ndb.transactional(xg=True)
-  def persist_testcase_results(attempt_key, jeeqser_challenge_key, feedback, voter_key):
-    attempt, jeeqser_challenge, voter = ndb.get_multi([attempt_key, jeeqser_challenge_key, voter_key])
+  def persist_testcase_results(
+      attempt_key, jeeqser_challenge_key, feedback, voter_key):
+    attempt, jeeqser_challenge, voter = ndb.get_multi(
+        [attempt_key, jeeqser_challenge_key, voter_key])
     RPCHandler.updateGraphVoteSubmitted(
       attempt,
       jeeqser_challenge,
@@ -303,7 +305,7 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
     # since it will only change when an attempt is flagged.
 
   def handleAutomaticReview(
-      self, attempt_key, challenge_key, jeeqser_challenge_key, program):
+      attempt_key, challenge_key, jeeqser_challenge_key, program):
     """Handles submission review for automatic review challenges."""
     attempt, challenge, jeeqser_challenge = ndb.get_multi(
         [attempt_key, challenge_key, jeeqser_challenge_key])
@@ -313,7 +315,7 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
       attempt,
       core.get_jeeqs_robot())
     voter = Jeeqser.get_automatic_review_user()
-    self.persist_testcase_results(attempt.key, jeeqser_challenge.key, feedback, voter.key)
+    RPCHandler.persist_testcase_results(attempt.key, jeeqser_challenge.key, feedback, voter.key)
 
   def submitAttempt(self):
     """
@@ -335,10 +337,10 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
 
     if challenge.automatic_review:
       deferred.defer(
-          self.handleAutomaticReview,
-          attempt.key,
-          challenge.key,
-          jeeqser_challenge.key,
+          RPCHandler.handleAutomaticReview,
+          attempt.key.urlsafe(),
+          challenge.key.urlsafe(),
+          jeeqser_challenge.key.urlsafe(),
           program)
 
   def save_draft_solution(self):

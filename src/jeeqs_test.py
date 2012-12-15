@@ -27,6 +27,7 @@ class JeeqsTestCase(unittest.TestCase):
     self.testbed.init_datastore_v3_stub(consistency_policy=self.policy)
     self.testbed.init_user_stub()
     self.testbed.init_memcache_stub()
+    self.testbed.init_taskqueue_stub()
 
   def tearDown(self):
     self.testbed.deactivate()

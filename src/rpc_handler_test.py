@@ -89,6 +89,22 @@ class RPCHandlerTestCase(jeeqs_test.JeeqsTestCase):
     self.assertEquals(submitter_challenge_list[0].jeeqser, submitter.key)
     self.assertIsNone(submitter_challenge_list[0].status)
 
+  def testSubmitAttemptAutomaticChallenge(self):
+    challenge = self.CreateChallenge()
+    challenge.automatic_review = True
+    challenge.put()
+    submitter = self.CreateJeeqser(email=SUBMITTER_EMAIL)
+    solution = "blahblahblah"
+    self.loginUser(SUBMITTER_EMAIL, 'submitter')
+    params = {
+      'method': 'submitAttempt',
+      'challenge_key': challenge.key.urlsafe(),
+      'solution': solution}
+    try:
+      self.testapp.post('/rpc', params)
+    except Exception as ex:
+      traceback.print_exc()
+      self.fail()
 
 if __name__ == '__main__':
   unittest.main()
