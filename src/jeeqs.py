@@ -233,26 +233,20 @@ class ProgramHandler(jeeqs_request_handler.JeeqsRequestHandler):
         if not challenge_key:
             self.error(StatusCode.forbidden)
             return
-
         challenge = None
-
         try:
             challenge = Challenge.get(challenge_key)
         finally:
             if not challenge:
                 self.error(StatusCode.forbidden)
                 return
-
         self.response.headers['Content-Type'] = 'text/plain'
-
-        output = {'result' : ''}
-
         try:
-            compile_and_run(program, output)
+            output, module = compile_and_run(program)
         except:
-            pass
+            pass # eat exceptions
         finally:
-            self.response.write(output['result'])
+            self.response.write(output)
 
 def main():
     application = webapp2.WSGIApplication(
