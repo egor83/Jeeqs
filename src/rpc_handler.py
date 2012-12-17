@@ -532,13 +532,19 @@ def handleAutomaticReview(
     [ndb.Key(urlsafe=attempt_key),
      ndb.Key(urlsafe=challenge_key),
      ndb.Key(urlsafe=jeeqser_challenge_key)])
-  feedback = program_tester.run_testcases(
+  vote, output = program_tester.run_testcases(
     program,
-    challenge,
-    attempt,
-    core.get_jeeqs_robot())
-  voter = core.get_jeeqs_robot()
-  persist_testcase_results(attempt.key, jeeqser_challenge.key, feedback, voter.key)
+    challenge)
+  robot = core.get_jeeqs_robot()
+  feedback = Feedback(
+    parent=attempt.key,
+    attempt=attempt.key,
+    author=robot.key,
+    attempt_author=attempt.author,
+    markdown=output,
+    content=markdown.markdown(output, ['codehilite', 'mathjax']),
+    vote=vote)
+  persist_testcase_results(attempt.key, jeeqser_challenge.key, feedback, robot.key)
 
 @ndb.transactional(xg=True)
 def persist_testcase_results(

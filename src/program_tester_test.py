@@ -2,6 +2,8 @@ import jeeqs_test
 import program_tester
 import mox
 
+from models import *
+
 __author__ = 'nomadali'
 
 class ProgramTesterTestCase(jeeqs_test.JeeqsTestCase):
@@ -36,4 +38,16 @@ def factorial(n):
     self.assertIsNotNone(program_module)
 
   def test_testcases_factorial(self):
-    pass
+    program = """
+def factorial(n):
+  return 1 if n == 1 else n * factorial(n-1)
+    """
+    challenge = self.CreateChallenge(name_persistent="Factorial")
+    TestCase(
+        challenge=challenge.key,
+        statement="factorial(3)",
+        expected="6").put()
+    challenge = Challenge.query().filter(
+        Challenge.name_persistent == 'Factorial').fetch(1)[0]
+    vote, output = program_tester.run_testcases(program, challenge)
+    self.assertEquals(vote, Vote.CORRECT)

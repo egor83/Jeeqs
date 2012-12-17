@@ -8,4 +8,5 @@ class ProgramHandler(jeeqs_request_handler.JeeqsRequestHandler):
     program = self.getValueInQuery('program')
     self.response.headers['Content-Type'] = 'text/plain'
     output, module = program_tester.compile_and_run(program)
+    output = output + "\n === END OF OUTPUT === "
     self.response.write(output)

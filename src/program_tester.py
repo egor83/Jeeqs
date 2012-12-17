@@ -6,12 +6,12 @@ Helps with running test cases over a challenge's solution
 # TODO: we would need to add another server on GAE that only runs these python apps. That would make it safe to run them
 # and allow the user to import statements and things.
 
-import traceback
+import core
 import new
+import os
 import sys
 import StringIO
-import os
-import string
+import traceback
 
 sys.path.append(os.path.join(os.path.dirname(__file__), 'lib'))
 
@@ -76,32 +76,34 @@ def format_exc():
   t = ''.join(traceback.format_exception(etype, value, tb)[2:])
   return t #.replace('\n', '  \n').replace(' ', '&nbsp;')
 
-def run_testcases(program, challenge, attempt, robot):
-    """
-    Runs the challenge's test cases over the given program (persisted as
-    attempt) and persists the results as a feedback
-    # TODO remove robot parameter
-    """
-    success = True
-    vote = Vote.CORRECT
-    output, program_module = compile_and_run(program)
-    if not program_module:
-      success = False
-      vote = Vote.INCORRECT
-    else:
-      test_num = 0
-      for test in challenge.testcases:
-          test_num = test_num + 1
-          result = eval(test.statement, program_module.__dict__)
-          if not str(result) == test.expected:
-              success = False
-              output += " Failed with the statement:  \n *****  \n" \
-                                  + test.statement \
-                                  + '  \n Expected result:  \n' \
-                                  + test.expected \
-                                  + '  \n Actual result:  \n' \
-                                  + str(result) \
-                                  + '   \n'
+def run_testcases(program, challenge):
+  """
+  Runs the challenge's test cases over the given program.
+
+  :param program: program to test
+  :param challenge: challenge for which the program was submitted
+  :return: A vote of correct/incorrect and the output of the test executions.
+  """
+  success = True
+  vote = Vote.CORRECT
+  output, program_module = compile_and_run(program)
+  if not program_module:
+    success = False
+    vote = Vote.INCORRECT
+  else:
+    test_num = 0
+    for test in challenge.testcases:
+        test_num = test_num + 1
+        result = eval(test.statement, program_module.__dict__)
+        if not str(result) == test.expected:
+            success = False
+            output += " Failed with the statement:  \n *****  \n" \
+                                + test.statement \
+                                + '  \n Expected result:  \n' \
+                                + test.expected \
+                                + '  \n Actual result:  \n' \
+                                + str(result) \
+                                + '   \n'
     if test_num == 0:
       output += 'No test cases to run!'
     elif success:
@@ -109,13 +111,5 @@ def run_testcases(program, challenge, attempt, robot):
     else:
       output = 'At least one of the test cases failed: ' + output
       vote = Vote.INCORRECT
-    feedback = Feedback(
-            parent=attempt.key,
-            attempt=attempt.key,
-            author=robot.key,
-            attempt_author=attempt.author,
-            markdown=output,
-            content=markdown.markdown(output, ['codehilite', 'mathjax']),
-            vote=vote)
-    return feedback
+  return vote, output
 
