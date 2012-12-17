@@ -1,3 +1,4 @@
+import mox
 import program_handler
 import traceback
 import unittest
@@ -32,9 +33,11 @@ class JeeqsTestCase(unittest.TestCase):
     self.testbed.init_user_stub()
     self.testbed.init_memcache_stub()
     self.testbed.init_taskqueue_stub()
+    self.mox = mox.Mox()
 
   def tearDown(self):
     self.testbed.deactivate()
+    self.mox.UnsetStubs()
 
   def testLoginExampleUser(self):
     self.loginExampleUser()

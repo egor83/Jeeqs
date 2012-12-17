@@ -1,11 +1,12 @@
 import traceback
 import unittest
 import jeeqs_test
-from google.appengine.api import users
+import mox
+import rpc_handler
 import webapp2
 import webtest
-from rpc_handler import RPCHandler
 
+from google.appengine.ext import deferred
 from models import *
 
 VOTER_EMAIL = 'voter@wrong_domain.com'
@@ -15,7 +16,7 @@ class RPCHandlerTestCase(jeeqs_test.JeeqsTestCase):
 
   def setUp(self):
     jeeqs_test.JeeqsTestCase.setUp(self)
-    app = webapp2.WSGIApplication([('/rpc', RPCHandler)])
+    app = webapp2.WSGIApplication([('/rpc', rpc_handler.RPCHandler)])
     self.testapp = webtest.TestApp(app)
 
   def tearDown(self):
@@ -89,13 +90,20 @@ class RPCHandlerTestCase(jeeqs_test.JeeqsTestCase):
     self.assertEquals(submitter_challenge_list[0].jeeqser, submitter.key)
     self.assertIsNone(submitter_challenge_list[0].status)
 
-  def testSubmitAttemptAutomaticChallenge(self):
+  def test_submit_attempt_automatic_challenge(self):
     challenge = self.CreateChallenge()
     challenge.automatic_review = True
     challenge.put()
-    submitter = self.CreateJeeqser(email=SUBMITTER_EMAIL)
     solution = "blahblahblah"
     self.loginUser(SUBMITTER_EMAIL, 'submitter')
+    self.mox.StubOutWithMock(deferred, 'defer')
+    deferred.defer(
+        rpc_handler.handleAutomaticReview,
+        mox.IgnoreArg(),
+        challenge.key.urlsafe(),
+        mox.IgnoreArg(),
+        mox.IgnoreArg())
+    self.mox.ReplayAll()
     params = {
       'method': 'submitAttempt',
       'challenge_key': challenge.key.urlsafe(),
@@ -105,6 +113,29 @@ class RPCHandlerTestCase(jeeqs_test.JeeqsTestCase):
     except Exception as ex:
       traceback.print_exc()
       self.fail()
+    self.mox.VerifyAll()
+
+  def test_save_draft(self):
+    challenge = self.CreateChallenge()
+    draft = "draft solution text"
+    submitter = self.CreateJeeqser(email=SUBMITTER_EMAIL)
+    self.loginUser(SUBMITTER_EMAIL, 'submitted')
+    params = {
+      'method' : 'save_draft_solution',
+      'solution': draft,
+      'challenge_key' : challenge.key.urlsafe()
+    }
+    try:
+      self.testapp.post('/rpc', params)
+    except Exception as ex:
+      traceback.print_exc()
+      self.fail()
+    drafts = Draft.query().filter(
+      Draft.challenge==challenge.key,
+      Draft.author==submitter.key
+    ).fetch()
+    self.assertEquals(len(drafts), 1)
+    self.assertEquals(drafts[0].markdown, draft)
 
 if __name__ == '__main__':
   unittest.main()

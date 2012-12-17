@@ -314,44 +314,28 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
     """
     Submits a solution
     """
-    solution = self.request.get('solution')
-    if not solution:
-      self.error(utils.StatusCode.bad)
-      return
+    solution = self.getValueInQuery('solution')
+    challenge_key = self.getValueInQuery('challenge_key')
+    challenge_key = ndb.Key(urlsafe=challenge_key)
 
-    # retrieve the challenge
-    challenge_key = self.request.get('challenge_key')
-    if not challenge_key:
-      self.error(utils.StatusCode.forbidden)
-      return
-
-    challenge = None
-
-    try:
-      challenge = Challenge.get(challenge_key);
-    finally:
-      if not challenge:
-        self.error(utils.StatusCode.forbidden)
-
+    @ndb.transactional(xg=True)
     def persist_new_draft():
       try:
-        draft = Draft.query(ancestor=self.jeeqser)\
-                .filter(Draft.author == ndb.Key.from_old_key(self.jeeqser.key))\
-                .filter(Draft.challenge == ndb.Key.from_old_key(challenge.key)).fetch(1)[0]
+        draft = Draft.query(
+            ancestor=self.jeeqser.key)\
+            .filter(Draft.author == self.jeeqser.key)\
+            .filter(Draft.challenge == challenge_key).fetch(1)[0]
       except IndexError:
         draft = Draft(
-          parent=self.jeeqser,
-          author=self.jeeqser,
-          challenge = challenge,
+          parent=self.jeeqser.key,
+          author=self.jeeqser.key,
+          challenge = challenge_key,
           )
-
       draft.markdown = solution
       draft.content = markdown.markdown(solution, ['codehilite', 'mathjax'])
-
       draft.put()
 
-    xg_on = db.create_transaction_options(xg=True)
-    db.run_in_transaction_options(xg_on, persist_new_draft)
+    persist_new_draft()
 
   def update_profile_picture(self):
     profile_picture_url = self.request.get('profile_picture_url')
