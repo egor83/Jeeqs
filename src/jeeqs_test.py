@@ -1,8 +1,12 @@
+import program_handler
+import traceback
 import unittest
+import webapp2
+import webtest
+
 from google.appengine.ext import testbed
 from google.appengine.api import users
 from google.appengine.datastore import datastore_stub_util
-
 from models import *
 
 class JeeqsTestCase(unittest.TestCase):
@@ -47,6 +51,30 @@ class JeeqsTestCase(unittest.TestCase):
     jeeqser = Jeeqser(user=users.User(email=email))
     jeeqser.put()
     return jeeqser
+
+class ProgramHandlerTestCase(JeeqsTestCase):
+
+  def setUp(self):
+    JeeqsTestCase.setUp(self)
+    app = webapp2.WSGIApplication([('/challenge/shell.runProgram', program_handler.ProgramHandler)])
+    self.testapp = webtest.TestApp(app)
+
+  def tearDown(self):
+    JeeqsTestCase.tearDown(self)
+
+  def test_program_handler_print(self):
+    program = """
+print 1
+    """
+    params = {
+      'program': program
+    }
+    try:
+      response = self.testapp.get('/challenge/shell.runProgram', params)
+    except Exception as ex:
+      self.fail(traceback.print_exc())
+    self.assertTrue('1' in response.body)
+    self.assertTrue('200' in response.status)
 
 if __name__ == '__main__':
   unittest.main()

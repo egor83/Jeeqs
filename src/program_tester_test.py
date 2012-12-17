@@ -34,3 +34,6 @@ def factorial(n):
     output, program_module = program_tester.compile_and_run(program)
     self.assertEquals(output, "")
     self.assertIsNotNone(program_module)
+
+  def test_testcases_factorial(self):
+    pass

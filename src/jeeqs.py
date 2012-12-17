@@ -11,6 +11,7 @@ import os
 import sys
 
 import webapp2
+import program_handler
 import review_handler
 import rpc_handler
 import jeeqs_request_handler
@@ -218,41 +219,11 @@ class ChallengeHandler(jeeqs_request_handler.JeeqsRequestHandler):
         rendered = template.render(vars)
         self.response.write(rendered)
 
-
-class ProgramHandler(jeeqs_request_handler.JeeqsRequestHandler):
-    """Evaluates a python program and returns the result.
-    """
-
-    def get(self):
-        program = self.request.get('program')
-        if not program:
-            return
-
-        # retrieve the challenge
-        challenge_key = self.request.get('challenge_key')
-        if not challenge_key:
-            self.error(StatusCode.forbidden)
-            return
-        challenge = None
-        try:
-            challenge = Challenge.get(challenge_key)
-        finally:
-            if not challenge:
-                self.error(StatusCode.forbidden)
-                return
-        self.response.headers['Content-Type'] = 'text/plain'
-        try:
-            output, module = compile_and_run(program)
-        except:
-            pass # eat exceptions
-        finally:
-            self.response.write(output)
-
 def main():
     application = webapp2.WSGIApplication(
         [('/', FrontPageHandler),
             ('/challenge/', ChallengeHandler),
-            ('/challenge/shell.runProgram', ProgramHandler),
+            ('/challenge/shell.runProgram', program_handler.ProgramHandler),
             ('/review/', review_handler.ReviewHandler),
             ('/rpc', rpc_handler.RPCHandler),
             ('/user/', UserHandler),

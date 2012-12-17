@@ -84,11 +84,7 @@ def run_testcases(program, challenge, attempt, robot):
     """
     success = True
     vote = Vote.CORRECT
-    try:
-        output, program_module = compile_and_run(program)
-    except:
-      pass # eat exceptions
-
+    output, program_module = compile_and_run(program)
     if not program_module:
       success = False
       vote = Vote.INCORRECT
