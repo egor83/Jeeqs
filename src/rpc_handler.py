@@ -2,7 +2,6 @@ from models import *
 import core
 import utils
 import logging
-import webapp2
 import json
 import spam_manager
 import program_tester
@@ -491,9 +490,8 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
       self.response.write(out_json)
 
   def took_tour(self):
-    jeeqser_key = self.request.get('jeeqser_key')
-    jeeqser = Jeeqser.get(jeeqser_key)
-
+    jeeqser_key = self.getValueInQuery('jeeqser_key')
+    jeeqser = ndb.Key(jeeqser_key).get()
     jeeqser.took_tour = True
     jeeqser.put()
 
