@@ -456,35 +456,37 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
         jeeqser_challenge.key,
         self.jeeqser.key)
 
+  @ndb.transactional(xg=True)
+  def persist_flag(jeeqser_key, feedback_key):
+
+    feedback = ndb.Key(feedback_key).get()
+    jeeqser = ndb.Key(jeeqser_key).get()
+
+    flags_left = spam_manager.SpamManager.check_and_update_flag_limit(
+      jeeqser)
+    jeeqser.put()
+    response = {'flags_left_today':flags_left}
+
+    if flags_left >= 0:
+      feedback.flagged_by.append(jeeqser.key)
+      feedback.flag_count += 1
+      if (feedback.flag_count >=
+          spam_manager.SpamManager.FEEDBACK_FLAG_THRESHOLD) or\
+          jeeqser.is_moderator or\
+          users.is_current_user_admin():
+        feedback.flagged = True
+        spam_manager.SpamManager.flag_author(feedback.author)
+        feedback.author.put()
+      feedback.put()
+
+    return response
+
   def flag_feedback(self):
-    feedback_key = self.request.get('feedback_key')
-    feedback = Feedback.get(feedback_key)
+    feedback_key = self.getValueInQuery('feedback_key')
+    feedback = ndb.Key(urlsafe=feedback_key).get()
 
     if self.jeeqser.key not in feedback.flagged_by:
-      def persist_flag(jeeqser_key):
-
-        feedback = Feedback.get(feedback_key)
-        jeeqser = Jeeqser.get(jeeqser_key)
-
-        flags_left = spam_manager.SpamManager.check_and_update_flag_limit(jeeqser)
-        jeeqser.put()
-        response = {'flags_left_today':flags_left}
-
-        if flags_left >= 0:
-          feedback.flagged_by.append(jeeqser.key)
-          feedback.flag_count += 1
-          if (feedback.flag_count >= spam_manager.SpamManager.FEEDBACK_FLAG_THRESHOLD) or jeeqser.is_moderator or users.is_current_user_admin():
-            feedback.flagged = True
-            spam_manager.SpamManager.flag_author(feedback.author)
-            feedback.author.put()
-          feedback.put()
-
-        return response
-
-      xg_on = db.create_transaction_options(xg=True)
-      response = db.run_in_transaction_options(xg_on, persist_flag, self.jeeqser.key)
-
-
+      response = self.persist_flag(self.jeeqser.key, feedback.key)
       out_json = json.dumps(response)
       self.response.write(out_json)
 

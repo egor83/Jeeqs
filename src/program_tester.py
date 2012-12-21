@@ -3,10 +3,8 @@ Helps with running test cases over a challenge's solution
 
 """
 
-# TODO: we would need to add another server on GAE that only runs these python apps. That would make it safe to run them
-# and allow the user to import statements and things.
+# TODO: Add another GAE server for running user submitted programs.
 
-import core
 import new
 import os
 import sys
@@ -16,7 +14,6 @@ import traceback
 sys.path.append(os.path.join(os.path.dirname(__file__), 'lib'))
 
 from models import *
-import lib.markdown as markdown
 
 def compile_and_run(program):
   """
