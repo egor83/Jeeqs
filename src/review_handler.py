@@ -39,7 +39,7 @@ class ReviewHandler(jeeqs_request_handler.JeeqsRequestHandler):
 
         # determine if the user is qualified to review this challenge's submissions
         if not users.is_current_user_admin():
-            self_challenge = getJeeqserChallenge(self.jeeqser.key,challenge.key)
+            self_challenge = get_jeeqser_challenge(self.jeeqser.key,challenge.key)
             review_qualified = self_challenge and self_challenge.status == AttemptStatus.SUCCESS
         else:
             review_qualified = True

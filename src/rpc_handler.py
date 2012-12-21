@@ -71,45 +71,7 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
       return 0 # flag
 
   @staticmethod
-  def updateGraphVoteSubmitted(submission, jeeqser_challenge, vote, voter):
-    """
-    Updates the model graph based on the vote given by the voter
-    """
-    # TODO: refactor to simpler and more modularized logic
-    submission.users_voted.append(voter.key)
-    submission.vote_count += 1
-    if submission.vote_count == 1:
-      submission.challenge.get().submissions_without_review -= 1
-
-    submission.vote_sum += float(RPCHandler.get_vote_numeric_value(vote))
-    submission.vote_average = float(submission.vote_sum / submission.vote_count)
-
-    # update stats
-    voter.reviews_out_num += 1
-    submission.author.get().reviews_in_num +=1
-
-    if vote == Vote.CORRECT:
-      submission.correct_count += 1
-      jeeqser_challenge.correct_count = submission.correct_count
-    elif vote == Vote.INCORRECT:
-      submission.incorrect_count += 1
-      jeeqser_challenge.incorrect_count = submission.incorrect_count
-    elif vote == Vote.FLAG:
-      submission.flag_count += 1
-      jeeqser_challenge.flag_count = submission.flag_count
-      if (submission.flag_count > spam_manager.submission_flag_threshold) or voter.is_moderator or users.is_current_user_admin():
-        submission.flagged = True
-        spam_manager.flag_author(submission.author.get())
-      submission.flagged_by.append(voter.key)
-
-    previous_status = jeeqser_challenge.status
-
-    #update status on submission and jeeqser_challenge
-    if submission.correct_count > submission.incorrect_count + submission.flag_count:
-      submission.status = jeeqser_challenge.status = AttemptStatus.SUCCESS
-    else:
-      submission.status = jeeqser_challenge.status = AttemptStatus.FAIL
-
+  def apply_new_status(jeeqser_challenge, previous_status, submission):
     if jeeqser_challenge.status != previous_status:
       jeeqser_challenge.status_changed_on = datetime.datetime.now()
 
@@ -125,6 +87,51 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
           submission.author.get().correct_submissions_count -= 1
         if submission.challenge.get().last_solver and submission.challenge.get().last_solver == submission.author:
           submission.challenge.get().update_last_solver(None)
+
+  @staticmethod
+  def updateGraphVoteSubmitted(submission, jeeqser_challenge, vote, voter):
+    """
+    Updates the object graph based on the vote given by the voter
+    :param submission: The submission for which the vote is given
+    :param jeeqser_challenge:  The corresponding jeeqser_challenge entity
+    :param vote: the vote given
+    :param voter: the voter
+    """
+    submission.users_voted.append(voter.key)
+    submission.vote_count += 1
+    submission.vote_sum += float(RPCHandler.get_vote_numeric_value(vote))
+    submission.vote_average = float(submission.vote_sum / submission.vote_count)
+    if submission.vote_count == 1:
+      submission.challenge.get().submissions_without_review -= 1
+    voter.reviews_out_num += 1
+    submission.author.get().reviews_in_num +=1
+
+    if vote == Vote.CORRECT:
+      submission.correct_count += 1
+      jeeqser_challenge.correct_count = submission.correct_count
+    elif vote == Vote.INCORRECT:
+      submission.incorrect_count += 1
+      jeeqser_challenge.incorrect_count = submission.incorrect_count
+    elif vote == Vote.FLAG:
+      submission.flag_count += 1
+      jeeqser_challenge.flag_count = submission.flag_count
+      if (
+          submission.flag_count >
+          spam_manager.SpamManager.SUBMISSION_FLAG_THRESHOLD) or \
+          voter.is_moderator or \
+          users.is_current_user_admin():
+        submission.flagged = True
+        spam_manager.SpamManager.flag_author(submission.author.get())
+      submission.flagged_by.append(voter.key)
+
+    previous_status = jeeqser_challenge.status
+    if submission.correct_count > (
+        submission.incorrect_count + submission.flag_count):
+      submission.status = jeeqser_challenge.status = AttemptStatus.SUCCESS
+    else:
+      submission.status = jeeqser_challenge.status = AttemptStatus.FAIL
+
+    RPCHandler.apply_new_status(jeeqser_challenge, previous_status, submission)
 
   @core.authenticate(False)
   def get_in_jeeqs(self):
@@ -233,7 +240,7 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
     """persists new attempt."""
     self.jeeqser, challenge = ndb.get_multi([self.jeeqser.key, challenge_key])
 
-    jeeqser_challenge = getJeeqserChallenge(self.jeeqser.key, challenge_key)
+    jeeqser_challenge = get_jeeqser_challenge(self.jeeqser.key, challenge_key)
     previous_index = 0
     if jeeqser_challenge:
       previous_index = jeeqser_challenge.active_attempt.get().index
@@ -248,8 +255,6 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
         challenge = challenge_key
       )
       challenge.num_jeeqsers_submitted += 1
-    if challenge.last_solver and challenge.last_solver == self.jeeqser.key:
-      challenge.update_last_solver(None)
     challenge.submissions_without_review += 1
 
     challenge.put()
@@ -367,7 +372,11 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
       jeeqser_key,
     ])
 
-    RPCHandler.updateGraphVoteSubmitted(submission, jeeqser_challenge, feedback.vote, jeeqser)
+    RPCHandler.updateGraphVoteSubmitted(
+        submission,
+        jeeqser_challenge,
+        feedback.vote,
+        jeeqser)
 
     ndb.put_multi([
         jeeqser,
@@ -400,7 +409,7 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
     :param submission: The submission under review.
     """
     if not users.is_current_user_admin():
-      voter_challenge = getJeeqserChallenge(
+      voter_challenge = get_jeeqser_challenge(
           self.jeeqser.key,
           submission.challenge)
       qualified = voter_challenge and \
@@ -416,7 +425,7 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
     submission = ndb.Key(urlsafe=submission_key).get()
     self.verifyReviewerQualified(submission)
 
-    jeeqser_challenge = getJeeqserChallenge(
+    jeeqser_challenge = get_jeeqser_challenge(
         submission.author,
         submission.challenge,
         create=True,
@@ -433,7 +442,7 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
 
     # check flagging limit
     if feedback.vote == 'flag':
-      flags_left = spam_manager.check_and_update_flag_limit(self.jeeqser)
+      flags_left = spam_manager.SpamManager.check_and_update_flag_limit(self.jeeqser)
       response = {'flags_left_today':flags_left}
       out_json = json.dumps(response)
       self.response.write(out_json)
@@ -457,16 +466,16 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
         feedback = Feedback.get(feedback_key)
         jeeqser = Jeeqser.get(jeeqser_key)
 
-        flags_left = spam_manager.check_and_update_flag_limit(jeeqser)
+        flags_left = spam_manager.SpamManager.check_and_update_flag_limit(jeeqser)
         jeeqser.put()
         response = {'flags_left_today':flags_left}
 
         if flags_left >= 0:
           feedback.flagged_by.append(jeeqser.key)
           feedback.flag_count += 1
-          if (feedback.flag_count >= spam_manager.feedback_flag_threshold) or jeeqser.is_moderator or users.is_current_user_admin():
+          if (feedback.flag_count >= spam_manager.SpamManager.FEEDBACK_FLAG_THRESHOLD) or jeeqser.is_moderator or users.is_current_user_admin():
             feedback.flagged = True
-            spam_manager.flag_author(feedback.author)
+            spam_manager.SpamManager.flag_author(feedback.author)
             feedback.author.put()
           feedback.put()
 
@@ -536,10 +545,10 @@ def persist_testcase_results(
   attempt, jeeqser_challenge, voter = ndb.get_multi(
     [attempt_key, jeeqser_challenge_key, voter_key])
   RPCHandler.updateGraphVoteSubmitted(
-    attempt,
-    jeeqser_challenge,
-    feedback.vote,
-    voter)
+      attempt,
+      jeeqser_challenge,
+      feedback.vote,
+      voter)
 
   feedback.put()
   jeeqser_challenge.put()

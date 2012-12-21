@@ -14,18 +14,18 @@ class FlaggingLimitReachedError(Exception):
     """
     pass
 
-class spam_manager:
+class SpamManager:
     # flag threshold for deleting a submission
-    submission_flag_threshold = 3
+    SUBMISSION_FLAG_THRESHOLD = 3
 
     # flag threshold for deleting a feedback
-    feedback_flag_threshold = 3
+    FEEDBACK_FLAG_THRESHOLD = 3
 
     # if the author has this many flagged content, he/she will be suspended for one day per violation.
-    author_suspension_threshold = 3
+    AUTHOR_SUSPENSION_THRESHOLD = 3
 
     # number of flagging actions a user can perform in a single day
-    flaging_limit_per_day = 5
+    FLAGGING_LIMIT_PER_DAY = 5
 
 
     @classmethod
@@ -35,7 +35,7 @@ class spam_manager:
         """
         jeeqser.total_flag_count += 1
         jeeqser.unaccounted_flag_count += 1
-        if jeeqser.unaccounted_flag_count >= spam_manager.author_suspension_threshold:
+        if jeeqser.unaccounted_flag_count >= SpamManager.AUTHOR_SUSPENSION_THRESHOLD:
             jeeqser.unaccounted_flag_count = 0
             oneday = timedelta(days=1)
             if (jeeqser.suspended_until):
@@ -56,10 +56,10 @@ class spam_manager:
         if not jeeqser.last_flagged_on or jeeqser.last_flagged_on.date() < now.date():
             jeeqser.last_flagged_on = now
             jeeqser.num_flagged_today = 1
-            return spam_manager.flaging_limit_per_day - 1
-        elif jeeqser.num_flagged_today >= spam_manager.flaging_limit_per_day:
+            return SpamManager.FLAGGING_LIMIT_PER_DAY - 1
+        elif jeeqser.num_flagged_today >= SpamManager.FLAGGING_LIMIT_PER_DAY:
             return -1
         else:
             jeeqser.last_flagged_on = now
             jeeqser.num_flagged_today = jeeqser.num_flagged_today + 1
-            return spam_manager.flaging_limit_per_day - jeeqser.num_flagged_today
+            return SpamManager.FLAGGING_LIMIT_PER_DAY - jeeqser.num_flagged_today

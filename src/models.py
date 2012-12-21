@@ -337,6 +337,8 @@ class Challenge(ndb.Model):
         """
         updates the last solver for this challenge
         """
+        # TODO: need to queue a task for updating the last_solver when
+        # given solver is none and needs to be computed.
         self.last_solver = solver.key if solver else None
         self.last_solver_picture_url = solver.profile_url if solver else None
 
@@ -467,7 +469,7 @@ class Activity(ndb.Model):
     feedback = ndb.KeyProperty(kind=Feedback)
 
 
-def getJeeqserChallenge(
+def get_jeeqser_challenge(
       jeeqser_key,
       challenge_key,
       create=False,
