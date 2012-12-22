@@ -12,7 +12,7 @@ python on MacOS and serialization of floats.
 Download from local datastore into a file
 appcfg.py download_data --url=http://jeeqsy.appspot.com/_ah/remote_api --filename=[db_backup_2012_May_19th] --application=s~jeeqsy
 
-Upload from a file into production:
+Upload from a file into production: (if you increase num_threads, you might run into pipe issues with local dev server)
 appcfg.py upload_data --url=http://localhost:8080/_ah/remote_api --filename=[db_backup_2012_May_19th] --num_threads=1
 
 In order to use the remote api use the following statement:
