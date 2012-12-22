@@ -115,7 +115,7 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
       submission.flag_count += 1
       jeeqser_challenge.flag_count = submission.flag_count
       if (
-          submission.flag_count >
+          submission.flag_count >=
           spam_manager.SpamManager.SUBMISSION_FLAG_THRESHOLD) or \
           voter.is_moderator or \
           users.is_current_user_admin():

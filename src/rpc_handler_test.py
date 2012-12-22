@@ -25,17 +25,32 @@ class RPCHandlerTestCase(jeeqs_test.JeeqsTestCase):
   def tearDown(self):
     jeeqs_test.JeeqsTestCase.tearDown(self)
 
-  def test_submit_first_correct_vote(self):
-    """Tests submitting a first correct vote to a submission."""
+  def create_submitter_challenge(self):
     challenge = self.CreateChallenge()
     submitter = self.CreateJeeqser()
-    submitter_challenge = Jeeqser_Challenge(parent=submitter.key, challenge=challenge.key, jeeqser=submitter.key)
+    submitter_challenge = Jeeqser_Challenge(parent=submitter.key,
+                                            challenge=challenge.key,
+                                            jeeqser=submitter.key)
     submitter_challenge.put()
-    voter = self.CreateJeeqser(email=VOTER_EMAIL)
     submission = Attempt(author=submitter.key, challenge=challenge.key)
     submission.put()
+    return challenge, submission, submitter, submitter_challenge
+
+  def test_vote_qualification(self):
+    """Vote as a non-qualified voter and verify that we don't persist the vote"""
+    pass
+
+  def test_submit_first_correct_vote(self):
+    """Tests submitting a first correct vote to a submission."""
+    (
+        challenge, submission, submitter, submitter_challenge) = \
+        self.create_submitter_challenge()
     # Qualify the voter
-    voter_challenge = Jeeqser_Challenge(parent=voter.key, challenge=challenge.key, jeeqser=voter.key, status=AttemptStatus.SUCCESS)
+    voter = self.CreateJeeqser(email=VOTER_EMAIL)
+    voter_challenge = Jeeqser_Challenge(parent=voter.key,
+                                        challenge=challenge.key,
+                                        jeeqser=voter.key,
+                                        status=AttemptStatus.SUCCESS)
     voter_challenge.put()
     self.loginUser(VOTER_EMAIL, 'voter')
     params = {
@@ -65,6 +80,36 @@ class RPCHandlerTestCase(jeeqs_test.JeeqsTestCase):
     self.assertEquals(challenge.last_solver, submitter.key)
     self.assertTrue(len(Feedback.query(ancestor=submission.key).fetch(1)) > 0)
     self.assertTrue(len(Activity.query(ancestor=voter.key).fetch(1)) > 0)
+
+  def test_flag_attempt(self):
+    """Tests voter voting a flag for a submission"""
+    (
+      challenge, submission, submitter, submitter_challenge) =\
+    self.create_submitter_challenge()
+    # Qualify a number of voters
+    voters = []
+    for voter_index in range(spam_manager.SpamManager.SUBMISSION_FLAG_THRESHOLD):
+      voter = self.CreateJeeqser(email=VOTER_EMAIL + str(voter_index))
+      voter_challenge = Jeeqser_Challenge(parent=voter.key,
+                                          challenge=challenge.key,
+                                          jeeqser=voter.key,
+                                          status=AttemptStatus.SUCCESS)
+      voter_challenge.put()
+      voters.append(voter)
+
+    self.loginUser(VOTER_EMAIL, 'voter')
+    params = {
+      'method': 'submit_vote',
+      'submission_key': submission.key.urlsafe(),
+      'vote': Vote.FLAG}
+    for voter in voters:
+      self.loginUser(VOTER_EMAIL + str(voter_index), 'voter' + str(voter_index))
+      try:
+        self.testapp.post('/rpc', params)
+      except Exception as ex:
+        self.fail(traceback.print_exc())
+    submission = submission.key.get()
+    self.assertTrue(submission.flagged)
 
   def test_submit_first_attempt(self):
     """Tests submitting a first attempt to a challenge."""
