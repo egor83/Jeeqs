@@ -1,4 +1,4 @@
-from utils import *
+from status_code import *
 import unittest
 
 class TestUtilFunctions(unittest.TestCase):

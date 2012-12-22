@@ -4,7 +4,7 @@ from google.appengine.api import users
 from models import *
 from template_filters import escapejs, timesince
 import datetime
-import utils
+import status_code
 
 
 jinja_environment = jinja2.Environment(
@@ -54,7 +54,7 @@ def authenticate(required=True):
         def wrapper(self):
             user = users.get_current_user()
             if not user and required:
-                self.error(utils.StatusCode.unauth)
+                self.error(status_code.StatusCode.unauth)
                 return
             elif user:
                 self.jeeqser = get_jeeqser()

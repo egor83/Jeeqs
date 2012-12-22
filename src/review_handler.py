@@ -1,7 +1,7 @@
 import os
 import sys
 from core import *
-from utils import StatusCode
+from status_code import StatusCode
 from google.appengine.ext import ndb
 import jeeqs_request_handler
 

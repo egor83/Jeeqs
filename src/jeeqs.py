@@ -19,7 +19,7 @@ import jeeqs_request_handler
 sys.path.append(os.path.join(os.path.dirname(__file__), 'lib'))
 
 from models import *
-from utils import *
+from status_code import *
 from program_tester import *
 from user_handler import UserHandler
 

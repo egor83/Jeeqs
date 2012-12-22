@@ -4,7 +4,7 @@ from google.appengine.ext import ndb
 from oauth2 import service, decorator
 from apiclient.errors import HttpError
 from oauth2client.client import AccessTokenRefreshError
-from utils import StatusCode
+from status_code import StatusCode
 import jeeqs_request_handler
 
 class UserHandler(jeeqs_request_handler.JeeqsRequestHandler):

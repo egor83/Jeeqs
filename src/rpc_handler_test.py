@@ -1,8 +1,10 @@
 import traceback
 import unittest
 import jeeqs_test
+import json
 import mox
 import rpc_handler
+import spam_manager
 import webapp2
 import webtest
 
@@ -11,6 +13,7 @@ from models import *
 
 VOTER_EMAIL = 'voter@wrong_domain.com'
 SUBMITTER_EMAIL = "submitter@nonexistent_domain.com"
+USER_A_EMAIL = 'user_a@wrong_domain.com'
 
 class RPCHandlerTestCase(jeeqs_test.JeeqsTestCase):
 
@@ -36,7 +39,7 @@ class RPCHandlerTestCase(jeeqs_test.JeeqsTestCase):
     voter_challenge.put()
     self.loginUser(VOTER_EMAIL, 'voter')
     params = {
-        'method': 'submitVote',
+        'method': 'submit_vote',
         'submission_key': submission.key.urlsafe(),
         'vote': Vote.CORRECT}
     try:
@@ -70,9 +73,9 @@ class RPCHandlerTestCase(jeeqs_test.JeeqsTestCase):
     solution = "blahblahblah"
     self.loginUser(SUBMITTER_EMAIL, 'submitter')
     params = {
-      'method': 'submitAttempt',
-      'challenge_key': challenge.key.urlsafe(),
-      'solution': solution}
+        'method': 'submit_attempt',
+        'challenge_key': challenge.key.urlsafe(),
+        'solution': solution}
     try:
       self.testapp.post('/rpc', params)
     except Exception as ex:
@@ -105,9 +108,9 @@ class RPCHandlerTestCase(jeeqs_test.JeeqsTestCase):
         mox.IgnoreArg())
     self.mox.ReplayAll()
     params = {
-      'method': 'submitAttempt',
-      'challenge_key': challenge.key.urlsafe(),
-      'solution': solution}
+        'method': 'submit_attempt',
+        'challenge_key': challenge.key.urlsafe(),
+        'solution': solution}
     try:
       self.testapp.post('/rpc', params)
     except Exception as ex:
@@ -119,11 +122,11 @@ class RPCHandlerTestCase(jeeqs_test.JeeqsTestCase):
     challenge = self.CreateChallenge()
     draft = "draft solution text"
     submitter = self.CreateJeeqser(email=SUBMITTER_EMAIL)
-    self.loginUser(SUBMITTER_EMAIL, 'submitted')
+    self.loginUser(SUBMITTER_EMAIL, 'submitter')
     params = {
-      'method' : 'save_draft_solution',
-      'solution': draft,
-      'challenge_key' : challenge.key.urlsafe()
+        'method' : 'save_draft_solution',
+        'solution': draft,
+        'challenge_key' : challenge.key.urlsafe()
     }
     try:
       self.testapp.post('/rpc', params)
@@ -136,6 +139,31 @@ class RPCHandlerTestCase(jeeqs_test.JeeqsTestCase):
     ).fetch()
     self.assertEquals(len(drafts), 1)
     self.assertEquals(drafts[0].markdown, draft)
+
+  def test_flag_feedback(self):
+    submitter = self.CreateJeeqser()
+    flagger = self.CreateJeeqser(email=USER_A_EMAIL)
+    self.loginUser(USER_A_EMAIL, 'flagger')
+    challenge = self.CreateChallenge()
+    attempt = Attempt(author=submitter.key, challenge=challenge.key)
+    attempt.put()
+    feedback = Feedback(parent=attempt.key, attempt=attempt.key, author=flagger.key)
+    feedback.put()
+    params = {
+        'method' : 'flag_feedback',
+        'feedback_key' : feedback.key.urlsafe()
+    }
+    try:
+      response = self.testapp.post('/rpc', params)
+      # refresh feedback
+      feedback = feedback.key.get()
+      self.assertTrue(flagger.key in feedback.flagged_by)
+      self.assertEquals(
+          json.loads(response.body)['flags_left_today'],
+          spam_manager.SpamManager.FLAGGING_LIMIT_PER_DAY - 1)
+    except Exception as ex:
+      traceback.print_exc()
+      self.fail()
 
 if __name__ == '__main__':
   unittest.main()

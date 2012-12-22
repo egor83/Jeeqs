@@ -1,5 +1,5 @@
 import webapp2
-import utils
+import status_code
 
 class JeeqsRequestHandler(webapp2.RequestHandler):
   """
@@ -16,6 +16,6 @@ class JeeqsRequestHandler(webapp2.RequestHandler):
     value = self.request.get(param_name)
     if value == '' and required:
       self.abort(
-        utils.StatusCode.bad,
+        status_code.StatusCode.bad,
         "missing parameter %s" % param_name)
     return value

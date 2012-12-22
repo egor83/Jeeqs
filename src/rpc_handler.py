@@ -1,6 +1,6 @@
 from models import * 
 import core
-import utils
+import status_code
 import logging
 import json
 import spam_manager
@@ -20,17 +20,17 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
   def post(self):
     method = self.request.get('method')
     if (not method):
-      self.error(utils.StatusCode.forbidden)
+      self.error(status_code.StatusCode.forbidden)
       return
 
-    if method == 'submitVote':
-      self.submitVote()
+    if method == 'submit_vote':
+      self.submit_vote()
     elif method == 'update_displayname':
       self.update_displayname()
     elif method == 'update_profile_picture':
       self.update_profile_picture()
-    elif method == 'submitAttempt':
-      self.submitAttempt()
+    elif method == 'submit_attempt':
+      self.submit_attempt()
     elif method == 'save_draft_solution':
       self.save_draft_solution()
     elif method == 'flag_feedback':
@@ -42,14 +42,14 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
     elif method == 'took_tour':
       self.took_tour()
     else:
-      self.error(utils.StatusCode.forbidden)
+      self.error(status_code.StatusCode.forbidden)
       return
 
   def get(self):
     method = self.request.get('method')
     logging.debug("dispatching method %s "% method)
     if (not method):
-      self.error(utils.StatusCode.forbidden)
+      self.error(status_code.StatusCode.forbidden)
       return
 
     if method == 'get_in_jeeqs':
@@ -57,7 +57,7 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
     elif method == 'get_challenge_avatars':
       self.get_challenge_avatars()
     else:
-      self.error(utils.StatusCode.forbidden)
+      self.error(status_code.StatusCode.forbidden)
       return
 
   @staticmethod
@@ -142,7 +142,7 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
       submission = ndb.Key(urlsafe=submission_key).get()
     finally:
       if not submission:
-        self.error(utils.StatusCode.forbidden)
+        self.error(status_code.StatusCode.forbidden)
         return
 
     # TODO: We can optimize these kind of calls by never retrieving submission object
@@ -169,18 +169,18 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
   def submit_challenge_vertical_scroll(self):
     """updates a challenge's source url """
     if not users.is_current_user_admin():
-      self.error(utils.StatusCode.unauth)
+      self.error(status_code.StatusCode.unauth)
       return
 
     new_vertical_scroll = self.request.get('vertical_scroll')
     if not new_vertical_scroll:
-      self.error(utils.StatusCode.forbidden)
+      self.error(status_code.StatusCode.forbidden)
       return
 
     # retrieve the challenge
     challenge_key = self.request.get('challenge_key')
     if not challenge_key:
-      self.error(utils.StatusCode.forbidden)
+      self.error(status_code.StatusCode.forbidden)
       return
 
     challenge = None
@@ -189,7 +189,7 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
       challenge = Challenge.get(challenge_key);
     finally:
       if not challenge:
-        self.error(utils.StatusCode.forbidden)
+        self.error(status_code.StatusCode.forbidden)
         return
 
     challenge.vertical_scroll = float(new_vertical_scroll)
@@ -198,18 +198,18 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
   def submit_challenge_source(self):
     """updates a challenge's source """
     if not users.is_current_user_admin():
-      self.error(utils.StatusCode.unauth)
+      self.error(status_code.StatusCode.unauth)
       return
 
     new_source = self.request.get('source')
     if not new_source:
-      self.error(utils.StatusCode.forbidden)
+      self.error(status_code.StatusCode.forbidden)
       return
 
     # retrieve the challenge
     challenge_key = self.request.get('challenge_key')
     if not challenge_key:
-      self.error(utils.StatusCode.forbidden)
+      self.error(status_code.StatusCode.forbidden)
       return
 
     challenge = None
@@ -218,7 +218,7 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
       challenge = Challenge.get(challenge_key);
     finally:
       if not challenge:
-        self.error(utils.StatusCode.forbidden)
+        self.error(status_code.StatusCode.forbidden)
         return
 
     challenge.markdown = new_source
@@ -288,7 +288,7 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
 
     return self.jeeqser, attempt, jeeqser_challenge
 
-  def submitAttempt(self):
+  def submit_attempt(self):
     """
     Submits a solution
     """
@@ -417,7 +417,7 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
       if not qualified:
         raise jeeqs_exceptions.ReviewerNotQualified()
 
-  def submitVote(self):
+  def submit_vote(self):
 
     submission_key = self.getValueInQuery('submission_key')
     vote = self.getValueInQuery('vote')
@@ -456,10 +456,10 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
         self.jeeqser.key)
 
   @ndb.transactional(xg=True)
-  def persist_flag(jeeqser_key, feedback_key):
+  def persist_flag(self, jeeqser_key, feedback_key):
 
-    feedback = ndb.Key(feedback_key).get()
-    jeeqser = ndb.Key(jeeqser_key).get()
+    feedback = feedback_key.get()
+    jeeqser = jeeqser_key.get()
 
     flags_left = spam_manager.SpamManager.check_and_update_flag_limit(
       jeeqser)
