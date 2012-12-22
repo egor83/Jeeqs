@@ -1,6 +1,6 @@
 import traceback
 import unittest
-import jeeqs_test
+import test_jeeqs
 import json
 import mox
 import rpc_handler
@@ -15,15 +15,15 @@ VOTER_EMAIL = 'voter@wrong_domain.com'
 SUBMITTER_EMAIL = "submitter@nonexistent_domain.com"
 USER_A_EMAIL = 'user_a@wrong_domain.com'
 
-class RPCHandlerTestCase(jeeqs_test.JeeqsTestCase):
+class RPCHandlerTestCase(test_jeeqs.JeeqsTestCase):
 
   def setUp(self):
-    jeeqs_test.JeeqsTestCase.setUp(self)
+    test_jeeqs.JeeqsTestCase.setUp(self)
     app = webapp2.WSGIApplication([('/rpc', rpc_handler.RPCHandler)])
     self.testapp = webtest.TestApp(app)
 
   def tearDown(self):
-    jeeqs_test.JeeqsTestCase.tearDown(self)
+    test_jeeqs.JeeqsTestCase.tearDown(self)
 
   def create_submitter_challenge(self):
     challenge = self.CreateChallenge()

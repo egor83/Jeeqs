@@ -1,4 +1,4 @@
-import jeeqs_test
+import test_jeeqs
 import program_tester
 import mox
 
@@ -6,12 +6,12 @@ from models import *
 
 __author__ = 'nomadali'
 
-class ProgramTesterTestCase(jeeqs_test.JeeqsTestCase):
+class ProgramTesterTestCase(test_jeeqs.JeeqsTestCase):
   def setUp(self):
-    jeeqs_test.JeeqsTestCase.setUp(self)
+    test_jeeqs.JeeqsTestCase.setUp(self)
 
   def tearDown(self):
-    jeeqs_test.JeeqsTestCase.tearDown(self)
+    test_jeeqs.JeeqsTestCase.tearDown(self)
 
   def test_compile_and_run_pass(self):
     """test compile_and_run "pass"."""

@@ -94,7 +94,7 @@ def main(sdk_path, test_path):
   sys.path.insert(0, sdk_path)
   import dev_appserver
   dev_appserver.fix_sys_path()
-  suite = unittest2.loader.TestLoader().discover(test_path, pattern="*_test.py")
+  suite = unittest2.loader.TestLoader().discover(test_path)
   unittest2.TextTestRunner(verbosity=2).run(suite)
 
 
