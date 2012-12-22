@@ -25,7 +25,7 @@ class RPCHandlerTestCase(jeeqs_test.JeeqsTestCase):
   def tearDown(self):
     jeeqs_test.JeeqsTestCase.tearDown(self)
 
-  def testSubmitFirstCorrectVote(self):
+  def test_submit_first_correct_vote(self):
     """Tests submitting a first correct vote to a submission."""
     challenge = self.CreateChallenge()
     submitter = self.CreateJeeqser()
@@ -66,7 +66,7 @@ class RPCHandlerTestCase(jeeqs_test.JeeqsTestCase):
     self.assertTrue(len(Feedback.query(ancestor=submission.key).fetch(1)) > 0)
     self.assertTrue(len(Activity.query(ancestor=voter.key).fetch(1)) > 0)
 
-  def testSubmitFirstAttempt(self):
+  def test_submit_first_attempt(self):
     """Tests submitting a first attempt to a challenge."""
     challenge = self.CreateChallenge()
     submitter = self.CreateJeeqser(email=SUBMITTER_EMAIL)
