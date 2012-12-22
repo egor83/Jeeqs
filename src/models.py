@@ -451,7 +451,9 @@ class TestCase(ndb.Model):
     expected = ndb.StringProperty()
 
 class Activity(ndb.Model):
-    """Models an activity done on Jeeqs"""
+    """Models an activity done on Jeeqs
+       Parent: Jeeqser who performed this Activity
+    """
     type= ndb.StringProperty(choices=['submission', 'voting', 'flagging'])
     done_by = ndb.KeyProperty(kind=Jeeqser)
     done_by_displayname = ndb.StringProperty()

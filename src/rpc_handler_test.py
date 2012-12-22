@@ -63,8 +63,8 @@ class RPCHandlerTestCase(jeeqs_test.JeeqsTestCase):
     self.assertEquals(submitter.reviews_in_num, 1)
     self.assertEquals(challenge.num_jeeqsers_solved, 1)
     self.assertEquals(challenge.last_solver, submitter.key)
-    # TODO query for the feedback
-    # TODO query for the activity
+    self.assertTrue(len(Feedback.query(ancestor=submission.key).fetch(1)) > 0)
+    self.assertTrue(len(Activity.query(ancestor=voter.key).fetch(1)) > 0)
 
   def testSubmitFirstAttempt(self):
     """Tests submitting a first attempt to a challenge."""
