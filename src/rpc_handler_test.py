@@ -101,7 +101,7 @@ class RPCHandlerTestCase(jeeqs_test.JeeqsTestCase):
     self.loginUser(SUBMITTER_EMAIL, 'submitter')
     self.mox.StubOutWithMock(deferred, 'defer')
     deferred.defer(
-        rpc_handler.handleAutomaticReview,
+        rpc_handler.handle_automatic_review,
         mox.IgnoreArg(),
         challenge.key.urlsafe(),
         mox.IgnoreArg(),

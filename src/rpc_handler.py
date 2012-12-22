@@ -88,7 +88,7 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
           submission.challenge.get().update_last_solver(None)
 
   @staticmethod
-  def updateGraphVoteSubmitted(submission, jeeqser_challenge, vote, voter):
+  def update_graph_for_vote(submission, jeeqser_challenge, vote, voter):
     """
     Updates the object graph based on the vote given by the voter
     :param submission: The submission for which the vote is given
@@ -225,7 +225,7 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
     challenge.content = markdown.markdown(challenge.markdown, ['codehilite', 'mathjax'])
     challenge.put()
 
-  def appendLanguagePrefixForAutomaticReview(self, challenge, solution):
+  def append_language_prefix_for_automatic_review(self, challenge, solution):
     """Appends the proper language prefix"""
     if challenge.automatic_review:
       new_solution = '    :::python' + '\n'
@@ -297,7 +297,7 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
     # no need to test if challenge exists, since if it doesn't we will throw
     # here and the upper stream will convert the exception to user output
     challenge = challenge_key.get()
-    solution = self.appendLanguagePrefixForAutomaticReview(challenge, solution)
+    solution = self.append_language_prefix_for_automatic_review(challenge, solution)
     self.jeeqser, attempt, jeeqser_challenge = self.persistAttempt(challenge_key, solution)
 
     # delete a draft if exists
@@ -308,7 +308,7 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
 
     if challenge.automatic_review:
       deferred.defer(
-          handleAutomaticReview,
+          handle_automatic_review,
           attempt.key.urlsafe(),
           challenge.key.urlsafe(),
           jeeqser_challenge.key.urlsafe(),
@@ -364,14 +364,14 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
       return
 
   @ndb.transactional(xg=True)
-  def persistVote(self, feedback, submission_key, jeeqser_challenge_key, jeeqser_key):
+  def persist_vote(self, feedback, submission_key, jeeqser_challenge_key, jeeqser_key):
     submission, jeeqser_challenge, jeeqser = ndb.get_multi([
       submission_key,
       jeeqser_challenge_key,
       jeeqser_key,
     ])
 
-    RPCHandler.updateGraphVoteSubmitted(
+    RPCHandler.update_graph_for_vote(
         submission,
         jeeqser_challenge,
         feedback.vote,
@@ -449,7 +449,7 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
       if flags_left == -1:
         return
 
-    self.persistVote(
+    self.persist_vote(
         feedback,
         submission.key,
         jeeqser_challenge.key,
@@ -518,7 +518,7 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
     rendered = template.render(vars)
     self.response.write(rendered)
 
-def handleAutomaticReview(
+def handle_automatic_review(
     attempt_key, challenge_key, jeeqser_challenge_key, program):
   """Handles submission review for automatic review challenges."""
   attempt, challenge, jeeqser_challenge = ndb.get_multi(
@@ -544,7 +544,7 @@ def persist_testcase_results(
     attempt_key, jeeqser_challenge_key, feedback, voter_key):
   attempt, jeeqser_challenge, voter = ndb.get_multi(
     [attempt_key, jeeqser_challenge_key, voter_key])
-  RPCHandler.updateGraphVoteSubmitted(
+  RPCHandler.update_graph_for_vote(
       attempt,
       jeeqser_challenge,
       feedback.vote,
