@@ -24,3 +24,10 @@ of "models.py" file.
 * downloading: appcfg.py download_data --url=http://jeeqsy.appspot.com/_ah/remote_api --filename=[db_backup_2012_May_19th] --application=s~jeeqsy
 * uploading: appcfg.py upload_data --url=http://localhost:8080/_ah/remote_api --filename=[db_backup_2012_May_19th] --num_threads=1
 
+## Code style
+* The standard code style for Jeeqs is [pep8](http://www.python.org/dev/peps/pep-0008/). 
+* Install `pep8` and `autopep8` packages and always run them before requesting code review or submiting code. 
+
+## Code review
+* Create a pull request if you'd like to make a change.
+* Include the output of pep8 whenever requesting code review. 
