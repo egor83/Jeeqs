@@ -28,7 +28,7 @@ of "models.py" file.
 * The standard code style for Jeeqs is [pep8](http://www.python.org/dev/peps/pep-0008/). 
 * Install `pep8` and `autopep8` packages and always run them before requesting code review or submiting code. 
 
-## Code review
+## Code review 
 * Create a pull request if you'd like to make a change.
 * *Include the output of pep8 whenever requesting code review.*
 * *Include the output of running unit tests whenever requesting code review for a change*
