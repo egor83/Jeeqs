@@ -6,7 +6,7 @@ Jeeqs is a collaborative problem solving and learning platform and is hosted at 
 
 ## Setting up Development environment 
 
-* Download Pythoin 2.7, and the latest [app engine SDK](https://developers.google.com/appengine/downloads) 
+* Download Python 2.7, and the latest [app engine SDK](https://developers.google.com/appengine/downloads) 
 * Download and install Pycharm 
 * Fork Jeeqs in github so you have a clone of Jeeqs under your username
 * Add github plugin to Pycharm and download the project source into your local
