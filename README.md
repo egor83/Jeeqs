@@ -30,4 +30,4 @@ of "models.py" file.
 
 ## Code review
 * Create a pull request if you'd like to make a change.
-* Include the output of pep8 whenever requesting code review. 
+* *Include the output of pep8 whenever requesting code review.*
