@@ -1,4 +1,10 @@
 {% from 'avatars.html' import avatar %}
+<script>
+    {# Need to run tooltip since this page is dynamically loaded into browser.  #}
+    $(document).ready(function() {
+        $('a[rel=tooltip]').tooltip()
+    })
+</script>
 <div id="submissions">
     {% if submissions|length == 0 %}
         {%if not review_qualified and not challenge.public_submissions%}
@@ -30,7 +36,12 @@
                             <button value="flag" class="btn"><i class="icon-flag"></i></button>
                         </div>
                         <div>
-                            <textarea id="response__{{ submission.key.urlsafe() }}" rows="5" style="width: 50%;"></textarea>
+                            <div style="float:left; width: 100%">
+                                <textarea id="response__{{ submission.key.urlsafe() }}" rows="5" style="width: 50%;"></textarea>
+                            </div>
+                            <div style="float:left; clear:both; font-size:x-small;">
+                                <a href="#" rel="tooltip" title="Markdown and MathJax are supported."><i class="icon-info-sign"></i></a>
+                            </div>
                         </div>
                         {% set submitted = 'Submitted' %}
                         {% if not submission.voted %}
