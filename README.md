@@ -32,3 +32,4 @@ of "models.py" file.
 * Create a pull request if you'd like to make a change.
 * *Include the output of pep8 whenever requesting code review.*
 * *Include the output of running unit tests whenever requesting code review for a change*
+* Once you have a confirmation for the change, merge the pull request to master
