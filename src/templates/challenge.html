@@ -87,7 +87,7 @@
                             var document_id = '{{ challenge.document_id }}';
                             var access_key = '{{ challenge.access_key }}';
 
-                            var getDocFromUrl_doc = scribd.Document.getDoc(document_id, access_key);
+                            var scribd_doc = scribd.Document.getDoc(document_id, access_key);
 
                             var onDocReady = function(e){
                                 {% if challenge.vertical_scroll %}
