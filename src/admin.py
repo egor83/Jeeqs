@@ -11,9 +11,11 @@ from django import forms
 from models import *
 from jeeqs import authenticate, _DEBUG, add_common_vars, jinja_environment
 
+
 class ChallengeForm(djangoforms.ModelForm):
     class Meta:
         model = Challenge
+
 
 class ChallengeDjangoFormPage(webapp.RequestHandler):
     def get(self):
@@ -42,6 +44,7 @@ class ChallengeDjangoFormPage(webapp.RequestHandler):
             self.response.out.write('</table>'
                                     '<input type="submit">'
                                     '</form></body></html>')
+
 
 class ChallengePage(webapp.RequestHandler):
     """
@@ -77,12 +80,12 @@ class ChallengePage(webapp.RequestHandler):
         exercise.put()
 
         challenge = Challenge(
-                    name_persistent=name
-                    , markdown=markdown
-                    , template_code=template_code
-                    , exercise=exercise
-                    , document_id=document_id
-                    , access_key=access_key)
+            name_persistent=name,
+            markdown=markdown,
+            template_code=template_code,
+            exercise=exercise,
+            document_id=document_id,
+            access_key=access_key)
 
         challenge.put()
 
@@ -93,11 +96,15 @@ class ChallengeListPage(webapp.RequestHandler):
     def get(self):
         query = Challenge.all().fetch(1000)
         for item in query:
-            self.response.out.write('<a href="/admin/challenges/edit?key=%s">Edit</a> ' % item.key())
+            self.response.out.write(
+                '<a href="/admin/challenges/edit?key=%s">Edit</a> '
+                % item.key())
             number = item.exercise.number if item.exercise else '--'
             self.response.out.write("%s %s <br>" % (number, item.name))
 
-        self.response.out.write('<br/><a href="/admin/challenges/new">New Challenge</a>')
+        self.response.out.write(
+            '<br/><a href="/admin/challenges/new">New Challenge</a>')
+
 
 class ChallengeEditPage(webapp.RequestHandler):
     def get(self):
@@ -128,19 +135,22 @@ class ChallengeEditPage(webapp.RequestHandler):
                                     '<table>'))
             self.response.out.write(unicode(data))
             self.response.out.write(unicode('</table>'
-                                    '<input type="hidden" name="key" value="%s">'
+                                    '<input type="hidden" name="key"'
+                                    ' value="%s">'
                                     '<input type="submit">'
                                     '</form></body></html>' % key))
+
+
 def main():
     application = webapp.WSGIApplication(
-        [   ('/admin/challenges/new', ChallengePage),
+        [('/admin/challenges/new', ChallengePage),
             ('/admin/challenges/new_django', ChallengeDjangoFormPage),
             ('/admin/challenges', ChallengeListPage),
             ('/admin/challenges/', ChallengeListPage),
             ('/admin/challenges/edit', ChallengeEditPage)
-        ],
+         ],
         debug=True)
     run_wsgi_app(application)
 
-if __name__=="__main__":
+if __name__ == "__main__":
     main()
