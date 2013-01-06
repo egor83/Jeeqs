@@ -1,3 +1,13 @@
+{# pdfjs #}
+<script type="text/javascript" src="/static/pdfjs/build/generic/build/pdf.js"></script>
+<script type="text/javascript" src="/static/pdfjs/build/generic/web/compatibility.js"></script>
+<script type="text/javascript">
+    // Specify the main script used to create a new PDF.JS web worker.
+    // In production, change this to point to the combined `pdf.js` file.
+    PDFJS.workerSrc = '/static/pdfjs/build/generic/pdf.js';
+</script>
+
+
 <script>
     $(document).ready(function() {
         {% if not challenge.markdown and challenge.document_id and challenge.access_key %}
