@@ -8,7 +8,7 @@
 
 <script>
     $(document).ready(function() {
-        PDFJS.getDocument('http://ocw.mit.edu/courses/electrical-engineering-and-computer-science/6-189-a-gentle-introduction-to-programming-using-python-january-iap-2011/assignments/MIT6_189IAP11_hw1.pdf').then(function(pdf) {
+        PDFJS.getDocument('/static/MIT6_189IAP11_hw1.pdf').then(function(pdf) {
             // Using promise to fetch the page
             pdf.getPage(1).then(function(page) {
                 var scale = 1.5;
