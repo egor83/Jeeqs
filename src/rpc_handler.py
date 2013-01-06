@@ -354,7 +354,7 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
 
     if displayname == self.jeeqser.displayname_persisted:
         self.response.write(displayname)#firefox,ie needs some output written out for a POST to be a success
-        return;
+        return
 
     exists = len(Jeeqser.query(Jeeqser.displayname_persisted == displayname).fetch(1)) > 0
     if not exists:
