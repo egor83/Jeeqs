@@ -8,8 +8,8 @@ import status_code
 
 
 jinja_environment = jinja2.Environment(
-    loader=jinja2.FileSystemLoader(os.path.join(os.path.dirname(__file__), 'templates'))
-    ,extensions=['jinja2.ext.with_'])
+    loader=jinja2.FileSystemLoader(
+        os.path.join(os.path.dirname(__file__), 'templates')), extensions=['jinja2.ext.with_'])
 
 jinja_environment.filters['escapejs'] = escapejs
 jinja_environment.filters['timesince'] = timesince
@@ -19,8 +19,10 @@ def get_jeeqs_robot():
     """
     Returns the robot user that runs tests over programming solutions
     """
-    robot = Jeeqser.query().filter(Jeeqser.displayname_persisted == 'jeeqs.moderator').fetch(1)[0]
+    robot = Jeeqser.query().filter(
+        Jeeqser.displayname_persisted == 'jeeqs.moderator').fetch(1)[0]
     return robot
+
 
 def get_jeeqser():
     """
@@ -40,9 +42,10 @@ def get_jeeqser():
         return jeeqser
     return jeeqsers[0]
 
+
 def add_common_vars(vars):
     vars['local'] = os.environ['APPLICATION_ID'].startswith('dev~')
-    vars['isadmin'] = users.is_current_user_admin();
+    vars['isadmin'] = users.is_current_user_admin()
 
     return vars
 
@@ -77,14 +80,16 @@ def authenticate(required=True):
     return real_decorator
 
 # Adds icons and background to feedback objects
+
+
 def prettify_injeeqs(injeeqs):
-  for jeeq in injeeqs:
-    if jeeq.vote == Vote.CORRECT:
-      jeeq.icon = 'icon-ok'
-      jeeq.background = '#EBFFEB'
-    elif jeeq.vote == Vote.INCORRECT:
-      jeeq.icon = 'icon-remove'
-      jeeq.background = '#FFE3E3'
-    elif jeeq.vote == Vote.FLAG:
-      jeeq.icon = 'icon-flag'
-      jeeq.background = 'lightgrey'
+    for jeeq in injeeqs:
+        if jeeq.vote == Vote.CORRECT:
+            jeeq.icon = 'icon-ok'
+            jeeq.background = '#EBFFEB'
+        elif jeeq.vote == Vote.INCORRECT:
+            jeeq.icon = 'icon-remove'
+            jeeq.background = '#FFE3E3'
+        elif jeeq.vote == Vote.FLAG:
+            jeeq.icon = 'icon-flag'
+            jeeq.background = 'lightgrey'
