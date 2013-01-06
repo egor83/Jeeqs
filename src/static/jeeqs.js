@@ -326,13 +326,16 @@ $(document).ready(function() {
             success: function(response){
                 if (response != 'not_unique') {
                     $initiator.button('updated');
+                    console.log('success');
                 }
                 else{
-                    $initiator.button('duplicate')
+                    $initiator.button('duplicate');
+                    console.log('duplicate');
                 }
             },
             error: function(response) {
-                $initiator.button('error')
+                $initiator.button('error');
+                console.log('error');
             }
         })
 

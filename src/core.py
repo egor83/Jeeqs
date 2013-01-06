@@ -34,6 +34,8 @@ def get_jeeqser():
 
     if (len(jeeqsers) == 0):
         jeeqser = Jeeqser(user=user, displayname_persisted=user.nickname())
+        jeeqser_id = jeeqser.put().id()
+        jeeqser.displayname_persisted = 'user' + str(jeeqser_id)
         jeeqser.put()
         return jeeqser
     return jeeqsers[0]

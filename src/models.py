@@ -123,9 +123,6 @@ class Jeeqser(ndb.Model):
 
 
     def get_displayname(self):
-        if self.displayname_persisted is None:
-            self.displayname_persisted = self.user.nickname().split('@')[0]
-            self.put()
         return self.displayname_persisted
 
     def set_displayname(self, value):
