@@ -2,13 +2,38 @@
 <script type="text/javascript" src="/static/pdfjs/build/generic/build/pdf.js"></script>
 <script type="text/javascript" src="/static/pdfjs/build/generic/web/compatibility.js"></script>
 <script type="text/javascript">
-    // Specify the main script used to create a new PDF.JS web worker.
-    // In production, change this to point to the combined `pdf.js` file.
-    PDFJS.workerSrc = '/static/pdfjs/build/generic/pdf.js';
+    PDFJS.workerSrc = '/static/pdfjs/build/generic/build/pdf.js';
 </script>
 
 
 <script>
+    $(document).ready(function() {
+        PDFJS.getDocument('/static/pdfjs/test/pdfs/canvas.pdf').then(function(pdf) {
+            // Using promise to fetch the page
+            pdf.getPage(1).then(function(page) {
+                var scale = 1.5;
+                var viewport = page.getViewport(scale);
+
+                //
+                // Prepare canvas using PDF page dimensions
+                //
+                var canvas = document.getElementById('the-canvas');
+                var context = canvas.getContext('2d');
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+
+                //
+                // Render PDF page into canvas context
+                //
+                var renderContext = {
+                    canvasContext: context,
+                    viewport: viewport
+                };
+                page.render(renderContext);
+            });
+        })
+    })
+
     $(document).ready(function() {
         {% if not challenge.markdown and challenge.document_id and challenge.access_key %}
             $( '#challenge_tabs a[href="#source-pdf"]' ).tab('show');
@@ -92,26 +117,28 @@
                 </div>
                 <div id="source-pdf" class="tab-pane fade">
                     {% if challenge.document_id and challenge.access_key %}
-                        <div id='embedded_challenge' style="width: 100%;"></div>
-                        <script type="text/javascript">
-                            var document_id = '{{ challenge.document_id }}';
-                            var access_key = '{{ challenge.access_key }}';
-
-                            var scribd_doc = scribd.Document.getDoc(document_id, access_key);
-
-                            var onDocReady = function(e){
-                                {% if challenge.vertical_scroll %}
-                                    scribd_doc.api.setVerticalScroll({{ challenge.vertical_scroll }});
-                                {% endif %}
-                            }
-
-                            scribd_doc.addParam('jsapi_version', 2);
-                            scribd_doc.addParam('width', $('#challenge_tab_contents').width() - 50);
-                            scribd_doc.addParam('height', 500);
-                            scribd_doc.addParam('default_embed_format', 'flash');
-                            scribd_doc.addEventListener('docReady', onDocReady);
-                            scribd_doc.write('embedded_challenge');
-                        </script>
+                        <div id='embedded_challenge' style="width: 100%;">
+                            <canvas id="the-canvas" style="border:1px solid black;"/>
+                        </div>
+{#                        <script type="text/javascript">#}
+{#                            var document_id = '{{ challenge.document_id }}';#}
+{#                            var access_key = '{{ challenge.access_key }}';#}
+{##}
+{#                            var scribd_doc = scribd.Document.getDoc(document_id, access_key);#}
+{##}
+{#                            var onDocReady = function(e){#}
+{#                                {% if challenge.vertical_scroll %}#}
+{#                                    scribd_doc.api.setVerticalScroll({{ challenge.vertical_scroll }});#}
+{#                                {% endif %}#}
+{#                            }#}
+{##}
+{#                            scribd_doc.addParam('jsapi_version', 2);#}
+{#                            scribd_doc.addParam('width', $('#challenge_tab_contents').width() - 50);#}
+{#                            scribd_doc.addParam('height', 500);#}
+{#                            scribd_doc.addParam('default_embed_format', 'flash');#}
+{#                            scribd_doc.addEventListener('docReady', onDocReady);#}
+{#                            scribd_doc.write('embedded_challenge');#}
+{#                        </script>#}
                         {% if isadmin %}
                             <button class="btn btn-large btn-primary" data-updated-text="Updated" data-error-text="Oops!!" id="submit_challenge_vertical_scroll" style="margin-top: 20px">Update Vertical Scroll</button>
                         {% endif %}

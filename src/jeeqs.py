@@ -217,6 +217,8 @@ class ChallengeHandler(jeeqs_request_handler.JeeqsRequestHandler):
 
         template = core.jinja_environment.get_template('solve_a_challenge.html')
         rendered = template.render(vars)
+        # needed for pdf.js cross domain access
+        self.response.headers.add_header("Access-Control-Allow-Origin", "*")
         self.response.write(rendered)
 
 def main():
