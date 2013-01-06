@@ -324,13 +324,17 @@ $(document).ready(function() {
             type: "POST",
             data: {'method': 'update_displayname', 'display_name':$displayname},
             success: function(response){
-                if (response != 'not_unique') {
+                if (response == 'success') {
                     $initiator.button('updated');
                     console.log('success');
                 }
-                else{
+                else if(response=='duplicate'){
                     $initiator.button('duplicate');
                     console.log('duplicate');
+                }
+                else if(response=='not_unique'){
+                    $initiator.button('not available');
+                    console.log('not available');
                 }
             },
             error: function(response) {

@@ -353,14 +353,14 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
     displayname = self.request.get('display_name')
 
     if displayname == self.jeeqser.displayname_persisted:
-        self.response.write(displayname)#firefox,ie needs some output written out for a POST to be a success
+        self.response.write('duplicate')#firefox,ie needs some output written out for a POST to be a success
         return
 
     exists = len(Jeeqser.query(Jeeqser.displayname_persisted == displayname).fetch(1)) > 0
     if not exists:
       self.jeeqser.displayname_persisted = displayname
       self.jeeqser.put()
-      self.response.write(displayname)#firefox,ie needs some output written out for a POST to be a success
+      self.response.write('success')#firefox,ie needs some output written out for a POST to be a success
       return
     else:
       self.response.write('not_unique')
