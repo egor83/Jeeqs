@@ -20,8 +20,10 @@
                 <h3>Display name</h3>
             </div>
             <div class="span12">
-                    <input type="text" id="displayname" value="{{ jeeqser.displayname }}" style="font-size: 1em; margin-top: 20px" maxlength="10">
+                <form class="form-inline">
+                    <input type="text" id="displayname" class="input-medium" value="{{ jeeqser.displayname }}"  maxlength="10">
                     <button class="btn" data-updated-text="Updated!" data-error-text="Oops! Try again!" data-duplicate-text="Username taken already. Please select a different one!" id = "updateDisplayName">Update</button>
+                </form>
             </div>
         </div>
 
