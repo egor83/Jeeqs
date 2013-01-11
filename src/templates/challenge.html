@@ -8,29 +8,32 @@
 
 <script>
     $(document).ready(function() {
-        PDFJS.getDocument('/static/MIT6_189IAP11_hw1.pdf').then(function(pdf) {
-            // Using promise to fetch the page
-            pdf.getPage(1).then(function(page) {
-                var scale = 1.5;
-                var viewport = page.getViewport(scale);
+        PDFJS.getDocument('{{ challenge.pdf_url }}').then(function(pdf) {
+            var pages = [1, 2]
+            for (var page_num = pages[0]; page_num <= pages[1]; page_num ++) {
+                // Using promise to fetch the page
+                pdf.getPage(page_num).then(function(page) {
+                    var scale = 1.5;
+                    var viewport = page.getViewport(scale);
 
-                //
-                // Prepare canvas using PDF page dimensions
-                //
-                var canvas = document.getElementById('the-canvas');
-                var context = canvas.getContext('2d');
-                canvas.height = viewport.height;
-                canvas.width = viewport.width;
+                    //
+                    // Prepare canvas using PDF page dimensions
+                    //
+                    var canvas = document.getElementById('the-canvas');
+                    var context = canvas.getContext('2d');
+                    canvas.height = viewport.height;
+                    canvas.width = viewport.width;
 
-                //
-                // Render PDF page into canvas context
-                //
-                var renderContext = {
-                    canvasContext: context,
-                    viewport: viewport
-                };
-                page.render(renderContext);
-            });
+                    //
+                    // Render PDF page into canvas context
+                    //
+                    var renderContext = {
+                        canvasContext: context,
+                        viewport: viewport
+                    };
+                    page.render(renderContext);
+                });
+            }
         })
     })
 
@@ -117,7 +120,7 @@
                 </div>
                 <div id="source-pdf" class="tab-pane fade">
                     {% if challenge.document_id and challenge.access_key %}
-                        <div id='embedded_challenge' style="width: 100%;">
+                        <div id='embedded_challenge' style="width: 100%; clear:both; float:left">
                             <canvas id="the-canvas" style="border:1px solid black;"/>
                         </div>
 {#                        <script type="text/javascript">#}
@@ -140,7 +143,9 @@
 {#                            scribd_doc.write('embedded_challenge');#}
 {#                        </script>#}
                         {% if isadmin %}
-                            <button class="btn btn-large btn-primary" data-updated-text="Updated" data-error-text="Oops!!" id="submit_challenge_vertical_scroll" style="margin-top: 20px">Update Vertical Scroll</button>
+                            <div style="clear: both; float:left;" >
+                                <button class="btn btn-large btn-primary" data-updated-text="Updated" data-error-text="Oops!!" id="submit_challenge_vertical_scroll" style="margin-top: 20px">Update Vertical Scroll</button>
+                            </div>
                         {% endif %}
                     {% endif %}
                 </div>

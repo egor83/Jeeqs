@@ -6,10 +6,9 @@ from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app
 
 from google.appengine.ext.db import djangoforms
-from django import forms
 
+import core
 from models import *
-from jeeqs import authenticate, _DEBUG, add_common_vars, jinja_environment
 
 
 class ChallengeForm(djangoforms.ModelForm):
@@ -50,22 +49,22 @@ class ChallengePage(webapp.RequestHandler):
     """
     Create a new challenge
     """
-    @authenticate(required=True)
+    @core.authenticate(required=True)
     def get(self):
         all_courses = Course.all().fetch(1000)
 
-        vars = add_common_vars({
+        vars = core.add_common_vars({
             'courses': all_courses,
             'jeeqser': self.jeeqser,
             'login_url': users.create_login_url(self.request.url),
             'logout_url': users.create_logout_url(self.request.url)
         })
 
-        template = jinja_environment.get_template('new_challenge.html')
+        template = core.jinja_environment.get_template('new_challenge.html')
         rendered = template.render(vars)
         self.response.out.write(rendered)
 
-    @authenticate(required=True)
+    @core.authenticate(required=True)
     def post(self):
         course = Course.get(self.request.get('course'))
         self.response.out.write(course.name)
