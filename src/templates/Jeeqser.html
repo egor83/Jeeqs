@@ -138,7 +138,7 @@
                 <table class="table">
                     {% for jc in correct_jcs %}
                         <tr>
-                            <td><a href="/challenge/?ch={{ jc.challenge }}"> {{ jc.challenge.name }} </a></td>
+                            <td><a href="/challenge/?ch={{ jc.challenge.urlsafe() }}"> {{ jc.challenge.get().name }} </a></td>
                             <td style="white-space: nowrap;">
                                 <div style="color: green; float:left; margin-right:5px;" title="correct votes">+{{ jc.correct_count }} </div>
                                 <div style="color: red; float: left; margin-right:10px;" title="incorrect votes">-{{ jc.incorrect_count }} </div>
