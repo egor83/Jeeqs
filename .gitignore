@@ -1,30 +1,5 @@
 *.pyc
+.idea/*
 
 .DS_Store
 
-.idea/.name
-
-.idea/encodings.xml
-
-.idea/git.iml
-
-.idea/inspectionProfiles/profiles_settings.xml
-
-.idea/libraries/Google_App_Engine_SDK.xml
-
-.idea/misc.xml
-
-.idea/modules.xml
-
-.idea/scopes/scope_settings.xml
-
-.idea/vcs.xml
-
-.idea/workspace.xml
-src/lib/pygments/console.pyc
-
-src/lib/pygments/lexers/__init__.pyc
-
-src/lib/pygments/lexer.pyc
-
-src/lib/pygments/formatters/*.pyc
