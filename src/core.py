@@ -9,7 +9,8 @@ import status_code
 
 jinja_environment = jinja2.Environment(
     loader=jinja2.FileSystemLoader(
-        os.path.join(os.path.dirname(__file__), 'templates')), extensions=['jinja2.ext.with_'])
+        os.path.join(os.path.dirname(__file__), 'templates')),
+    extensions=['jinja2.ext.with_'])
 
 jinja_environment.filters['escapejs'] = escapejs
 jinja_environment.filters['timesince'] = timesince
@@ -52,7 +53,8 @@ def add_common_vars(vars):
 
 def authenticate(required=True):
     """ Authenticates the user and sets self.jeeqser to be the user object.
-        The handler object (self) is different for each request. so jeeqser should not leak between requests.
+        The handler object (self) is different for each request.
+        so jeeqser should not leak between requests.
         Will return with error if user is not authenticated
     """
     def real_decorator(func):
@@ -67,11 +69,13 @@ def authenticate(required=True):
                 self.jeeqser = None
 
             # clear/check suspension!
-            if self.jeeqser and self.jeeqser.suspended_until and self.jeeqser.suspended_until < datetime.now():
+            if self.jeeqser and self.jeeqser.suspended_until and \
+                    self.jeeqser.suspended_until < datetime.now():
                 self.jeeqser.suspended_until = None
                 self.jeeqser.put()
 
-            if required and self.jeeqser and self.jeeqser.suspended_until and self.jeeqser.suspended_until > datetime.now():
+            if required and self.jeeqser and self.jeeqser.suspended_until and \
+                    self.jeeqser.suspended_until > datetime.now():
                 return
 
             func(self)
