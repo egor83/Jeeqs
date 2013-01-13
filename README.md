@@ -29,7 +29,7 @@ of "models.py" file.
 * Install `pep8` and `autopep8` packages and always run them on .py files before requesting code review or submiting code. 
 
 ## Runnign unit tests 
-* Units tests can be run from pycharm by running test_jeeqs.py. You can use a configuration like ![this](http://imgur.com/pjqvS)
+* Units tests can be run from pycharm by running test_jeeqs.py. You can use a configuration like [this](http://imgur.com/pjqvS)
 
 ## Code review 
 * Create a pull request if you'd like to make a change.
