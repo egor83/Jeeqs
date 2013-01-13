@@ -328,18 +328,18 @@ $(document).ready(function() {
                     $initiator.button('Your display name has been updated');
 
                 }
-                else if(response=='no op'){
+                else if (response == 'no op') {
                     $initiator.button('You are already using this display name. No operation performed.');
 
                 }
-                else if(response=='not_unique'){
+                else if (response == 'not_unique') {
                     $initiator.button('This display name is not available!');
 
                 }
             },
             error: function(response) {
                 $initiator.button('error');
-                
+
             }
         })
 
