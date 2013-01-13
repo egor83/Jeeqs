@@ -325,16 +325,16 @@ $(document).ready(function() {
             data: {'method': 'update_displayname', 'display_name':$displayname},
             success: function(response){
                 if (response == 'success') {
-                    $initiator.button('updated');
-                    console.log('success');
+                    $initiator.button('Your display name has been updated');
+
                 }
-                else if(response=='duplicate'){
-                    $initiator.button('duplicate');
-                    console.log('duplicate');
+                else if(response=='no op'){
+                    $initiator.button('You are already using this display name. No operation performed.');
+
                 }
                 else if(response=='not_unique'){
-                    $initiator.button('not available');
-                    console.log('not available');
+                    $initiator.button('This display name is not available!');
+                    
                 }
             },
             error: function(response) {
