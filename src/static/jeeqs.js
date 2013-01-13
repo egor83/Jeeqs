@@ -334,12 +334,12 @@ $(document).ready(function() {
                 }
                 else if(response=='not_unique'){
                     $initiator.button('This display name is not available!');
-                    
+
                 }
             },
             error: function(response) {
                 $initiator.button('error');
-                console.log('error');
+                
             }
         })
 
