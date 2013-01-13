@@ -87,7 +87,8 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
                 if previous_status == AttemptStatus.SUCCESS:
                     submission.challenge.get().num_jeeqsers_solved -= 1
                     submission.author.get().correct_submissions_count -= 1
-                if submission.challenge.get().last_solver and submission.challenge.get().last_solver == submission.author:
+                last_solver = submission.challenge.get().last_solver
+                if (last_solver and last_solver == submission.author):
                     submission.challenge.get().update_last_solver(None)
 
     @staticmethod
@@ -130,7 +131,8 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
         previous_status = jeeqser_challenge.status
         if submission.correct_count > (
                 submission.incorrect_count + submission.flag_count):
-            submission.status = jeeqser_challenge.status = AttemptStatus.SUCCESS
+            jeeqser_challenge.status = AttemptStatus.SUCCESS
+            submission.status = jeeqser_challenge.status
         else:
             submission.status = jeeqser_challenge.status = AttemptStatus.FAIL
 
@@ -279,7 +281,8 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
             self.jeeqser.correct_submissions_count -= 1
 
         jeeqser_challenge.active_attempt = attempt.key
-        jeeqser_challenge.correct_count = jeeqser_challenge.incorrect_count = jeeqser_challenge.flag_count = 0
+        jeeqser_challenge.incorrect_count = jeeqser_challenge.flag_count = 0
+        jeeqser_challenge.correct_count = 0
         jeeqser_challenge.status = None
         jeeqser_challenge.put()
 
@@ -302,8 +305,9 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
         """
         program = solution = self.getValueInQuery('solution')
         challenge_key = ndb.Key(urlsafe=self.getValueInQuery('challenge_key'))
-        # no need to test if challenge exists, since if it doesn't we will throw
-        # here and the upper stream will convert the exception to user output
+        # no need to test if challenge exists,
+        # since if it doesn't we will throw here and
+        # the upper stream will convert the exception to user output
         challenge = challenge_key.get()
         solution = self.append_language_prefix_for_automatic_review(
             challenge, solution)
@@ -364,7 +368,8 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
         displayname = self.request.get('display_name')
 
         if displayname == self.jeeqser.displayname_persisted:
-            self.response.write('duplicate')  # firefox,ie needs some output written out for a POST to be a success
+            #firefox needs some output for a Jquery ajax POST to be a success
+            self.response.write('duplicate')
             return
 
         exists = len(Jeeqser.query(
@@ -372,19 +377,23 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
         if not exists:
             self.jeeqser.displayname_persisted = displayname
             self.jeeqser.put()
-            self.response.write('success')  # firefox,ie needs some output written out for a POST to be a success
+            #firefox needs some output for a Jquery ajax POST to be a success
+            self.response.write('success')
             return
         else:
             self.response.write('not_unique')
             return
 
     @ndb.transactional(xg=True)
-    def persist_vote(self, feedback, submission_key, jeeqser_challenge_key, jeeqser_key):
-        submission, jeeqser_challenge, jeeqser = ndb.get_multi([
-                                                               submission_key,
-                                                               jeeqser_challenge_key,
-                                                               jeeqser_key,
-                                                               ])
+    def persist_vote(self, feedback,
+                     submission_key,
+                     jeeqser_challenge_key,
+                     jeeqser_key):
+        (submission,
+         jeeqser_challenge,
+         jeeqser) = ndb.get_multi([submission_key,
+                                   jeeqser_challenge_key,
+                                   jeeqser_key, ])
 
         RPCHandler.update_graph_for_vote(
             submission,
