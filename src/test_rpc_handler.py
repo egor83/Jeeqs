@@ -210,7 +210,7 @@ class RPCHandlerTestCase(test_jeeqs.JeeqsTestCase):
       traceback.print_exc()
       self.fail()
 
-  def test_update_to_available_displayname(self):
+  def test_update_displayname(self):
       voter = self.CreateJeeqser(email=VOTER_EMAIL)
       self.loginUser(VOTER_EMAIL, 'voter')
       try:
@@ -219,13 +219,13 @@ class RPCHandlerTestCase(test_jeeqs.JeeqsTestCase):
               'method': 'update_displayname',
               'displayname': 'noob'}
           response = self.testapp.post('/rpc', params)
-          self.assertEquals('success',response.body,'display name not updated')
+          self.assertEquals('success',response.body,'display name not getting updated')
           #update to own display name
           params = {
               'method': 'update_displayname',
               'displayname': 'noob'}
           response = self.testapp.post('/rpc', params)
-          self.assertEquals('no op',response.body,'no operation failed')
+          self.assertEquals('no_operation',response.body,'no operation failed')
           #update to already taken display name
           #display name 'noob' has already been taken by user 'voter' above
           userA = self.CreateJeeqser(email=USER_A_EMAIL)

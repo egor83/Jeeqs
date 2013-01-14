@@ -121,8 +121,8 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
             jeeqser_challenge.flag_count = submission.flag_count
             if (
                 submission.flag_count >=
-                spam_manager.SpamManager.SUBMISSION_FLAG_THRESHOLD) or \
-                voter.is_moderator or \
+                spam_manager.SpamManager.SUBMISSION_FLAG_THRESHOLD) or\
+                voter.is_moderator or\
                     users.is_current_user_admin():
                 submission.flagged = True
                 spam_manager.SpamManager.flag_author(submission.author.get())
@@ -165,9 +165,9 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
             core.prettify_injeeqs(feedbacks)
 
         vars = core.add_common_vars({
-                                    'feedbacks': feedbacks,
-                                    'jeeqser': self.jeeqser
-                                    })
+            'feedbacks': feedbacks,
+            'jeeqser': self.jeeqser
+        })
 
         template = core.jinja_environment.get_template('in_jeeqs_list.html')
         rendered = template.render(vars)
@@ -368,8 +368,8 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
         displayname = self.request.get('display_name')
 
         if displayname == self.jeeqser.displayname_persisted:
-            #firefox needs some output for a Jquery ajax POST to be a success
-            self.response.write('duplicate')
+            # firefox needs some output for a Jquery ajax POST to be a success
+            self.response.write('no_operation')
             return
 
         exists = len(Jeeqser.query(
@@ -377,7 +377,7 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
         if not exists:
             self.jeeqser.displayname_persisted = displayname
             self.jeeqser.put()
-            #firefox needs some output for a Jquery ajax POST to be a success
+            # firefox needs some output for a Jquery ajax POST to be a success
             self.response.write('success')
             return
         else:
@@ -435,7 +435,7 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
             voter_challenge = get_jeeqser_challenge(
                 self.jeeqser.key,
                 submission.challenge)
-            qualified = voter_challenge and \
+            qualified = voter_challenge and\
                 voter_challenge.status == AttemptStatus.SUCCESS
 
             if not qualified:

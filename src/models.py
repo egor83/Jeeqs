@@ -96,9 +96,9 @@ class Jeeqser(ndb.Model):
         if not self.correct_submissions_count_persisted:
             # calculate submissions that are correct by this Jeqeqser
             correct_count = Jeeqser_Challenge.query(ancestor=self.key)\
-                .filter(Jeeqser_Challenge.jeeqser == self.key)\
-                .filter(Jeeqser_Challenge.status == AttemptStatus.SUCCESS)\
-                .count()
+            .filter(Jeeqser_Challenge.jeeqser == self.key)\
+            .filter(Jeeqser_Challenge.status == AttemptStatus.SUCCESS)\
+            .count()
             self.correct_submissions_count_persisted = correct_count
             self.put()
             return self.correct_submissions_count_persisted
@@ -233,10 +233,10 @@ class Challenge(ndb.Model):
         if self.breadcrumb_persisted:
             return self.breadcrumb_persisted
         else:
-            self.breadcrumb_persisted = self.exercise.number \
-                + ' > ' + self.exercise.course.name \
-                + ' > ' + self.exercise.course.program.name \
-                + ' > ' + self.exercise.course.program.university.name
+            self.breadcrumb_persisted = self.exercise.number\
+                                        + ' > ' + self.exercise.course.name\
+                                        + ' > ' + self.exercise.course.program.name\
+                                        + ' > ' + self.exercise.course.program.university.name
             self.put()
             return self.breadcrumb_persisted
 
@@ -484,9 +484,9 @@ class Activity(ndb.Model):
 
 
 def get_jeeqser_challenge(
-    jeeqser_key,
-    challenge_key,
-    create=False,
+        jeeqser_key,
+        challenge_key,
+        create=False,
         submission_key=None):
     """
     Get a Jeeqser_Challenge entity by key
@@ -495,10 +495,10 @@ def get_jeeqser_challenge(
     :param create: create entity if not found
     """
     results = Jeeqser_Challenge\
-        .query(ancestor=jeeqser_key)\
-        .filter(Jeeqser_Challenge.jeeqser == jeeqser_key)\
-        .filter(Jeeqser_Challenge.challenge == challenge_key)\
-        .fetch(1)
+    .query(ancestor=jeeqser_key)\
+    .filter(Jeeqser_Challenge.jeeqser == jeeqser_key)\
+    .filter(Jeeqser_Challenge.challenge == challenge_key)\
+    .fetch(1)
     if len(results) == 0 and create:
     # should never happen but let's guard against it!
         logging.error("Jeeqser_Challenge not available! for jeeqser : "

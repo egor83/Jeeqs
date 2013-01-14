@@ -47,7 +47,6 @@ def get_jeeqser():
 def add_common_vars(vars):
     vars['local'] = os.environ['APPLICATION_ID'].startswith('dev~')
     vars['isadmin'] = users.is_current_user_admin()
-
     return vars
 
 
