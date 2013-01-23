@@ -219,13 +219,13 @@ class RPCHandlerTestCase(test_jeeqs.JeeqsTestCase):
               'method': 'update_displayname',
               'displayname': 'noob'}
           response = self.testapp.post('/rpc', params)
-          self.assertEquals('success',response.body,'display name not getting updated')
+          self.assertEquals('success', response.body, 'display name not getting updated')
           #update to own display name
           params = {
               'method': 'update_displayname',
               'displayname': 'noob'}
           response = self.testapp.post('/rpc', params)
-          self.assertEquals('no_operation',response.body,'no operation failed')
+          self.assertEquals('no_operation', response.body, 'no operation failed')
           #update to already taken display name
           #display name 'noob' has already been taken by user 'voter' above
           userA = self.CreateJeeqser(email=USER_A_EMAIL)
@@ -234,7 +234,7 @@ class RPCHandlerTestCase(test_jeeqs.JeeqsTestCase):
               'method': 'update_displayname',
               'displayname': 'noob'}
           response = self.testapp.post('/rpc', params)
-          self.assertEquals('not_unique',response.body,'not_unique failed')
+          self.assertEquals('not_unique', response.body, 'not_unique failed')
       except Exception as ex:
         self.fail(traceback.print_exc())
 
