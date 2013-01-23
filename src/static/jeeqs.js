@@ -328,7 +328,7 @@ $(document).ready(function() {
                     $initiator.button('Your display name has been updated');
                 }
                 else if (response == 'no_operation') {
-                    $initiator.button('You are already using this display name. No operation performed.');
+                    $initiator.button('You are already using this display name.');
                 }
                 else if (response == 'not_unique') {
                     $initiator.button('This display name is in use by another user!');
