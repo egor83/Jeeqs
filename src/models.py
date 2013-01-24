@@ -96,9 +96,9 @@ class Jeeqser(ndb.Model):
         if not self.correct_submissions_count_persisted:
             # calculate submissions that are correct by this Jeqeqser
             correct_count = Jeeqser_Challenge.query(ancestor=self.key)\
-            .filter(Jeeqser_Challenge.jeeqser == self.key)\
-            .filter(Jeeqser_Challenge.status == AttemptStatus.SUCCESS)\
-            .count()
+                .filter(Jeeqser_Challenge.jeeqser == self.key)\
+                .filter(Jeeqser_Challenge.status == AttemptStatus.SUCCESS)\
+                .count()
             self.correct_submissions_count_persisted = correct_count
             self.put()
             return self.correct_submissions_count_persisted
@@ -162,7 +162,18 @@ class Course(ndb.Model):
     level = ndb.StringProperty(choices=['undergraduate', 'graduate'])
     program = ndb.KeyProperty(kind=Program)
     yearOffered = ndb.IntegerProperty()
-    monthOffered = ndb.StringProperty(choices=['January', 'February', 'March', 'April', 'May', 'June', 'July', 'Auguest', 'September', 'October', 'November', 'December'])
+    monthOffered = ndb.StringProperty(choices=['January',
+                                               'February',
+                                               'March',
+                                               'April',
+                                               'May',
+                                               'June',
+                                               'July',
+                                               'Auguest',
+                                               'September',
+                                               'October',
+                                               'November',
+                                               'December'])
     # Attribution for this course
     attribution = ndb.TextProperty()
 
@@ -269,7 +280,10 @@ class Challenge(ndb.Model):
             return self.exercise_program_persisted
         else:
             if self.exercise:
-                self.exercise_program_persisted = self.exercise.course.program.name
+                self.exercise_program_persisted = self.exercise.\
+                    course.\
+                    program.\
+                    name
                 self.put()
                 return self.exercise_program_persisted
             else:
@@ -282,7 +296,11 @@ class Challenge(ndb.Model):
             return self.exercise_university_persisted
         else:
             if self.exercise:
-                self.exercise_university_persisted = self.exercise.course.program.university.name
+                self.exercise_university_persisted = self.exercise.\
+                    course.\
+                    program.\
+                    university.\
+                    name
                 self.put()
                 return self.exercise_university_persisted
             else:
@@ -346,7 +364,9 @@ class Challenge(ndb.Model):
 
     @property
     def testcases(self):
-        return TestCase.query().filter(TestCase.challenge == self.key).fetch(MAX_FETCH)
+        return TestCase.query()\
+            .filter(TestCase.challenge == self.key)\
+            .fetch(MAX_FETCH)
 
 
 class Draft(ndb.Model):
@@ -401,7 +421,9 @@ class Attempt(ndb.Model):
 
     @property
     def feedbacks(self):
-        return Feedback.query().filter(Feedback.attempt == self).fetch(MAX_FETCH)
+        return Feedback.query()\
+            .filter(Feedback.attempt == self)\
+            .fetch(MAX_FETCH)
 
 
 class Jeeqser_Challenge(ndb.Model):
@@ -495,10 +517,10 @@ def get_jeeqser_challenge(
     :param create: create entity if not found
     """
     results = Jeeqser_Challenge\
-    .query(ancestor=jeeqser_key)\
-    .filter(Jeeqser_Challenge.jeeqser == jeeqser_key)\
-    .filter(Jeeqser_Challenge.challenge == challenge_key)\
-    .fetch(1)
+        .query(ancestor=jeeqser_key)\
+        .filter(Jeeqser_Challenge.jeeqser == jeeqser_key)\
+        .filter(Jeeqser_Challenge.challenge == challenge_key)\
+        .fetch(1)
     if len(results) == 0 and create:
     # should never happen but let's guard against it!
         logging.error("Jeeqser_Challenge not available! for jeeqser : "
