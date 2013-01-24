@@ -245,9 +245,9 @@ class Challenge(ndb.Model):
             return self.breadcrumb_persisted
         else:
             self.breadcrumb_persisted = self.exercise.number\
-                                        + ' > ' + self.exercise.course.name\
-                                        + ' > ' + self.exercise.course.program.name\
-                                        + ' > ' + self.exercise.course.program.university.name
+                + ' > ' + self.exercise.course.name\
+                + ' > ' + self.exercise.course.program.name\
+                + ' > ' + self.exercise.course.program.university.name
             self.put()
             return self.breadcrumb_persisted
 
