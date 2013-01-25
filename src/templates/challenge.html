@@ -17,8 +17,8 @@
         {% endif %}
     })
 
-    $(document).ready(function() {
 
+    $(document).ready(function() {
         $.ajax({
             url: "/rpc",
             async: true,
@@ -31,7 +31,6 @@
                 $("#avatars").text('error');
             }
         })
-
 
 
         $('#submitChallengeSource').bind('click', function(event, ui) {
@@ -54,6 +53,7 @@
                 }
             })
         })
+
 
         $('#submit_challenge_vertical_scroll').bind('click', function(event, ui) {
             $(this).attr("disabled", "disabled");
