@@ -59,12 +59,13 @@ from gravatar import get_profile_url
 # Maximum number of entities to fetch
 MAX_FETCH = 1000
 
+
 class AttemptStatus():
-  """
-  The status of an attempt
-  """
-  SUCCESS = 'correct'
-  FAIL = 'incorrect'
+    """
+    The status of an attempt
+    """
+    SUCCESS = 'correct'
+    FAIL = 'incorrect'
 
 
 class Jeeqser(ndb.Model):
@@ -85,7 +86,7 @@ class Jeeqser(ndb.Model):
     # Total number of posts by this user that are flagged
     total_flag_count = ndb.IntegerProperty(default=0)
 
-    #Flag limits
+    # Flag limits
     last_flagged_on = ndb.DateTimeProperty()
     # Number of posts this jeeqser has flagged today
     num_flagged_today = ndb.IntegerProperty()
@@ -121,17 +122,14 @@ class Jeeqser(ndb.Model):
     def profile_url(self, value):
         self.profile_url_persisted = value
 
-
     def get_displayname(self):
-        if self.displayname_persisted is None:
-            self.displayname_persisted = self.user.nickname().split('@')[0]
-            self.put()
         return self.displayname_persisted
 
     def set_displayname(self, value):
         self.displayname_persisted = value
 
-    # Proxy for persisted displayname # TODO: upgrade to property decorator in python 2.7
+    # Proxy for persisted displayname # TODO: upgrade to property decorator in
+    # python 2.7
     displayname = property(get_displayname, set_displayname, "Display name")
 
     def get_gravatar_url(self):
@@ -145,14 +143,17 @@ class Jeeqser(ndb.Model):
 
     gravatar_url = property(get_gravatar_url, set_gravatar_url, "Gravatar URL")
 
+
 class University(ndb.Model):
     name = ndb.StringProperty()
     fullname = ndb.StringProperty()
+
 
 class Program(ndb.Model):
     name = ndb.StringProperty()
     fullname = ndb.StringProperty()
     university = ndb.KeyProperty(kind=University)
+
 
 class Course(ndb.Model):
     name = ndb.StringProperty()
@@ -161,9 +162,21 @@ class Course(ndb.Model):
     level = ndb.StringProperty(choices=['undergraduate', 'graduate'])
     program = ndb.KeyProperty(kind=Program)
     yearOffered = ndb.IntegerProperty()
-    monthOffered = ndb.StringProperty(choices=['January', 'February', 'March', 'April', 'May', 'June', 'July', 'Auguest', 'September', 'October', 'November', 'December'])
+    monthOffered = ndb.StringProperty(choices=['January',
+                                               'February',
+                                               'March',
+                                               'April',
+                                               'May',
+                                               'June',
+                                               'July',
+                                               'Auguest',
+                                               'September',
+                                               'October',
+                                               'November',
+                                               'December'])
     # Attribution for this course
     attribution = ndb.TextProperty()
+
 
 class Exercise(ndb.Model):
     # Exercise number like
@@ -173,6 +186,7 @@ class Exercise(ndb.Model):
 
     def __unicode__(self):
         return self.name
+
 
 class Challenge(ndb.Model):
     """Models a challenge"""
@@ -193,9 +207,9 @@ class Challenge(ndb.Model):
 
     name = property(get_name, set_name, "name")
 
-    #compiled markdown
+    # compiled markdown
     content = ndb.TextProperty()
-    #non-compiled markdown
+    # non-compiled markdown
     markdown = ndb.TextProperty(default=EMPTY_MARKDOWN)
 
     template_code = ndb.StringProperty()
@@ -213,12 +227,12 @@ class Challenge(ndb.Model):
     # the course breadcrumb
     breadcrumb_persisted = ndb.StringProperty(verbose_name="breadcrumb")
 
-    #scribd-related info
+    # scribd-related info
     document_id = ndb.StringProperty()
     access_key = ndb.StringProperty()
     vertical_scroll = ndb.FloatProperty()
 
-    #stats
+    # stats
     num_jeeqsers_solved = ndb.IntegerProperty(default=0)
     num_jeeqsers_submitted = ndb.IntegerProperty(default=0)
     # number of submissions to this challenge that still need reviewing!
@@ -226,21 +240,20 @@ class Challenge(ndb.Model):
     last_solver = ndb.KeyProperty(kind=Jeeqser)
     last_solver_picture_url_persisted = ndb.StringProperty()
 
-
     def get_breadcrumb(self):
         if self.breadcrumb_persisted:
             return self.breadcrumb_persisted
         else:
-            self.breadcrumb_persisted = self.exercise.number \
-                                        + ' > ' + self.exercise.course.name \
-                                        + ' > ' + self.exercise.course.program.name \
-                                        + ' > ' + self.exercise.course.program.university.name
+            self.breadcrumb_persisted = self.exercise.number\
+                + ' > ' + self.exercise.course.name\
+                + ' > ' + self.exercise.course.program.name\
+                + ' > ' + self.exercise.course.program.university.name
             self.put()
             return self.breadcrumb_persisted
 
     breadcrumb = property(fget=get_breadcrumb, doc="Course Breadcrumb")
 
-    #exercise relate info
+    # exercise relate info
     exercise_number_persisted = ndb.StringProperty()
     exercise_program_persisted = ndb.StringProperty()
     exercise_university_persisted = ndb.StringProperty()
@@ -267,7 +280,10 @@ class Challenge(ndb.Model):
             return self.exercise_program_persisted
         else:
             if self.exercise:
-                self.exercise_program_persisted = self.exercise.course.program.name
+                self.exercise_program_persisted = self.exercise.\
+                    course.\
+                    program.\
+                    name
                 self.put()
                 return self.exercise_program_persisted
             else:
@@ -280,7 +296,11 @@ class Challenge(ndb.Model):
             return self.exercise_university_persisted
         else:
             if self.exercise:
-                self.exercise_university_persisted = self.exercise.course.program.university.name
+                self.exercise_university_persisted = self.exercise.\
+                    course.\
+                    program.\
+                    university.\
+                    name
                 self.put()
                 return self.exercise_university_persisted
             else:
@@ -344,26 +364,29 @@ class Challenge(ndb.Model):
 
     @property
     def testcases(self):
-      return TestCase.query().filter(TestCase.challenge == self.key).fetch(MAX_FETCH)
+        return TestCase.query()\
+            .filter(TestCase.challenge == self.key)\
+            .fetch(MAX_FETCH)
 
 
 class Draft(ndb.Model):
     """Models a draft (un-submitted) attempt"""
     challenge = ndb.KeyProperty(kind=Challenge)
     author = ndb.KeyProperty(kind=Jeeqser)
-    #compiled markdown
+    # compiled markdown
     content = ndb.TextProperty()
-    #non-compiled markdown
+    # non-compiled markdown
     markdown = ndb.TextProperty()
     date = ndb.DateTimeProperty(auto_now=True)
+
 
 class Attempt(ndb.Model):
     """Models a Submission for a Challenge """
     challenge = ndb.KeyProperty(kind=Challenge)
     author = ndb.KeyProperty(kind=Jeeqser)
-    #compiled markdown
+    # compiled markdown
     content = ndb.TextProperty()
-    #non-compiled markdown
+    # non-compiled markdown
     markdown = ndb.TextProperty()
     date = ndb.DateTimeProperty(auto_now_add=True)
     stdout = ndb.StringProperty()
@@ -377,9 +400,10 @@ class Attempt(ndb.Model):
     flag_count = ndb.IntegerProperty(default=0)
     # Status of jeeqser's submission for this challenge
     # a challenge is solved if correct_count > incorrect_count + flag_count
-    status = ndb.StringProperty(choices=[AttemptStatus.SUCCESS, AttemptStatus.FAIL])
+    status = ndb.StringProperty(
+        choices=[AttemptStatus.SUCCESS, AttemptStatus.FAIL])
 
-    #vote quantization TODO: might be removed !?
+    # vote quantization TODO: might be removed !?
     vote_sum = ndb.FloatProperty(default=float(0))
     vote_average = ndb.FloatProperty(default=float(0))
 
@@ -391,12 +415,16 @@ class Attempt(ndb.Model):
 
     # Spam ?
     flagged_by = ndb.KeyProperty(repeated=True)
-    # if True, this attempt is blocked. Become true, once flag_count goes above a threshold
+    # if True, this attempt is blocked. Become true, once flag_count goes
+    # above a threshold
     flagged = ndb.BooleanProperty(default=False)
 
     @property
     def feedbacks(self):
-      return Feedback.query().filter(Feedback.attempt == self).fetch(MAX_FETCH)
+        return Feedback.query()\
+            .filter(Feedback.attempt == self)\
+            .fetch(MAX_FETCH)
+
 
 class Jeeqser_Challenge(ndb.Model):
     """
@@ -414,14 +442,16 @@ class Jeeqser_Challenge(ndb.Model):
     flag_count = ndb.IntegerProperty(default=0)
     # Status of jeeqser's submission for this challenge
     # a challenge is solved if correct_count > incorrect_count + flag_count
-    status = ndb.StringProperty(choices=[AttemptStatus.SUCCESS, AttemptStatus.FAIL])
+    status = ndb.StringProperty(
+        choices=[AttemptStatus.SUCCESS, AttemptStatus.FAIL])
     status_changed_on = ndb.DateTimeProperty()
 
+
 class Vote:
-  CORRECT = 'correct'
-  INCORRECT = 'incorrect'
-  GENIUS = 'genius'
-  FLAG = 'flag'
+    CORRECT = 'correct'
+    INCORRECT = 'incorrect'
+    GENIUS = 'genius'
+    FLAG = 'flag'
 
 
 class Feedback(ndb.Model):
@@ -436,13 +466,16 @@ class Feedback(ndb.Model):
     markdown = ndb.TextProperty()
     content = ndb.TextProperty()
     date = ndb.DateTimeProperty(auto_now_add=True)
-    vote = ndb.StringProperty(choices=[Vote.CORRECT, Vote.INCORRECT, Vote.GENIUS, Vote.FLAG])
+    vote = ndb.StringProperty(
+        choices=[Vote.CORRECT, Vote.INCORRECT, Vote.GENIUS, Vote.FLAG])
 
     # Spam ?
     flagged_by = ndb.KeyProperty(repeated=True)
     flag_count = ndb.IntegerProperty(default=0)
-    # if True, this feedback is blocked. Becomes true, once flag_count goes above a threshold
+    # if True, this feedback is blocked. Becomes true, once flag_count goes
+    # above a threshold
     flagged = ndb.BooleanProperty(default=False)
+
 
 class TestCase(ndb.Model):
     """ Models a test case"""
@@ -450,18 +483,19 @@ class TestCase(ndb.Model):
     statement = ndb.StringProperty()
     expected = ndb.StringProperty()
 
+
 class Activity(ndb.Model):
     """Models an activity done on Jeeqs
        Parent: Jeeqser who performed this Activity
     """
-    type= ndb.StringProperty(choices=['submission', 'voting', 'flagging'])
+    type = ndb.StringProperty(choices=['submission', 'voting', 'flagging'])
     done_by = ndb.KeyProperty(kind=Jeeqser)
     done_by_displayname = ndb.StringProperty()
     done_by_gravatar = ndb.StringProperty()
     date = ndb.DateTimeProperty(auto_now_add=True)
 
     challenge = ndb.KeyProperty(kind=Challenge)
-    challenge_name = ndb.StringProperty() #denormamlize from challenge
+    challenge_name = ndb.StringProperty()  # denormamlize from challenge
 
     submission = ndb.KeyProperty(kind=Attempt)
     submission_author = ndb.KeyProperty(kind=Jeeqser)
@@ -472,37 +506,35 @@ class Activity(ndb.Model):
 
 
 def get_jeeqser_challenge(
-      jeeqser_key,
-      challenge_key,
-      create=False,
-      submission_key=None):
-  """
-  Get a Jeeqser_Challenge entity by key
-  :param jeeqser_key: jeeqser's key
-  :param challenge_key:  challenge's key
-  :param create: create entity if not found
-  """
-  results = Jeeqser_Challenge\
-          .query(ancestor=jeeqser_key)\
-          .filter(Jeeqser_Challenge.jeeqser == jeeqser_key)\
-          .filter(Jeeqser_Challenge.challenge == challenge_key)\
-          .fetch(1)
-  if len(results) == 0 and create:
+        jeeqser_key,
+        challenge_key,
+        create=False,
+        submission_key=None):
+    """
+    Get a Jeeqser_Challenge entity by key
+    :param jeeqser_key: jeeqser's key
+    :param challenge_key:  challenge's key
+    :param create: create entity if not found
+    """
+    results = Jeeqser_Challenge\
+        .query(ancestor=jeeqser_key)\
+        .filter(Jeeqser_Challenge.jeeqser == jeeqser_key)\
+        .filter(Jeeqser_Challenge.challenge == challenge_key)\
+        .fetch(1)
+    if len(results) == 0 and create:
     # should never happen but let's guard against it!
-    logging.error("Jeeqser_Challenge not available! for jeeqser : "
-                  + jeeqser_key.get().user.email()
-                  + " and challenge : "
-                  + challenge_key.get().name)
-    jc = Jeeqser_Challenge(
-      parent = jeeqser_key,
-      jeeqser = jeeqser_key,
-      challenge = challenge_key,
-      active_attempt = submission_key)
-    jc.put()
-    return jc
-  elif len(results) > 0 :
-    return results[0]
-  else:
-    return None
-
-
+        logging.error("Jeeqser_Challenge not available! for jeeqser : "
+                      + jeeqser_key.get().user.email()
+                      + " and challenge : "
+                      + challenge_key.get().name)
+        jc = Jeeqser_Challenge(
+            parent=jeeqser_key,
+            jeeqser=jeeqser_key,
+            challenge=challenge_key,
+            active_attempt=submission_key)
+        jc.put()
+        return jc
+    elif len(results) > 0:
+        return results[0]
+    else:
+        return None
