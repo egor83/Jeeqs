@@ -210,5 +210,34 @@ class RPCHandlerTestCase(test_jeeqs.JeeqsTestCase):
       traceback.print_exc()
       self.fail()
 
+  def test_update_displayname(self):
+      voter = self.CreateJeeqser(email=VOTER_EMAIL)
+      self.loginUser(VOTER_EMAIL, 'voter')
+      try:
+          #update to an available display name
+          params = {
+              'method': 'update_displayname',
+              'displayname': 'noob'}
+          response = self.testapp.post('/rpc', params)
+          self.assertEquals('success', response.body, 'display name not getting updated')
+          #update to own display name
+          params = {
+              'method': 'update_displayname',
+              'displayname': 'noob'}
+          response = self.testapp.post('/rpc', params)
+          self.assertEquals('no_operation', response.body, 'no operation failed')
+          #update to already taken display name
+          #display name 'noob' has already been taken by user 'voter' above
+          userA = self.CreateJeeqser(email=USER_A_EMAIL)
+          self.loginUser(USER_A_EMAIL, 'userA')
+          params = {
+              'method': 'update_displayname',
+              'displayname': 'noob'}
+          response = self.testapp.post('/rpc', params)
+          self.assertEquals('not_unique', response.body, 'not_unique failed')
+      except Exception as ex:
+        self.fail(traceback.print_exc())
+
+
 if __name__ == '__main__':
   unittest.main()

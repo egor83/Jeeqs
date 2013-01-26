@@ -45,7 +45,22 @@
         {% endif %}
     })
 
+
     $(document).ready(function() {
+        $.ajax({
+            url: "/rpc",
+            async: true,
+            type: "GET",
+            data: {'method': 'get_challenge_avatars', 'challenge_key': $('#challenge_key').val()},
+            success: function(response){
+                $("#avatars").html(response);
+            },
+            error: function(response) {
+                $("#avatars").text('error');
+            }
+        })
+
+
         $('#submitChallengeSource').bind('click', function(event, ui) {
             $(this).attr("disabled", "disabled");
             var $newSource = $('#challenge-source').val();
@@ -66,6 +81,7 @@
                 }
             })
         })
+
 
         $('#submit_challenge_vertical_scroll').bind('click', function(event, ui) {
             $(this).attr("disabled", "disabled");
@@ -91,8 +107,14 @@
 </script>
 
     <div class="challenge" style="float:left; width:100%;">
-        <div class="hero-unit" style="padding: 20px;">
-            <h1 style="font-size: 20px">{{ challenge.name }}</h1>
+        <div class="hero-unit" style="padding-top:20px;padding-left: 20px;padding-bottom:100px;">
+            <h1 style="font-size: 20px">{{ challenge.name }}</h1><hr/>
+            <ul class="nav pull-right">
+                <li><i class="icon-ok-circle shift-right-2"></i> {{ challenge.num_jeeqsers_solved|d('0')}} jeeqser(s) solved. </li>
+                <li><i class="shift-right-2 icon-arrow-up"></i> {{ challenge.num_jeeqsers_submitted|d('0')}} jeeqser(s) submitted for this challenge. </li>
+                <li><i class="shift-right-2 icon-bell"></i> {{ challenge.submissions_without_review|d('0') }} submissions don't have any reviews.</li>
+            </ul>
+            <div id="avatars" class="pull-left"></div>
         </div>
         <h3> {% include "exercise_breadcrumbs.html" %} </h3>
         <div id="challenge" style="height: 450px; margin: 10px">
