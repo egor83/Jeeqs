@@ -1,3 +1,5 @@
+{% extends "base_twoColumn.html" %}
+{% block load_scripts %}
 {# pdfjs #}
 <script type="text/javascript" src="/static/pdfjs/build/generic/build/pdf.js"></script>
 <script type="text/javascript" src="/static/pdfjs/build/generic/web/compatibility.js"></script>
@@ -6,8 +8,8 @@
     // In production, change this to point to the combined `pdf.js` file.
     PDFJS.workerSrc = '/static/pdfjs/build/generic/pdf.js';
 </script>
-
-
+{% endblock %}
+{% block script %}
 <script>
     $(document).ready(function() {
         {% if not challenge.markdown and challenge.document_id and challenge.access_key %}
@@ -77,17 +79,10 @@
 
     })
 </script>
-
+{% endblock script %}
+{% block column1 %}
     <div class="challenge" style="float:left; width:100%;">
-        <div class="hero-unit" style="padding-top:20px;padding-left: 20px;padding-bottom:100px;">
-            <h1 style="font-size: 20px">{{ challenge.name }}</h1><hr/>
-            <ul class="nav pull-right">
-                <li><i class="icon-ok-circle shift-right-2"></i> {{ challenge.num_jeeqsers_solved|d('0')}} jeeqser(s) solved. </li>
-                <li><i class="shift-right-2 icon-arrow-up"></i> {{ challenge.num_jeeqsers_submitted|d('0')}} jeeqser(s) submitted for this challenge. </li>
-                <li><i class="shift-right-2 icon-bell"></i> {{ challenge.submissions_without_review|d('0') }} submissions don't have any reviews.</li>
-            </ul>
-            <div id="avatars" class="pull-left"></div>
-        </div>
+
         <h3> {% include "exercise_breadcrumbs.html" %} </h3>
         <div id="challenge" style="height: 450px; margin: 10px">
             <ul id = "challenge_tabs" class="nav nav-tabs">
@@ -161,3 +156,15 @@
             </div>
         </div>
     </div>
+{% endblock column1 %}
+{% block column2 %}
+    <div class="hero-unit" style="padding-top:20px;padding-left: 20px;padding-bottom:100px;padding-right: 0px">
+        <h1 style="font-size: 20px">{{ challenge.name }}</h1><hr/>
+        <ul class="nav">
+            <li><i class="icon-ok-circle shift-right-2"></i> {{ challenge.num_jeeqsers_solved|d('0')}} jeeqser(s) solved. </li>
+            <li><i class="shift-right-2 icon-arrow-up"></i> {{ challenge.num_jeeqsers_submitted|d('0')}} jeeqser(s) submitted for this challenge. </li>
+            <li><i class="shift-right-2 icon-bell"></i> {{ challenge.submissions_without_review|d('0') }} submissions don't have any reviews.</li>
+        </ul>
+        <div id="avatars" class=""></div>
+    </div>
+{% endblock column2 %}
