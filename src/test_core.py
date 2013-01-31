@@ -2,14 +2,14 @@ import unittest
 from google.appengine.ext import testbed
 from google.appengine.api import users
 
-import jeeqs_test
+import test_jeeqs
 
-class CoreTestCase(jeeqs_test.JeeqsTestCase):
+class CoreTestCase(test_jeeqs.JeeqsTestCase):
   def setUp(self):
-    jeeqs_test.JeeqsTestCase.setUp(self)
+      test_jeeqs.JeeqsTestCase.setUp(self)
 
   def tearDown(self):
-    jeeqs_test.JeeqsTestCase.tearDown(self)
+      test_jeeqs.JeeqsTestCase.tearDown(self)
 
   def testXYZ(self):
     pass

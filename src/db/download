@@ -1,0 +1,2 @@
+#!/bin/sh
+appcfg.py download_data --url=http://jeeqsy.appspot.com/_ah/remote_api --filename=$1 --application=s~jeeqsy

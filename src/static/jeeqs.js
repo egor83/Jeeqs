@@ -324,15 +324,18 @@ $(document).ready(function() {
             type: "POST",
             data: {'method': 'update_displayname', 'display_name':$displayname},
             success: function(response){
-                if (response != 'not_unique') {
-                    $initiator.button('updated');
+                if (response == 'success') {
+                    $initiator.button('Your display name has been updated');
                 }
-                else{
-                    $initiator.button('duplicate')
+                else if (response == 'no_operation') {
+                    $initiator.button('You are already using this display name.');
+                }
+                else if (response == 'not_unique') {
+                    $initiator.button('This display name is in use by another user!');
                 }
             },
             error: function(response) {
-                $initiator.button('error')
+                $initiator.button('error');
             }
         })
 
