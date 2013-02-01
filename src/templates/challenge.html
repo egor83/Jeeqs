@@ -158,7 +158,7 @@
     </div>
 {% endblock column1 %}
 {% block column2 %}
-    <div class="hero-unit" style="padding-top:20px;padding-left: 20px;padding-bottom:100px;padding-right: 0px;">
+    <div class="hero-unit" style="padding-top:20px;padding-left: 20px;padding-bottom:100px;padding-right: 20px;">
         <h1 style="font-size: 20px">{{ challenge.name }}</h1><hr/>
         <ul class="nav">
             <li><i class="icon-ok-circle shift-right-2"></i> {{ challenge.num_jeeqsers_solved|d('0')}} jeeqser(s) solved. </li>
@@ -166,7 +166,7 @@
             <li><i class="shift-right-2 icon-bell"></i> {{ challenge.submissions_without_review|d('0') }} submissions don't have any reviews.</li>
         </ul>
         <div id="avatars" class="">
-            
+
         </div>
     </div>
 {% endblock column2 %}
