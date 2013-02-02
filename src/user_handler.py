@@ -31,7 +31,8 @@ class UserHandler(jeeqs_request_handler.JeeqsRequestHandler):
             target_jeeqser = self.jeeqser
 
             if not self.jeeqser.gplus_picture_url:
-                if decorator.has_credentials() and not self.jeeqser.gplus_picture_url:
+                if decorator.has_credentials() and \
+                        not self.jeeqser.gplus_picture_url:
                     try:
                         http = decorator.http()
                         user = service.people().get(userId='me').execute(http)
@@ -47,11 +48,11 @@ class UserHandler(jeeqs_request_handler.JeeqsRequestHandler):
         # get challenge history for target_jeeqser
         # TODO: needs pagination
         correct_jcs = Jeeqser_Challenge\
-                        .query()\
-                        .filter(Jeeqser_Challenge.jeeqser == target_jeeqser.key)\
-                        .filter(Jeeqser_Challenge.status == AttemptStatus.SUCCESS)\
-                        .order(-Jeeqser_Challenge.status_changed_on)\
-                        .fetch(100)
+            .query()\
+            .filter(Jeeqser_Challenge.jeeqser == target_jeeqser.key)\
+            .filter(Jeeqser_Challenge.status == AttemptStatus.SUCCESS)\
+            .order(-Jeeqser_Challenge.status_changed_on)\
+            .fetch(100)
 
         vars = add_common_vars({
             'jeeqser': self.jeeqser,
