@@ -177,14 +177,14 @@
                             </a>
                         </span>
                     </div>
-                    <div style="float: right; clear:right; padding:0px; background: #ffffff;">
+                    <div style="float: right; clear:right; padding:0px; background: transparent;">
                         {%if challenge.num_jeeqsers_solved > 0 %}
                             {% set cursor = 'pointer' %}
                         {% else %}
                             {% set cursor = 'default' %}
                         {% endif %}
                         <span class="challenge_stats" style="cursor: {{ cursor }}; color: #808080; font-size: smaller; float:left; margin-left: 20px;">
-                            <span style="border-radius: 0px; float:right; background-color: #FFFFFF; padding: 0px 0px 0px 0px ">
+                            <span style="border-radius: 0px; float:right; background-color: transparent; padding: 0px 0px 0px 0px ">
                                 <a style="cursor: pointer; text-decoration: none" class="badge_links" href="#" rel="tooltip" data-original-title="{{ challenge.num_jeeqsers_submitted|d('0')}} jeeqser(s) submitted for this challenge."><span class="label label-info"> {{ challenge.num_jeeqsers_submitted|d('0')}} submitted<i class="shift-right-2 icon-upload icon-white"></i></span></a>
                                 <a style="cursor: pointer; text-decoration: none" class="badge_links" href="#" rel="tooltip" data-original-title="{{ challenge.num_jeeqsers_solved|d('0')}} jeeqser(s) solved"><span class="label label-info">{{ challenge.num_jeeqsers_solved|d('0')}} solved<i class="icon-ok-circle shift-right-2 icon-white"></i></span></a>
                                 <a style="cursor: pointer; text-decoration: none" class="badge_links" href="/challenge/?ch={{ challenge.key.urlsafe() }}#other_submissions" rel="tooltip" data-original-title="{{ challenge.submissions_without_review|d('0') }} submissions don't have any reviews"><span class="label label-info"> {{ challenge.submissions_without_review|d('0')}} need review <i class="shift-right-2 icon-flag icon-white"></i></span></a>
