@@ -34,11 +34,14 @@ the following steps might help:
 1.1) Install MySQLdb (from [Windows binaries](http://www.lfd.uci.edu/~gohlke/pythonlibs/#mysql-python) or as described in project's [Readme](https://sourceforge.net/projects/mysql-python/files/mysql-python/1.2.3/));
 1.2) Use the following set of flags in project configuration, NB datastore_path should point to the file and not to the directory:
 > --high_replication --datastore_path="<PATH_TO_DATASTORE_FILE>" --use_sqlite --default_partition=""
+
 1.3) To cleanup the database, add --clear_datastore to the configuration above (you might want to save it as a separate project config);
 1.4) Use the following command to upload data from snapshot to local DB:
 > python <PATH_TO_GAE's_appcfg.py> upload_data --url=http://localhost:8080/_ah/remote_api --filename=<SNAPSHOT_FILENAME> --num_threads=1 <PATH_TO_JEEQ'S_src_DIRECTORY>
+
 1.5) If PyCharm gives you the following error:
 > google.appengine.api.datastore_errors.InternalError: unable to open database file
+
 run PyCharm with admin rights (run as administrator on Windows, sudo on Linux&Mac);
 1.6) (not sure if needed) I installed MySQL as well, but that might not be necessary.
 
