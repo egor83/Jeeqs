@@ -102,5 +102,9 @@ div.submission-feedback .ui-state-active.flag_label {background: grey;}
     margin-left: 2px;
 }
 
-.font-normal{font-weight:normal;}
-.deeplink:hover{background-color: #0074cc;}
+.font-normal{
+    font-weight:normal;
+}
+.deeplink:hover{
+    background-color: #0074cc;
+}
