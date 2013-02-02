@@ -2,7 +2,7 @@ application: jeeqsy
 version: master
 runtime: python27
 api_version: 1
-threadsafe: no
+threadsafe: false
 
 builtins:
   - remote_api: on
