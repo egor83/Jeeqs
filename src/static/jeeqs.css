@@ -69,13 +69,24 @@ a img {
     font-family: sans-serif;
 }
 
-.submission-feedback { !important; }
-div.submission-feedback .ui-state-active.correct_label {background:green}
-div.submission-feedback .ui-state-active.incorrect_label {background: #ff5967}
-div.submission-feedback .ui-state-active.flag_label {background: grey;}
+.submission-feedback {
+!important;
+}
+
+div.submission-feedback .ui-state-active.correct_label {
+    background: green
+}
+
+div.submission-feedback .ui-state-active.incorrect_label {
+    background: #ff5967
+}
+
+div.submission-feedback .ui-state-active.flag_label {
+    background: grey;
+}
 
 #column1 > div {
-    float:left;
+    float: left;
     /* Floating causes width to shrink*/
     width: 100%;
 }
@@ -102,9 +113,10 @@ div.submission-feedback .ui-state-active.flag_label {background: grey;}
     margin-left: 2px;
 }
 
-.font-normal{
-    font-weight:normal;
+.font-normal {
+    font-weight: normal;
 }
-.deeplink:hover{
+
+.deeplink:hover {
     background-color: #0074cc;
 }
