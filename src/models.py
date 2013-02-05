@@ -228,6 +228,8 @@ class Challenge(ndb.Model):
     breadcrumb_persisted = ndb.StringProperty(verbose_name="breadcrumb")
 
     pdf_url = ndb.StringProperty()
+    pdf_startpage = ndb.IntegerProperty()
+    pdf_endpage = ndb.IntegerProperty()
 
     #scribd-related info
     document_id = ndb.StringProperty()

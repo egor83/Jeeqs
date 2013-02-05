@@ -10,33 +10,42 @@
 {% block script %}
 <script>
     $(document).ready(function() {
-        PDFJS.getDocument('{{ challenge.pdf_url }}').then(function(pdf) {
-            var pages = [1, 2]
-            for (var page_num = pages[0]; page_num <= pages[1]; page_num ++) {
-                // Using promise to fetch the page
-                pdf.getPage(page_num).then(function(page) {
-                    var scale = 1.5;
-                    var viewport = page.getViewport(scale);
+        {% if challenge.pdf_url %}
+            var viewer = $('#viewer')
+            PDFJS.getDocument('{{ challenge.pdf_url }}').then(function(pdf) {
+                var pages = [{{ challenge.pdf_startpage }}, {{ challenge.pdf_endpage }}]
+                for (var page_num = pages[0]; page_num <= pages[1]; page_num ++) {
+                    // Using promise to fetch the page
+                    pdf.getPage(page_num).then(function(page) {
+                        var scale = 1.5;
+                        var viewport = page.getViewport(scale);
 
-                    //
-                    // Prepare canvas using PDF page dimensions
-                    //
-                    var canvas = document.getElementById('the-canvas');
-                    var context = canvas.getContext('2d');
-                    canvas.height = viewport.height;
-                    canvas.width = viewport.width;
+                        var pageDisplayWidth = viewport.width;
+                        var pageDisplayHeight = viewport.height;
 
-                    //
-                    // Render PDF page into canvas context
-                    //
-                    var renderContext = {
-                        canvasContext: context,
-                        viewport: viewport
-                    };
-                    page.render(renderContext);
-                });
-            }
-        })
+                        var pageDivHolder = $('<div></div>')
+                        pageDivHolder.addClass('pdfpage')
+                        pageDivHolder.css('width', pageDisplayWidth + 'px');
+                        pageDivHolder.css('height', pageDisplayHeight + 'px');
+                        viewer.append(pageDivHolder);
+
+                        // Prepare canvas using PDF page dimensions
+                        var canvas = $('<canvas></canvas>');
+                        var context = canvas[0].getContext('2d');
+                        canvas.attr('width', pageDisplayWidth);
+                        canvas.attr('height', pageDisplayHeight);
+                        pageDivHolder.append(canvas);
+
+                        // Render PDF page into canvas context
+                        var renderContext = {
+                            canvasContext: context,
+                            viewport: viewport
+                        };
+                        page.render(renderContext);
+                    });
+                }
+            })
+        {% endif %}
     })
 
     $(document).ready(function() {
@@ -136,34 +145,16 @@
                     {% endif %}
                 </div>
                 <div id="source-pdf" class="tab-pane fade">
-                    {% if challenge.document_id and challenge.access_key %}
+                    {% if challenge.pdf_url %}
                         <div id='embedded_challenge' style="width: 100%; clear:both; float:left">
-                            <canvas id="the-canvas" style="border:1px solid black;"/>
+                            <div id="viewer" style="border:1px solid black;"></div>
                         </div>
-{#                        <script type="text/javascript">#}
-{#                            var document_id = '{{ challenge.document_id }}';#}
-{#                            var access_key = '{{ challenge.access_key }}';#}
-{##}
-{#                            var scribd_doc = scribd.Document.getDoc(document_id, access_key);#}
-{##}
-{#                            var onDocReady = function(e){#}
-{#                                {% if challenge.vertical_scroll %}#}
-{#                                    scribd_doc.api.setVerticalScroll({{ challenge.vertical_scroll }});#}
-{#                                {% endif %}#}
-{#                            }#}
-{##}
-{#                            scribd_doc.addParam('jsapi_version', 2);#}
-{#                            scribd_doc.addParam('width', $('#challenge_tab_contents').width() - 50);#}
-{#                            scribd_doc.addParam('height', 500);#}
-{#                            scribd_doc.addParam('default_embed_format', 'flash');#}
-{#                            scribd_doc.addEventListener('docReady', onDocReady);#}
-{#                            scribd_doc.write('embedded_challenge');#}
-{#                        </script>#}
-                        {% if isadmin %}
-                            <div style="clear: both; float:left;" >
-                                <button class="btn btn-large btn-primary" data-updated-text="Updated" data-error-text="Oops!!" id="submit_challenge_vertical_scroll" style="margin-top: 20px">Update Vertical Scroll</button>
-                            </div>
-                        {% endif %}
+{#                        TODO renable vertical scroll for pdf.js #}
+{#                        {% if isadmin %}#}
+{#                            <div style="clear: both; float:left;" >#}
+{#                                <button class="btn btn-large btn-primary" data-updated-text="Updated" data-error-text="Oops!!" id="submit_challenge_vertical_scroll" style="margin-top: 20px">Update Vertical Scroll</button>#}
+{#                            </div>#}
+{#                        {% endif %}#}
                     {% endif %}
                 </div>
                 <div id="challenge_info" class="tab-pane fade">
