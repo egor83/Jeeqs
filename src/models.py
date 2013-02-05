@@ -49,6 +49,9 @@ s~jeeqsy> for ch in all_ch:
 ...   ch.put()
 ...
 
+How to access remote api:
+python /Applications/GoogleAppEngineLauncher.app/Contents/Resources/GoogleAppEngine-default.bundle/Contents/Resources/google_appengine/remote_api_shell.py -s jeeqsy.appspot.com
+Then add models.py base directory to sys.path.
 
 """
 
