@@ -24,7 +24,6 @@
         }
 
         $(document).ready(function() {
-
             {% if draft %}
                 $('#wmd-input').val('{{ draft.markdown|escapejs }}')
             {% endif %}
@@ -149,7 +148,7 @@
             })
 
             review_page_loaded = false
-            $('#submissions a[href="#other_submissions"]').on('shown', function(e){
+            $('#submissions a[href="#other_submissions"]').on('click, shown', function(e){
                     // Load the review page using ajax
                     if (review_page_loaded)
                         return;
