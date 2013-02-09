@@ -117,9 +117,8 @@
     })
 </script>
 {% endblock script %}
-{% block column1 %}
+{% block container_header %}
     <div class="challenge" style="float:left; width:100%;">
-
         <h3> {% include "exercise_breadcrumbs.html" %} </h3>
         <div id="challenge" style="height: 450px; margin: 10px">
             <ul id = "challenge_tabs" class="nav nav-tabs">
@@ -149,12 +148,12 @@
                         <div id='embedded_challenge' style="width: 100%; clear:both; float:left">
                             <div id="viewer" style="border:1px solid black;"></div>
                         </div>
-{#                        TODO renable vertical scroll for pdf.js #}
-{#                        {% if isadmin %}#}
-{#                            <div style="clear: both; float:left;" >#}
-{#                                <button class="btn btn-large btn-primary" data-updated-text="Updated" data-error-text="Oops!!" id="submit_challenge_vertical_scroll" style="margin-top: 20px">Update Vertical Scroll</button>#}
-{#                            </div>#}
-{#                        {% endif %}#}
+    {#                        TODO renable vertical scroll for pdf.js #}
+    {#                        {% if isadmin %}#}
+    {#                            <div style="clear: both; float:left;" >#}
+    {#                                <button class="btn btn-large btn-primary" data-updated-text="Updated" data-error-text="Oops!!" id="submit_challenge_vertical_scroll" style="margin-top: 20px">Update Vertical Scroll</button>#}
+    {#                            </div>#}
+    {#                        {% endif %}#}
                     {% endif %}
                 </div>
                 <div id="challenge_info" class="tab-pane fade">
@@ -179,15 +178,4 @@
             </div>
         </div>
     </div>
-{% endblock column1 %}
-{% block column2 %}
-    <div class="hero-unit" style="padding-top:20px;padding-left: 20px;padding-bottom:100px;padding-right: 20px;">
-        <h1 style="font-size: 20px">{{ challenge.name }}</h1><hr/>
-        <ul class="nav">
-            <li><i class="icon-ok-circle shift-right-2"></i> {{ challenge.num_jeeqsers_solved|d('0')}} jeeqser(s) solved. </li>
-            <li><i class="shift-right-2 icon-arrow-up"></i> {{ challenge.num_jeeqsers_submitted|d('0')}} jeeqser(s) submitted for this challenge. </li>
-            <li><i class="shift-right-2 icon-bell"></i> {{ challenge.submissions_without_review|d('0') }} submissions don't have any reviews.</li>
-        </ul>
-        <div id="avatars" class=""></div>
-    </div>
-{% endblock column2 %}
+{% endblock container_header %}
