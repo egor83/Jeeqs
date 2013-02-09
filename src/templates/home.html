@@ -252,19 +252,19 @@
             <button class="btn btn-info" id="take_tour">Take a Tour</button>
         </div>
     {% endif %}
+    <div style="width: 90%; margin: 10px; float:right; clear:right">
+        {% include "plusone.html" %}
+        {#        {% include "facebook_likebox.html" %}#}
+    </div>
     <div id="all_activities" style="width:90%; float:right; clear:right; margin: 10px;">
         <ul class="nav nav-tabs">
             <li class="active">
                 <a href="#">Activities</a>
             </li>
         </ul>
-        <div style="max-height: 500px; overflow: auto; ">
+        <div>
             {% include "activities_list.html"%}
         </div>
-    </div>
-    <div style="width: 90%; margin: 10px; float:right; clear:right">
-        {% include "plusone.html" %}
-{#        {% include "facebook_likebox.html" %}#}
     </div>
 {% endblock column2 %}
 
