@@ -148,7 +148,7 @@
             })
 
             review_page_loaded = false
-            $('#submissions a[href="#other_submissions"]').on('click, shown', function(e){
+            $('#submissions a[href="#other_submissions"]').on('click shown', function(e){
                     // Load the review page using ajax
                     if (review_page_loaded)
                         return;
