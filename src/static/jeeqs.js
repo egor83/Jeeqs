@@ -272,8 +272,9 @@ $(document).ready(function() {
     $('a[rel=tooltip]').tooltip()
 })
 
-// Stack of cursors
-challenge_submissions_stack = []
+// handle "next"/"previous" buttons for other users' submissions
+// Stack of cursors - stores cursors to navigate back in the list of submissions
+var challenge_submissions_stack = [];
 
 $(document).on('click', '#challenge_submissions_next, #challenge_submissions_previous', function(event) {
     event.stopPropagation()
@@ -310,7 +311,60 @@ $(document).on('click', '#challenge_submissions_next, #challenge_submissions_pre
             $('#other_submissions').html('An Error occurred while loading this page. Please try again later ...');
         }
     })
-})
+});
+
+// stores cursors to be able to navigate back in a list of recent attempts
+var attempts_cursors_stack = ['']; // empty cursor denotes start page
+
+// handle 'next'/'previous' buttons in the list of recent attempts
+// (in 'your recent submissions' section of a challenge page)
+$(document).on('click', '#attempts_previous', function(event) {
+    event.stopPropagation();
+    event.preventDefault();
+    var challenge_key = $(this).attr('data-challenge_key');
+    var cursor = $(this).attr('data-cursor');
+//    console.log(cursor);
+
+    // store cursor to be able to navigate back to the beginning of the list
+    // by pressing "Next"
+    attempts_cursors_stack.push(cursor);
+    ajax_fetch_attempts(challenge_key, cursor);
+});
+
+$(document).on('click', '#attempts_next', function(event) {
+    event.stopPropagation();
+    event.preventDefault();
+    var challenge_key = $(this).attr('data-challenge_key');
+
+    // stack top contains cursor for the current page
+    // on loading 'next' (=going back to the newer attempts) we discard
+    // that cursor on top of the stack and pass the one below it (for the page
+    // containing earlier attempts = "Next" page) to the server
+    if(attempts_cursors_stack.length > 1) {
+        attempts_cursors_stack.pop();
+    } else {
+        // should not happen - 'next' button should be hidden if there's no
+        // cursors is a stack or the stack only contains empty string
+        // - beginning of the list
+    }
+    var cursor = attempts_cursors_stack[attempts_cursors_stack.length - 1];
+    ajax_fetch_attempts(challenge_key, cursor);
+});
+
+function ajax_fetch_attempts (challenge_key, cursor) {
+    $.ajax({
+        url: "/attempts/?ch=" + challenge_key + "&cursor=" + cursor,
+        async: true,
+        type: "GET",
+        success: function(response) {
+            $('#recent-attempt-contents').html(response);
+            review_page_loaded = true
+        },
+        error: function(response) {
+            $('#recent-attempt-contents').html('An Error occurred while loading this page. Please try again later ...');
+        }
+    })
+}
 
 $(document).ready(function() {
     $("#updateDisplayName").button().bind('click', function() {

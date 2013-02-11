@@ -44,6 +44,8 @@ import core
 # TODO: should this be changed into an environment variable ?
 _DEBUG = True
 
+ATTEMPTS_PER_PAGE = 5
+
 class FrontPageHandler(jeeqs_request_handler.JeeqsRequestHandler):
     """renders the home.html template
     """
@@ -158,12 +160,30 @@ class ChallengeHandler(jeeqs_request_handler.JeeqsRequestHandler):
             attempt = submission = ndb.Key(urlsafe=attempt_key).get()
 
         if (self.jeeqser):
-            attempts = Attempt.query()\
+            attempts_q = Attempt.query()\
                 .filter(Attempt.author == self.jeeqser.key)\
                 .filter(Attempt.challenge == challenge.key)\
-                .order(-Attempt.date)\
-                .fetch(20)
+                .order(-Attempt.date)
 
+            cursor = self.request.get('cursor') if self.request.get('cursor') else ''
+            if cursor and cursor != "None" and cursor != '':
+                # a cursor was passed along with the request, we're in
+                # the middle of the list of attempts, show "Next" button
+                # to navigate to the earlier attempts
+                qo = ndb.QueryOptions(start_cursor=ndb.Cursor(urlsafe=cursor))
+                has_next = True
+            else:
+                # no cursor was passed, we are at the beginning of the list
+                # of attempts already and shouldn't display "Next" button
+                qo = ndb.QueryOptions()
+                has_next = False
+
+            attempts, cursor, more = attempts_q.fetch_page(ATTEMPTS_PER_PAGE,
+                                                           options=qo)
+            if cursor and more:
+                cursor = cursor.urlsafe()
+            else:
+                cursor = ''
 
             if not submission:
                 # fetch user's active submission
@@ -174,7 +194,7 @@ class ChallengeHandler(jeeqs_request_handler.JeeqsRequestHandler):
                     .order(-Attempt.date)\
                     .fetch(1)
 
-                if (submissions):
+                if submissions:
                     submission = submissions[0]
 
                 else:
@@ -206,6 +226,8 @@ class ChallengeHandler(jeeqs_request_handler.JeeqsRequestHandler):
                 'login_url': users.create_login_url(self.request.url),
                 'logout_url': users.create_logout_url(self.request.url),
                 'attempts': attempts,
+                'cursor': cursor,
+                'has_next': has_next,
                 'challenge' : challenge,
                 'challenge_key' : challenge.key,
                 'template_code': challenge.template_code,
@@ -219,10 +241,75 @@ class ChallengeHandler(jeeqs_request_handler.JeeqsRequestHandler):
         rendered = template.render(vars)
         self.response.write(rendered)
 
+class MoreAttempts(jeeqs_request_handler.JeeqsRequestHandler):
+    """Renders 'Your Recent Submissions' part of the challenge page."""
+
+    @core.authenticate(False)
+    def get(self):
+        # show this user's previous attempts
+        attempts = None
+
+        # get the challenge
+        ch_key = self.request.get('ch')
+        if not ch_key:
+            self.error(StatusCode.forbidden)
+            return
+
+        challenge = None
+
+        try:
+            challenge = ndb.Key(urlsafe=ch_key).get()
+        finally:
+            if not challenge:
+                self.error(StatusCode.forbidden)
+                return
+
+        if (self.jeeqser):
+            attempts_q = Attempt.query()\
+                .filter(Attempt.author == self.jeeqser.key)\
+                .filter(Attempt.challenge == challenge.key)\
+                .order(-Attempt.date)
+
+            cursor = self.request.get('cursor') if self.request.get('cursor') else ''
+            if cursor and cursor != "None" and cursor != '':
+                # a cursor was passed along with the request, we're in
+                # the middle of the list of attempts, show "Next" button
+                # to navigate to the earlier attempts
+                qo = ndb.QueryOptions(start_cursor=ndb.Cursor(urlsafe=cursor))
+                has_next = True
+            else:
+                # no cursor was passed, we are at the beginning of the list
+                # of attempts already and shouldn't display "Next" button
+                qo = ndb.QueryOptions()
+                has_next = False
+
+            attempts, cursor, more = attempts_q.fetch_page(ATTEMPTS_PER_PAGE,
+                                                           options=qo)
+            if cursor and more:
+                cursor = cursor.urlsafe()
+            else:
+                cursor = ''
+
+        vars = core.add_common_vars({
+                'jeeqser': self.jeeqser,
+                'attempts': attempts,
+                'cursor': cursor,
+                'has_next': has_next,
+                'challenge' : challenge,
+                'challenge_key' : challenge.key,
+                'template_code': challenge.template_code,
+        })
+
+        template = core.jinja_environment.get_template('recent_attempts_contents.html')
+        rendered = template.render(vars)
+        self.response.write(rendered)
+
+
 def main():
     application = webapp2.WSGIApplication(
         [('/', FrontPageHandler),
             ('/challenge/', ChallengeHandler),
+            ('/attempts/', MoreAttempts),
             ('/challenge/shell.runProgram', program_handler.ProgramHandler),
             ('/review/', review_handler.ReviewHandler),
             ('/rpc', rpc_handler.RPCHandler),
