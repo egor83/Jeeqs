@@ -29,7 +29,7 @@
 </script>
 {% if feedbacks and feedbacks|length > 0 %}
     {% for feedback in feedbacks %}
-        <div class="well well-smalll" style='float:left; width:95%; {%if jeeqser.key in feedback.flagged_by  %}background-image: url("/static/flagged.png"){% endif %}; border-color:{{ feedback.background }}'>
+        <div class="well well-smalll" style='margin-bottom: 0; float:left; width:95%; {%if jeeqser.key in feedback.flagged_by  %}background-image: url("/static/flagged.png"){% endif %}; border-color:{{ feedback.background }}'>
             <div style='float:left; width: 100%;'>
                 <div class="ui-icon {{ feedback.icon }}" style="float:left; clear:both;"></div>
                 <div style="float:right; font-size:small;">
