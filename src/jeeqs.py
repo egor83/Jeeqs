@@ -5,7 +5,8 @@ A program for managing challenges, attempt and solutions.
 
 """
 
-# TODO: change all imports to be import <module> instead of from <module> import <function>
+# TODO: change all imports to be import <module> instead of
+# from <module> import <function>
 # [It increases quality of code searching]
 import os
 import sys
@@ -31,8 +32,10 @@ import lib.markdown as markdown
 
 import core
 
-## This for enabling ctypes to improve jinja2 error messages, which is unfortunately not working!
+## This for enabling ctypes to improve jinja2 error messages, which is
+## unfortunately not working!
 ## see: http://stackoverflow.com/a/3694434/195579
+
 #if os.environ.get('SERVER_SOFTWARE', '').startswith('Dev'):
 #  # Enable ctypes for Jinja debugging
 #  import sys
@@ -46,6 +49,7 @@ _DEBUG = True
 
 ATTEMPTS_PER_PAGE = 5
 
+
 class FrontPageHandler(jeeqs_request_handler.JeeqsRequestHandler):
     """renders the home.html template
     """
@@ -53,18 +57,18 @@ class FrontPageHandler(jeeqs_request_handler.JeeqsRequestHandler):
     @core.authenticate(False)
     def get(self):
         # get available challenges
-        
+
         all_challenges = Challenge.query().fetch(100)
         all_challenges.sort(
-          cmp = exercise_cmp,
-          key = lambda challenge:challenge.exercise_number_persisted)
+            cmp=exercise_cmp,
+            key=lambda challenge: challenge.exercise_number_persisted)
 
         jeeqser_challenges = []
         if self.jeeqser:
-          jeeqser_challenges = Jeeqser_Challenge\
-              .query()\
-              .filter(Jeeqser_Challenge.jeeqser == self.jeeqser.key)\
-              .fetch(100)
+            jeeqser_challenges = Jeeqser_Challenge\
+                .query()\
+                .filter(Jeeqser_Challenge.jeeqser == self.jeeqser.key)\
+                .fetch(100)
 
         active_submissions = {}
         for jc in jeeqser_challenges:
@@ -84,28 +88,29 @@ class FrontPageHandler(jeeqs_request_handler.JeeqsRequestHandler):
                     ch.submitted = False
 
             injeeqs = Feedback\
-                            .query()\
-                            .filter(Feedback.attempt_author == self.jeeqser.key)\
-                            .filter(Feedback.flagged == False)\
-                            .order(Feedback.flag_count)\
-                            .order(-Feedback.date)\
-                            .fetch(10)
+                .query()\
+                .filter(Feedback.attempt_author == self.jeeqser.key)\
+                .filter(Feedback.flagged == False)\
+                .order(Feedback.flag_count)\
+                .order(-Feedback.date)\
+                .fetch(10)
             core.prettify_injeeqs(injeeqs)
 
         all_activities = Activity.query().order(-Activity.date).fetch(10)
 
         vars = core.add_common_vars({
-                'challenges': all_challenges,
-                'injeeqs': injeeqs,
-                'activities' : all_activities,
-                'jeeqser': self.jeeqser,
-                'login_url': users.create_login_url(self.request.url),
-                'logout_url': users.create_logout_url(self.request.url)
+            'challenges': all_challenges,
+            'injeeqs': injeeqs,
+            'activities': all_activities,
+            'jeeqser': self.jeeqser,
+            'login_url': users.create_login_url(self.request.url),
+            'logout_url': users.create_logout_url(self.request.url)
         })
 
         template = core.jinja_environment.get_template('home.html')
         rendered = template.render(vars)
         self.response.write(rendered)
+
 
 class AboutHandler(jeeqs_request_handler.JeeqsRequestHandler):
     """Renders the About page """
@@ -113,15 +118,17 @@ class AboutHandler(jeeqs_request_handler.JeeqsRequestHandler):
     @core.authenticate(required=False)
     def get(self):
         vars = core.add_common_vars({
-                'jeeqser' : self.jeeqser,
-                'gravatar_url' : self.jeeqser.gravatar_url if self.jeeqser else None,
-                'login_url': users.create_login_url(self.request.url),
-                'logout_url': users.create_logout_url(self.request.url)
+            'jeeqser': self.jeeqser,
+            'gravatar_url': self.jeeqser.gravatar_url if self.jeeqser
+            else None,
+            'login_url': users.create_login_url(self.request.url),
+            'logout_url': users.create_logout_url(self.request.url)
         })
 
         template = core.jinja_environment.get_template('about.html')
         rendered = template.render(vars)
         self.response.write(rendered)
+
 
 class ChallengeHandler(jeeqs_request_handler.JeeqsRequestHandler):
     """renders the solve_a_challenge.html template
@@ -151,7 +158,8 @@ class ChallengeHandler(jeeqs_request_handler.JeeqsRequestHandler):
                 return
 
         if not challenge.content and challenge.markdown:
-            challenge.content = markdown.markdown(challenge.markdown, ['codehilite', 'mathjax'])
+            challenge.content = markdown.markdown(challenge.markdown,
+                                                  ['codehilite', 'mathjax'])
             challenge.put()
 
         attempt = None
@@ -165,7 +173,8 @@ class ChallengeHandler(jeeqs_request_handler.JeeqsRequestHandler):
                 .filter(Attempt.challenge == challenge.key)\
                 .order(-Attempt.date)
 
-            cursor = self.request.get('cursor') if self.request.get('cursor') else ''
+            cursor = self.request.get('cursor') if self.request.get('cursor') \
+                else ''
             if cursor and cursor != "None" and cursor != '':
                 # a cursor was passed along with the request, we're in
                 # the middle of the list of attempts, show "Next" button
@@ -202,11 +211,11 @@ class ChallengeHandler(jeeqs_request_handler.JeeqsRequestHandler):
 
             if submission:
                 feedbacks = Feedback.query()\
-                                    .filter(Feedback.attempt == submission.key)\
-                                    .filter(Feedback.flagged == False)\
-                                    .order(Feedback.flag_count)\
-                                    .order(-Feedback.date)\
-                                    .fetch(10)
+                    .filter(Feedback.attempt == submission.key)\
+                    .filter(Feedback.flagged == False)\
+                    .order(Feedback.flag_count)\
+                    .order(-Feedback.date)\
+                    .fetch(10)
 
             if feedbacks:
                 core.prettify_injeeqs(feedbacks)
@@ -220,26 +229,28 @@ class ChallengeHandler(jeeqs_request_handler.JeeqsRequestHandler):
                 draft = None
 
         vars = core.add_common_vars({
-                'server_software': os.environ['SERVER_SOFTWARE'],
-                'python_version': sys.version,
-                'jeeqser': self.jeeqser,
-                'login_url': users.create_login_url(self.request.url),
-                'logout_url': users.create_logout_url(self.request.url),
-                'attempts': attempts,
-                'cursor': cursor,
-                'has_next': has_next,
-                'challenge' : challenge,
-                'challenge_key' : challenge.key,
-                'template_code': challenge.template_code,
-                'submission' : submission,
-                'feedbacks' : feedbacks,
-                'draft': draft,
-                'attempt': attempt
+            'server_software': os.environ['SERVER_SOFTWARE'],
+            'python_version': sys.version,
+            'jeeqser': self.jeeqser,
+            'login_url': users.create_login_url(self.request.url),
+            'logout_url': users.create_logout_url(self.request.url),
+            'attempts': attempts,
+            'cursor': cursor,
+            'has_next': has_next,
+            'challenge': challenge,
+            'challenge_key': challenge.key,
+            'template_code': challenge.template_code,
+            'submission': submission,
+            'feedbacks': feedbacks,
+            'draft': draft,
+            'attempt': attempt
         })
 
-        template = core.jinja_environment.get_template('solve_a_challenge.html')
+        template = core.jinja_environment.get_template(
+            'solve_a_challenge.html')
         rendered = template.render(vars)
         self.response.write(rendered)
+
 
 class MoreAttempts(jeeqs_request_handler.JeeqsRequestHandler):
     """Renders 'Your Recent Submissions' part of the challenge page."""
@@ -270,7 +281,8 @@ class MoreAttempts(jeeqs_request_handler.JeeqsRequestHandler):
                 .filter(Attempt.challenge == challenge.key)\
                 .order(-Attempt.date)
 
-            cursor = self.request.get('cursor') if self.request.get('cursor') else ''
+            cursor = self.request.get('cursor') if self.request.get('cursor') \
+                else ''
             if cursor and cursor != "None" and cursor != '':
                 # a cursor was passed along with the request, we're in
                 # the middle of the list of attempts, show "Next" button
@@ -291,16 +303,17 @@ class MoreAttempts(jeeqs_request_handler.JeeqsRequestHandler):
                 cursor = ''
 
         vars = core.add_common_vars({
-                'jeeqser': self.jeeqser,
-                'attempts': attempts,
-                'cursor': cursor,
-                'has_next': has_next,
-                'challenge' : challenge,
-                'challenge_key' : challenge.key,
-                'template_code': challenge.template_code,
+            'jeeqser': self.jeeqser,
+            'attempts': attempts,
+            'cursor': cursor,
+            'has_next': has_next,
+            'challenge': challenge,
+            'challenge_key': challenge.key,
+            'template_code': challenge.template_code,
         })
 
-        template = core.jinja_environment.get_template('recent_attempts_contents.html')
+        template = core.jinja_environment.get_template(
+            'recent_attempts_contents.html')
         rendered = template.render(vars)
         self.response.write(rendered)
 
