@@ -18,11 +18,11 @@ Jeeqs is a collaborative problem solving and learning platform and is hosted at 
 
 ## Importing data locally from cloud
 In order to get the data, you would need to download the app's data first from Jeeqs on App Engine and then upload it to your local instance.
-If you don't have permission to download the data, contact the project admin. The insturctions for downloading and uploading the data is in the header 
+If you don't have permission to download the data, contact the project admin. The instructions for downloading and uploading the data is in the header
 of "models.py" file. 
 
-* downloading: appcfg.py download_data --url=http://jeeqsy.appspot.com/_ah/remote_api --filename=<SNAPSHOT_FILENAME> --application=s~jeeqsy
-* uploading: appcfg.py upload_data --url=http://localhost:8080/_ah/remote_api --filename=<SNAPSHOT_FILENAME> --num_threads=1
+* downloading: appcfg.py download_data --url=http://jeeqsy.appspot.com/_ah/remote_api --filename=&lt;SNAPSHOT_FILENAME&gt; --application=s~jeeqsy
+* uploading: appcfg.py upload_data --url=http://localhost:8080/_ah/remote_api --filename=&lt;SNAPSHOT_FILENAME&gt; --num_threads=1
 
 ## Troubleshooting
 
@@ -34,12 +34,12 @@ the following steps might help:
 1.1) Install MySQLdb (from [Windows binaries](http://www.lfd.uci.edu/~gohlke/pythonlibs/#mysql-python) or as described in project's [Readme](https://sourceforge.net/projects/mysql-python/files/mysql-python/1.2.3/));
 
 1.2) Use the following set of flags in project configuration, NB datastore_path should point to the file and not to the directory:
-> --high_replication --datastore_path="<PATH_TO_DATASTORE_FILE>" --use_sqlite --default_partition=""
+> --high_replication --datastore_path="&lt;PATH_TO_DATASTORE_FILE&gt;" --use_sqlite --default_partition=""
 
 1.3) To cleanup the database, add --clear_datastore to the configuration above (you might want to save it as a separate project config);
 
 1.4) Use the following command to upload data from snapshot to local DB:
-> python <PATH_TO_GAE's_appcfg.py> upload_data --url=http://localhost:8080/_ah/remote_api --filename=<SNAPSHOT_FILENAME> --num_threads=1 <PATH_TO_JEEQ'S_src_DIRECTORY>
+> python &lt;PATH_TO_GAE's_appcfg.py&gt; upload_data --url=http://localhost:8080/_ah/remote_api --filename=&lt;SNAPSHOT_FILENAME&gt; --num_threads=1 &lt;PATH_TO_JEEQS_src_DIRECTORY&gt;
 
 1.5) If PyCharm gives you the following error:
 > google.appengine.api.datastore_errors.InternalError: unable to open database file
