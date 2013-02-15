@@ -9,9 +9,10 @@
 {% endblock script %}
 
 {% block column1 %}
-    <h1>Add Challenge</h1>
+    <div style="padding-bottom: 40px">
+        <h1>Add Challenge</h1>
+    </div>
     <label>Course</label>
-    <br/>
     <form method="POST" action="/admin/challenges/new">
         <select name="course" id="course">
             <option value="" selected="selected">---------</option>
