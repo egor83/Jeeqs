@@ -1,6 +1,7 @@
 import os
 import string
 
+from google.appengine.ext import ndb
 from google.appengine.api import users
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app
@@ -30,7 +31,7 @@ class ChallengePage(webapp.RequestHandler):
 
     @core.authenticate(required=True)
     def post(self):
-        course = Course.get(self.request.get('course'))
+        course = ndb.Key(urlsafe=self.request.get('course')).get()
         self.response.out.write(course.name)
         number = self.request.get('number')
         name = string.capwords(self.request.get('name'))

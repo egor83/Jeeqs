@@ -17,7 +17,7 @@
         <select name="course" id="course">
             <option value="" selected="selected">---------</option>
             {% for course in courses %}
-                <option value="{{ course.key }}">{{ course.name}} </option>
+                <option value="{{ course.key.urlsafe() }}">{{ course.name}} </option>
             {% endfor %}
         </select>
         <label>Exercise Number</label>
