@@ -166,7 +166,28 @@
                             $('#other_submissions').html('An Error occurred while loading this page. Please try again later ...');
                         }
                     })
-            })
+            });
+
+            var recent_attempts_loaded = false;
+            $('#submissions a[href="#recent-attempt-contents"]').on('click shown', function(e) {
+                // Load recent attempts section using AJAX
+                if (recent_attempts_loaded)
+                    return;
+
+                $('#recent-attempt-contents').html('<br />Loading...');
+$.                  ajax({
+                        url: "/attempts/?ch={{ challenge.key.urlsafe() }}",
+                        async: true,
+                        type: "GET",
+                        success: function(response) {
+                            $('#recent-attempt-contents').html(response);
+                            recent_attempts_loaded = true;
+                        },
+                        error: function(response) {
+                            $('#recent-attempt-contents').html('An error occurred while loading this page. Please try again later ...');
+                        }
+                  })
+            });
 
             var activeTab = $('[href=' + location.hash + ']');
             if (activeTab && !(window.location.hash === "")) {
@@ -299,9 +320,7 @@
                                         Your Recent Submissions
                                     </a>
                                 </div>
-                                <div id="recent-attempt-contents" class="recent-jeeqs accordion-body collapse">
-                                    {% include "recent_attempts_contents.html" %}
-                                </div>
+                                <div id="recent-attempt-contents" class="recent-jeeqs accordion-body collapse"></div>
                             </div>
                         </div>
                     </div>

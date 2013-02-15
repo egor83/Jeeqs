@@ -168,32 +168,6 @@ class ChallengeHandler(jeeqs_request_handler.JeeqsRequestHandler):
             attempt = submission = ndb.Key(urlsafe=attempt_key).get()
 
         if (self.jeeqser):
-            attempts_q = Attempt.query()\
-                .filter(Attempt.author == self.jeeqser.key)\
-                .filter(Attempt.challenge == challenge.key)\
-                .order(-Attempt.date)
-
-            cursor = self.request.get('cursor') if self.request.get('cursor') \
-                else "None"
-            if cursor and cursor != "None":
-                # a cursor was passed along with the request, we're in
-                # the middle of the list of attempts, show "Newer" button
-                # to navigate to the newer attempts
-                qo = ndb.QueryOptions(start_cursor=ndb.Cursor(urlsafe=cursor))
-                has_newer = True
-            else:
-                # no cursor was passed, we are at the beginning of the list
-                # of attempts already and shouldn't display "Newer" button
-                qo = ndb.QueryOptions()
-                has_newer = False
-
-            attempts, cursor, more = attempts_q.fetch_page(ATTEMPTS_PER_PAGE,
-                                                           options=qo)
-            if cursor and more:
-                cursor = cursor.urlsafe()
-            else:
-                cursor = ''
-
             if not submission:
                 # fetch user's active submission
                 submissions = Attempt.query()\
@@ -234,9 +208,6 @@ class ChallengeHandler(jeeqs_request_handler.JeeqsRequestHandler):
             'jeeqser': self.jeeqser,
             'login_url': users.create_login_url(self.request.url),
             'logout_url': users.create_logout_url(self.request.url),
-            'attempts': attempts,
-            'cursor': cursor,
-            'has_newer': has_newer,
             'challenge': challenge,
             'challenge_key': challenge.key,
             'template_code': challenge.template_code,
@@ -309,7 +280,6 @@ class AttemptsHandler(jeeqs_request_handler.JeeqsRequestHandler):
             'has_newer': has_newer,
             'challenge': challenge,
             'challenge_key': challenge.key,
-            'template_code': challenge.template_code,
         })
 
         template = core.jinja_environment.get_template(

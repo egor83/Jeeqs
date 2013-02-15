@@ -357,10 +357,9 @@ function ajax_fetch_attempts (challenge_key, cursor) {
         type: "GET",
         success: function(response) {
             $('#recent-attempt-contents').html(response);
-            review_page_loaded = true
         },
         error: function(response) {
-            $('#recent-attempt-contents').html('An Error occurred while loading this page. Please try again later ...');
+            $('#recent-attempt-contents').html('An error occurred while loading this page. Please try again later ...');
         }
     })
 }
