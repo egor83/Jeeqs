@@ -10,7 +10,7 @@
 
 {% block column1 %}
     <h1>Add Challenge</h1>
-    <strong>Course</strong>
+    <label>Course</label>
     <br/>
     <form method="POST" action="/admin/challenges/new">
         <select name="course" id="course">
@@ -19,23 +19,15 @@
                 <option value="{{ course.key }}">{{ course.name}} </option>
             {% endfor %}
         </select>
-        <br/><br/>
-        <strong>Exercise Number</strong>
-        <br/>
-        <input type="text" id="number" name="number" size="40" style="margin-top: 10px">
-        <br/><br/>
-        <strong>Name</strong>
-        <br/>
-        <input type="text" id="name" name="name" size="40" style="margin-top: 10px">
-        <br/><br/>
-        <strong>Markdown</strong>
-        <br/>
+        <label>Exercise Number</label>
+        <input type="text" id="number" name="number" size="40">
+        <label>Name</label>
+        <input type="text" id="name" name="name" size="40">
+        <label>Markdown</label>
         <textarea id="markdown" name="markdown" rows="10" cols="40"></textarea>
-        <br/><br/>
-        <strong>Template Code</strong>
-        <br/>
+        <label>Template Code</label>
         <textarea id="template_code" name="template_code" rows="10" cols="40"></textarea>
-        <br/><br/>
+        <br/>
         <button type="submit" id="submit" class="btn-large btn-primary">Submit</button>
     </form>
 {% endblock column1 %}
