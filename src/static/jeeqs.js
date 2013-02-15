@@ -314,7 +314,7 @@ $(document).on('click', '#challenge_submissions_next, #challenge_submissions_pre
 });
 
 // stores cursors to be able to navigate back in a list of recent attempts
-var attempts_cursors_stack = ['']; // empty cursor denotes start page
+var attempts_cursors_stack = [];
 
 // handle 'newer'/'older' buttons in the list of your recent attempts
 // on a challenge page
@@ -338,14 +338,15 @@ $(document).on('click', '#attempts_newer', function(event) {
     // stack top contains cursor for the current page:
     // on loading 'newer' we discard that cursor on top of the stack and pass
     // the one below it (for the page containing newer attempts) to the server
-    if(attempts_cursors_stack.length > 1) {
-        attempts_cursors_stack.pop();
+    attempts_cursors_stack.pop();
+    var cursor;
+    if(attempts_cursors_stack.length > 0) {
+        cursor = attempts_cursors_stack[attempts_cursors_stack.length - 1];
     } else {
-        // should not happen - 'newer' button should be hidden if there's no
-        // cursors in the stack or the stack only contains empty string
-        // - beginning of the list
+        // We've got nothing left at the stack, meaning we should display
+        // the first page - denoted by cursor value of 'None'
+        cursor = 'None';
     }
-    var cursor = attempts_cursors_stack[attempts_cursors_stack.length - 1];
     ajax_fetch_attempts(challenge_key, cursor);
 });
 
