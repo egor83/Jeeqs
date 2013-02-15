@@ -300,36 +300,7 @@
                                     </a>
                                 </div>
                                 <div id="recent-attempt-contents" class="recent-jeeqs accordion-body collapse">
-{#                                        TODO when rewriting 'Your recent submissions' to use AJAX, replace the content of this tab with rendered recent_attempts_contents.html #}
-                                    {% if jeeqser %}
-                                        {% if attempts|length == 0 %}
-                                            <p style="color:grey">Nothing to show here, yet!</p>
-                                        {% endif %}
-                                        {% for attempt in attempts %}
-                                            <p style="color: grey"> <a class="noline" href="/challenge/?ch={{ challenge.key.urlsafe() }}&att={{ attempt.key.urlsafe() }}"> Attempt #{{ attempt.index }}</a>  @  {{ attempt.date|timesince }}</p>
-                                            <div>
-                                                {{ attempt.content|safe }}
-                                            </div>
-                                            <hr/>
-                                        {% endfor %}
-                                    {% endif %}
-
-                                    {% if cursor or has_next %}
-                                        <div style="margin-top: 20px; float:left; clear:left">
-                                            <ul class="pager">
-                                                {% if cursor %}
-                                                    <li>
-                                                        <a id="attempts_previous" href="#" data-challenge_key="{{ challenge.key.urlsafe() }}" data-cursor="{{ cursor }}" >Previous</a>
-                                                    </li>
-                                                {% endif %}
-                                                {% if has_next %}
-                                                    <li>
-                                                      <a id="attempts_next" href="#" data-challenge_key="{{ challenge.key.urlsafe() }}" data-cursor="{{ cursor }}" >Next</a>
-                                                    </li>
-                                                {% endif %}
-                                            </ul>
-                                        </div>
-                                    {% endif %}
+                                    {% include "recent_attempts_contents.html" %}
                                 </div>
                             </div>
                         </div>

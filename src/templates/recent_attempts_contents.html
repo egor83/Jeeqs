@@ -1,7 +1,3 @@
-{# renders the contents of
-<div id="recent-attempt-contents" ...">
-in solve_a_challenge.html ('Your recent submissions' tab)
-#}
 {% if jeeqser %}
     {% if attempts|length == 0 %}
         <p style="color:grey">Nothing to show here, yet!</p>
@@ -15,17 +11,17 @@ in solve_a_challenge.html ('Your recent submissions' tab)
     {% endfor %}
 {% endif %}
 
-{% if cursor or has_next %}
+{% if cursor or has_newer %}
     <div style="margin-top: 20px; float:left; clear:left">
         <ul class="pager">
             {% if cursor %}
                 <li>
-                    <a id="attempts_previous" href="#" data-challenge_key="{{ challenge.key.urlsafe() }}" data-cursor="{{ cursor }}" >Previous</a>
+                    <a id="attempts_older" href="#" data-challenge_key="{{ challenge.key.urlsafe() }}" data-cursor="{{ cursor }}" >Older</a>
                 </li>
             {% endif %}
-            {% if has_next %}
+            {% if has_newer %}
                 <li>
-                  <a id="attempts_next" href="#" data-challenge_key="{{ challenge.key.urlsafe() }}" data-cursor="{{ cursor }}" >Next</a>
+                  <a id="attempts_newer" href="#" data-challenge_key="{{ challenge.key.urlsafe() }}" data-cursor="{{ cursor }}" >Newer</a>
                 </li>
             {% endif %}
         </ul>

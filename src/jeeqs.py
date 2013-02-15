@@ -119,8 +119,8 @@ class AboutHandler(jeeqs_request_handler.JeeqsRequestHandler):
     def get(self):
         vars = core.add_common_vars({
             'jeeqser': self.jeeqser,
-            'gravatar_url': self.jeeqser.gravatar_url if self.jeeqser
-            else None,
+            'gravatar_url': self.jeeqser.gravatar_url
+            if self.jeeqser else None,
             'login_url': users.create_login_url(self.request.url),
             'logout_url': users.create_logout_url(self.request.url)
         })
@@ -174,18 +174,18 @@ class ChallengeHandler(jeeqs_request_handler.JeeqsRequestHandler):
                 .order(-Attempt.date)
 
             cursor = self.request.get('cursor') if self.request.get('cursor') \
-                else ''
-            if cursor and cursor != "None" and cursor != '':
+                else "None"
+            if cursor and cursor != "None":
                 # a cursor was passed along with the request, we're in
-                # the middle of the list of attempts, show "Next" button
-                # to navigate to the earlier attempts
+                # the middle of the list of attempts, show "Newer" button
+                # to navigate to the newer attempts
                 qo = ndb.QueryOptions(start_cursor=ndb.Cursor(urlsafe=cursor))
-                has_next = True
+                has_newer = True
             else:
                 # no cursor was passed, we are at the beginning of the list
-                # of attempts already and shouldn't display "Next" button
+                # of attempts already and shouldn't display "Newer" button
                 qo = ndb.QueryOptions()
-                has_next = False
+                has_newer = False
 
             attempts, cursor, more = attempts_q.fetch_page(ATTEMPTS_PER_PAGE,
                                                            options=qo)
@@ -236,7 +236,7 @@ class ChallengeHandler(jeeqs_request_handler.JeeqsRequestHandler):
             'logout_url': users.create_logout_url(self.request.url),
             'attempts': attempts,
             'cursor': cursor,
-            'has_next': has_next,
+            'has_newer': has_newer,
             'challenge': challenge,
             'challenge_key': challenge.key,
             'template_code': challenge.template_code,
@@ -252,7 +252,7 @@ class ChallengeHandler(jeeqs_request_handler.JeeqsRequestHandler):
         self.response.write(rendered)
 
 
-class MoreAttempts(jeeqs_request_handler.JeeqsRequestHandler):
+class AttemptsHandler(jeeqs_request_handler.JeeqsRequestHandler):
     """Renders 'Your Recent Submissions' part of the challenge page."""
 
     @core.authenticate(False)
@@ -282,18 +282,18 @@ class MoreAttempts(jeeqs_request_handler.JeeqsRequestHandler):
                 .order(-Attempt.date)
 
             cursor = self.request.get('cursor') if self.request.get('cursor') \
-                else ''
-            if cursor and cursor != "None" and cursor != '':
+                else "None"
+            if cursor and cursor != "None":
                 # a cursor was passed along with the request, we're in
-                # the middle of the list of attempts, show "Next" button
-                # to navigate to the earlier attempts
+                # the middle of the list of attempts, show "Newer" button
+                # to navigate to the newer attempts
                 qo = ndb.QueryOptions(start_cursor=ndb.Cursor(urlsafe=cursor))
-                has_next = True
+                has_newer = True
             else:
                 # no cursor was passed, we are at the beginning of the list
-                # of attempts already and shouldn't display "Next" button
+                # of attempts already and shouldn't display "Newer" button
                 qo = ndb.QueryOptions()
-                has_next = False
+                has_newer = False
 
             attempts, cursor, more = attempts_q.fetch_page(ATTEMPTS_PER_PAGE,
                                                            options=qo)
@@ -306,7 +306,7 @@ class MoreAttempts(jeeqs_request_handler.JeeqsRequestHandler):
             'jeeqser': self.jeeqser,
             'attempts': attempts,
             'cursor': cursor,
-            'has_next': has_next,
+            'has_newer': has_newer,
             'challenge': challenge,
             'challenge_key': challenge.key,
             'template_code': challenge.template_code,
@@ -322,7 +322,7 @@ def main():
     application = webapp2.WSGIApplication(
         [('/', FrontPageHandler),
             ('/challenge/', ChallengeHandler),
-            ('/attempts/', MoreAttempts),
+            ('/attempts/', AttemptsHandler),
             ('/challenge/shell.runProgram', program_handler.ProgramHandler),
             ('/review/', review_handler.ReviewHandler),
             ('/rpc', rpc_handler.RPCHandler),
