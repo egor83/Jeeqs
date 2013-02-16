@@ -175,18 +175,18 @@
                     return;
 
                 $('#recent-attempt-contents').html('<br />Loading...');
-$.                  ajax({
-                        url: "/attempts/?ch={{ challenge.key.urlsafe() }}",
-                        async: true,
-                        type: "GET",
-                        success: function(response) {
-                            $('#recent-attempt-contents').html(response);
-                            recent_attempts_loaded = true;
-                        },
-                        error: function(response) {
-                            $('#recent-attempt-contents').html('An error occurred while loading this page. Please try again later ...');
-                        }
-                  })
+                $.ajax({
+                    url: "/attempts/?ch={{ challenge.key.urlsafe() }}",
+                    async: true,
+                    type: "GET",
+                    success: function(response) {
+                        $('#recent-attempt-contents').html(response);
+                        recent_attempts_loaded = true;
+                    },
+                    error: function(response) {
+                        $('#recent-attempt-contents').html('An error occurred while loading this page. Please try again later ...');
+                    }
+                });
             });
 
             var activeTab = $('[href=' + location.hash + ']');

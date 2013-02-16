@@ -341,7 +341,9 @@ $(document).on('click', '#attempts_newer', function(event) {
     attempts_cursors_stack.pop();
     var cursor;
     if(attempts_cursors_stack.length > 0) {
-        cursor = attempts_cursors_stack[attempts_cursors_stack.length - 1];
+        cursor = attempts_cursors_stack.pop();
+        // we still need current page's cursor to be on top of the stack
+        attempts_cursors_stack.push(cursor);
     } else {
         // We've got nothing left at the stack, meaning we should display
         // the first page - denoted by cursor value of 'None'
