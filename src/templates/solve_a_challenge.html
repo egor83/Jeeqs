@@ -148,22 +148,22 @@
             })
 
             review_page_loaded = false
-            $('#submissions a[href="#other_submissions"]').on('click shown', function(e){
+            $('#submissions a[href="#review"]').on('click shown', function(e){
                     // Load the review page using ajax
                     if (review_page_loaded)
                         return;
 
-                    $('#other_submissions').html('Loading ... ')
+                    $('#review').html('Loading ... ')
                     $.ajax({
                         url: "/review/?ch={{ challenge.key.urlsafe() }}",
                         async: true,
                         type: "GET",
                         success: function(response) {
-                            $('#other_submissions').html(response);
+                            $('#review').html(response);
                             review_page_loaded = true
                         },
                         error: function(response) {
-                            $('#other_submissions').html('An Error occurred while loading this page. Please try again later ...');
+                            $('#review').html('An Error occurred while loading this page. Please try again later ...');
                         }
                     })
             })
@@ -186,7 +186,7 @@
     <div id="submissions" style="float:left; clear:left; margin-top: 20px; width: 100%">
         <ul id="submissions_tabs" class="nav nav-tabs">
             <li><a href="#your_submission" data-toggle="tab">Your Submission</a></li>
-            <li><a href="#other_submissions" data-toggle="tab">Other Submissions</a></li>
+            <li><a href="#review" data-toggle="tab">Review</a></li>
         </ul>
         <div id="submissions_tabs_content" class="tab-content" style="min-height: 200px">
             <div id="your_submission" class="fade tab-pane">
@@ -211,7 +211,7 @@
                     {% if submission %}
                         <ul class="nav nav-tabs">
                             <li class="active">
-                                <a href="#">In Jeeqs</a>
+                                <a href="#"><i class = "icon icon-arrow-down" ></i>Incoming Jeeqs</a>
                             </li>
                         </ul>
                         <div style="max-height: 300px; overflow: auto; margin: 10px;">
@@ -319,7 +319,7 @@
                 {% endif %}
             </div>
 
-            <div id="other_submissions" style="margin-top: 20px" class="fade tab-pane"></div>
+            <div id="review" style="margin-top: 20px" class="fade tab-pane"></div>
         </div>
     </div>
 {% endblock column1 %}
