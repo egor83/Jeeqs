@@ -66,7 +66,7 @@
             next: "fourth",
             position: 12,
             overlay: true,
-            title: "Wait for Feedbacks (In Jeeqs)"
+            title: "Wait for Feedbacks (Incoming Jeeqs)"
         });
 
         guiders.createGuider({
@@ -146,7 +146,7 @@
     <div id="challenge-list" style="float:left; margin: 10px;font-size: 14px; cell-padding: 5px;">
         <ul id="home_tabs" class="nav nav-tabs">
             <li><a href="#challenges" data-toggle="tab">Challenges</a></li>
-            <li><a href="#injeeqs" data-toggle="tab">In Jeeqs</a></li>
+            <li><a href="#injeeqs" data-toggle="tab"><i class="icon icon-arrow-down"></i>Incoming Jeeqs</a></li>
         </ul>
         <div id="challenge_list_contents" class="tab-content">
             <div id="challenges" class="fade tab-pane">
@@ -189,7 +189,7 @@
                                     <span style="border-radius: 0px; float:right; background-color: transparent; padding: 0px 0px 0px 0px ">
                                         <a style="cursor: pointer; text-decoration: none" class="badge_links challenge_stats" href="#" rel="tooltip" data-original-title="{{ challenge.num_jeeqsers_submitted|d('0')}} jeeqser(s) submitted for this challenge."><span class="label font-normal"> {{ challenge.num_jeeqsers_submitted|d('0')}} <i class="shift-right-2 icon-upload icon-white"></i></span></a>
                                         <a style="cursor: pointer; text-decoration: none" class="badge_links challenge_stats" href="#" rel="tooltip" data-original-title="{{ challenge.num_jeeqsers_solved|d('0')}} jeeqser(s) solved"><span class="label font-normal">{{ challenge.num_jeeqsers_solved|d('0')}} <i class="icon-ok-circle shift-right-2 icon-white"></i></span></a>
-                                        <a style="cursor: pointer; text-decoration: none" class="badge_links" href="/challenge/?ch={{ challenge.key.urlsafe() }}#other_submissions" rel="tooltip" data-original-title="{{ challenge.submissions_without_review|d('0') }} submissions don't have any reviews"><span class="label font-normal deeplink hover-effect"> {{ challenge.submissions_without_review|d('0')}} <i class="shift-right-2 icon-comment icon-white"></i></span></a>
+                                        <a style="cursor: pointer; text-decoration: none" class="badge_links" href="/challenge/?ch={{ challenge.key.urlsafe() }}#review" rel="tooltip" data-original-title="{{ challenge.submissions_without_review|d('0') }} submissions don't have any reviews"><span class="label font-normal deeplink hover-effect"> {{ challenge.submissions_without_review|d('0')}} <i class="shift-right-2 icon-comment icon-white"></i></span></a>
                                     </span>
                                 </span>
                             </div>
