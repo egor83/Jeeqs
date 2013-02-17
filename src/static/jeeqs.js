@@ -277,13 +277,13 @@ $(document).ready(function() {
 var challenge_submissions_stack = [];
 
 $(document).on('click', '#challenge_submissions_next, #challenge_submissions_previous', function(event) {
-    event.stopPropagation()
+    event.stopPropagation();
     event.preventDefault();
 
-    var challenge_key = $(this).attr('data-challenge_key')
-    var cursor = $(this).attr('data-cursor')
-    var previous_cursor = $(this).attr('data-previous_cursor')
-    var isNext = $(this).attr('id') == 'challenge_submissions_next' ? true : false
+    var challenge_key = $(this).attr('data-challenge_key');
+    var cursor = $(this).attr('data-cursor');
+    var previous_cursor = $(this).attr('data-previous_cursor');
+    var isNext = $(this).attr('id') == 'challenge_submissions_next' ? true : false;
 
     if (isNext) {
         challenge_submissions_stack.push(previous_cursor);
@@ -298,17 +298,17 @@ $(document).on('click', '#challenge_submissions_next, #challenge_submissions_pre
         }
     }
 
-    $('#other_submissions').html('Loading ... ')
+    $('#review').html('Loading ... ');
     $.ajax({
         url: "/review/?ch=" + challenge_key + "&cursor=" + cursor,
         async: true,
         type: "GET",
         success: function(response) {
-            $('#other_submissions').html(response);
-            review_page_loaded = true
+            $('#review').html(response);
+            review_page_loaded = true;
         },
         error: function(response) {
-            $('#other_submissions').html('An Error occurred while loading this page. Please try again later ...');
+            $('#review').html('An Error occurred while loading this page. Please try again later ...');
         }
     })
 });
