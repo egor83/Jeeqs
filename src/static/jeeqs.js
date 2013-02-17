@@ -272,8 +272,9 @@ $(document).ready(function() {
     $('a[rel=tooltip]').tooltip()
 })
 
-// Stack of cursors
-challenge_submissions_stack = []
+// handle "next"/"previous" buttons for other users' submissions
+// Stack of cursors - stores cursors to navigate back in the list of submissions
+var challenge_submissions_stack = [];
 
 $(document).on('click', '#challenge_submissions_next, #challenge_submissions_previous', function(event) {
     event.stopPropagation()
@@ -310,7 +311,60 @@ $(document).on('click', '#challenge_submissions_next, #challenge_submissions_pre
             $('#other_submissions').html('An Error occurred while loading this page. Please try again later ...');
         }
     })
-})
+});
+
+// stores cursors to be able to navigate back in a list of recent attempts
+var attempts_cursors_stack = [];
+
+// handle 'newer'/'older' buttons in the list of your recent attempts
+// on a challenge page
+$(document).on('click', '#attempts_older', function(event) {
+    event.stopPropagation();
+    event.preventDefault();
+    var challenge_key = $(this).attr('data-challenge_key');
+    var cursor = $(this).attr('data-cursor');
+
+    // store cursor to be able to navigate back to the beginning of the list
+    // by pressing "Newer"
+    attempts_cursors_stack.push(cursor);
+    ajax_fetch_attempts(challenge_key, cursor);
+});
+
+$(document).on('click', '#attempts_newer', function(event) {
+    event.stopPropagation();
+    event.preventDefault();
+    var challenge_key = $(this).attr('data-challenge_key');
+
+    // stack top contains cursor for the current page:
+    // on loading 'newer' we discard that cursor on top of the stack and pass
+    // the one below it (for the page containing newer attempts) to the server
+    attempts_cursors_stack.pop();
+    var cursor;
+    if(attempts_cursors_stack.length > 0) {
+        cursor = attempts_cursors_stack.pop();
+        // we still need current page's cursor to be on top of the stack
+        attempts_cursors_stack.push(cursor);
+    } else {
+        // We've got nothing left at the stack, meaning we should display
+        // the first page - denoted by cursor value of 'None'
+        cursor = 'None';
+    }
+    ajax_fetch_attempts(challenge_key, cursor);
+});
+
+function ajax_fetch_attempts (challenge_key, cursor) {
+    $.ajax({
+        url: "/attempts/?ch=" + challenge_key + "&cursor=" + cursor,
+        async: true,
+        type: "GET",
+        success: function(response) {
+            $('#recent-attempt-contents').html(response);
+        },
+        error: function(response) {
+            $('#recent-attempt-contents').html('An error occurred while loading this page. Please try again later ...');
+        }
+    })
+}
 
 $(document).ready(function() {
     $("#updateDisplayName").button().bind('click', function() {

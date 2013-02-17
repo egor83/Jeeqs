@@ -145,9 +145,9 @@
                             + value
                     )
                 })
-            })
+            });
 
-            review_page_loaded = false
+            review_page_loaded = false;
             $('#submissions a[href="#review"]').on('click shown', function(e){
                     // Load the review page using ajax
                     if (review_page_loaded)
@@ -166,7 +166,28 @@
                             $('#review').html('An Error occurred while loading this page. Please try again later ...');
                         }
                     })
-            })
+            });
+
+            var recent_attempts_loaded = false;
+            $('#submissions a[href="#recent-attempt-contents"]').on('click shown', function(e) {
+                // Load recent attempts section using AJAX
+                if (recent_attempts_loaded)
+                    return;
+
+                $('#recent-attempt-contents').html('<br />Loading...');
+                $.ajax({
+                    url: "/attempts/?ch={{ challenge.key.urlsafe() }}",
+                    async: true,
+                    type: "GET",
+                    success: function(response) {
+                        $('#recent-attempt-contents').html(response);
+                        recent_attempts_loaded = true;
+                    },
+                    error: function(response) {
+                        $('#recent-attempt-contents').html('An error occurred while loading this page. Please try again later ...');
+                    }
+                });
+            });
 
             var activeTab = $('[href=' + location.hash + ']');
             if (activeTab && !(window.location.hash === "")) {
@@ -299,20 +320,7 @@
                                         Your Recent Submissions
                                     </a>
                                 </div>
-                                <div id="recent-attempt-contents" class="recent-jeeqs accordion-body collapse">
-                                    {% if jeeqser %}
-                                        {% if attempts|length == 0 %}
-                                            <p style="color:grey">Nothing to show here, yet!</p>
-                                        {% endif %}
-                                        {% for attempt in attempts %}
-                                            <p style="color: grey"> <a class="noline" href="/challenge/?ch={{ challenge.key.urlsafe() }}&att={{ attempt.key.urlsafe() }}"> Attempt #{{ attempt.index }}</a>  @  {{ attempt.date|timesince }}</p>
-                                            <div>
-                                                {{ attempt.content|safe }}
-                                            </div>
-                                            <hr/>
-                                        {% endfor %}
-                                    {% endif %}
-                                </div>
+                                <div id="recent-attempt-contents" class="recent-jeeqs accordion-body collapse"></div>
                             </div>
                         </div>
                     </div>
