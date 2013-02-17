@@ -66,7 +66,7 @@ class ReviewHandler(jeeqs_request_handler.JeeqsRequestHandler):
             # TODO: replace this iteration with a data oriented approach
             submissions[:] = [submission for submission in submissions if not (submission.author == self.jeeqser.key)] # or self.jeeqser.key() in submission.users_voted)]
         else:
-             submissions = []
+            submissions, next_cursor, more = [], 'None', False
 
         vars = add_common_vars({
                 'server_software': os.environ['SERVER_SOFTWARE'],
@@ -74,7 +74,6 @@ class ReviewHandler(jeeqs_request_handler.JeeqsRequestHandler):
                 'jeeqser': self.jeeqser,
                 'login_url': users.create_login_url(self.request.url),
                 'logout_url': users.create_logout_url(self.request.url),
-                'challenge' : challenge,
                 'challenge' : challenge,
                 'submissions' : submissions,
                 'review_qualified' : review_qualified,
