@@ -144,14 +144,18 @@
                         response_object = JSON.parse(response);
                         cursor = response_object.cursor;
                         more = response_object.more;
-                        if (more)
-                            $('#activities').html(activities + response_object.activities);
+                        more_activities = response_object.activities;
+                        if (more){
+                            $('#more').text('Loading...');
+                            $('#activities').html(activities + more_activities);
+                            $('#more').text('more');
+                        }
                         else
-                            $('#activities').html(activities + 'No more items to show!');
+                            $('#more').text('No more items to show.');
 
                     },
                     error: function (response) {
-                        $('#activities').html(activities + 'error!');
+                        $('#more').text('Error!');
                     }
                 });
             });
@@ -286,7 +290,7 @@
                 <a href="#">Activities</a>
             </li>
         </ul>
-        <div>
+        <div id="activities">
             {% include "activities_list.html"%}
         </div>
         <div class="more"><button id="more" class="btn btn-small">more</button></div>

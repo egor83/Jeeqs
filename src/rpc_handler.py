@@ -146,6 +146,7 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
     def get_activities(self):
         cursor = self.request.get('cursor')
         all_activities = Activity.query().order(-Activity.date)
+
         if cursor == '':
             activities_for_page, cursor, more = all_activities.fetch_page(10)
             qo = ndb.QueryOptions(start_cursor=ndb.Cursor(urlsafe=cursor.to_websafe_string()))
