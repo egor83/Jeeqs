@@ -133,8 +133,12 @@
 
             var cursor = '';
             var more = false;
+            var counter = 10;
             $("#more").on('click', function () {
                 var activities = $('#activities').html();
+                counter = counter+10;
+                if (counter>999)
+                    return;
                 $.ajax({
                     url: "/rpc",
                     async: true,
