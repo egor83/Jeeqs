@@ -154,12 +154,12 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
             qo = ndb.QueryOptions(start_cursor=ndb.Cursor(urlsafe=cursor))
             activities_for_page, cursor, more = all_activities.fetch_page(10, options=qo)
 
-            vars = core.add_common_vars({'activities': activities_for_page})
-            template = core.jinja_environment.get_template('activities_list.html')
-            rendered = template.render(vars)
-            json_response = json.dumps({'cursor': cursor.to_websafe_string(),
-                                        'activities': rendered, 'more': more})
-            self.response.write(json_response)
+        vars = core.add_common_vars({'activities': activities_for_page})
+        template = core.jinja_environment.get_template('activities_list.html')
+        rendered = template.render(vars)
+        json_response = json.dumps({'cursor': cursor.to_websafe_string(),
+                                    'activities': rendered, 'more': more})
+        self.response.write(json_response)
 
 
     @core.authenticate(False)

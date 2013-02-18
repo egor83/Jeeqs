@@ -141,7 +141,6 @@
                     type: "GET",
                     data: {'method': 'get_activities', 'cursor': cursor},
                     success: function (response) {
-                        alert(response);
                         response_object = JSON.parse(response);
                         cursor = response_object.cursor;
                         more = response_object.more;
