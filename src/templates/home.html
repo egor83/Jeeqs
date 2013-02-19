@@ -135,7 +135,7 @@
             var more = false;
             var counter = 10;
             $("#more").on('click', function () {
-                var activities = $('#activities').html();
+                var activities = $('#activities_more').html();
                 counter = counter + 10;
                 if (counter > 999)
                     return;
@@ -151,12 +151,12 @@
                         more_activities = response_object.activities;
                         if (more){
                             $('#more').text('Loading...');
-                            $('#activities').html(activities + more_activities);
+                            $('#activities_more').html(activities + more_activities);
                             $('#more').text('more');
                         }
                         else {
                             $('#more').text('Loading...');
-                            $('#activities').html(activities + more_activities);
+                            $('#activities_more').html(activities + more_activities);
                             $('#more').hide();
                         }
                     },
@@ -296,7 +296,7 @@
                 <a href="#">Activities</a>
             </li>
         </ul>
-        <div id="activities">
+        <div id="activities_more">
             {% include "activities_list.html"%}
         </div>
         <div class="more"><button id="more" class="btn btn-small">more</button></div>
