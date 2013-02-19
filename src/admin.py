@@ -69,8 +69,8 @@ class ChallengeListPage(webapp.RequestHandler):
         for item in query:
             self.response.out.write(
                 '<a href="/admin/challenges/edit?ch=%s">Edit</a> '
-                % item.key)
-            number = item.exercise.number if item.exercise else '--'
+                % item.key.urlsafe())
+            number = item.exercise.get().number if item.exercise else '--'
             self.response.out.write("%s %s <br>" % (number, item.name))
 
         self.response.out.write(
