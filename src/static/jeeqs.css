@@ -121,11 +121,11 @@ div.submission-feedback .ui-state-active.flag_label {
     background-color: #0074cc;
 }
 
-.more {
+.load_more {
     text-align: center;
 }
 
-#more {
+#load_more {
     width: 81%;
     margin-top: 18px;
 }
