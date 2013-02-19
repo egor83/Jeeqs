@@ -1,0 +1,38 @@
+{% extends "base_twoColumn.html" %}
+
+{% block script %}
+    <script>
+        $(document).ready(function () {
+            $(':button').button();
+        })
+    </script>
+{% endblock script %}
+
+{% block column1 %}
+    <div style="padding-bottom: 40px">
+        <h1>Add Challenge</h1>
+    </div>
+    <form method="POST" action="/admin/challenges/new">
+        {% if challenge is not defined %}
+            <label>Course</label>
+            <select name="course" id="course">
+                <option value="" selected="selected">---------</option>
+                {% for course in courses %}
+                    <option value="{{ course.key.urlsafe() }}">{{ course.name}} </option>
+                {% endfor %}
+            </select>
+        {% endif %}
+        <label>Exercise Number</label>
+        <input type="text" id="number" name="number" size="40" style="width: 100px" placeholder="1.6.1" {% if challenge is defined %}value="{{ challenge.exercise_number }}" {% endif %}>
+        <label>Name</label>
+        <input type="text" id="name" name="name" size="40" placeholder="Challenge name" {% if challenge is defined %} value="{{ challenge.name }}" {% endif %}>
+        <label>PDF</label>
+        <input type="text" id="pdf_url" name="pdf_url" size="80" style="width: 700px" placeholder="URL to PDF" {% if challenge is defined %} value="{{ challenge.pdf_url }}"{% endif %}>
+        <label>Markdown</label>
+        <textarea id="markdown" name="markdown" rows="10" cols="40" style="width: 400px">{% if challenge is defined %}{{ challenge.markdown }}{% endif %}</textarea>
+        <label>Template Code</label>
+        <textarea id="template_code" name="template_code" rows="10" cols="40" style="width: 400px">{% if challenge is defined %}{{ challenge.template_code }}{% endif %}</textarea>
+        <br/>
+        <button type="submit" id="submit" class="btn-large btn-primary">Submit</button>
+    </form>
+{% endblock column1 %}

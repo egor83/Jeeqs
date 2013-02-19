@@ -16,16 +16,23 @@ class ChallengePage(webapp.RequestHandler):
     """
     @core.authenticate(required=True)
     def get(self):
-        all_courses = Course.query().fetch(1000)
+        challenge = None
+        challenge_key = self.request.get('ch')
+        if challenge_key:
+            challenge = ndb.Key(urlsafe=challenge_key).get()
 
-        vars = core.add_common_vars({
+        all_courses = Course.query().fetch(1000)
+        page_vars = {
             'courses': all_courses,
             'jeeqser': self.jeeqser,
             'login_url': users.create_login_url(self.request.url),
             'logout_url': users.create_logout_url(self.request.url)
-        })
+        }
+        if challenge:
+          page_vars['challenge'] = challenge
+        vars = core.add_common_vars(page_vars)
 
-        template = core.jinja_environment.get_template('new_challenge.html')
+        template = core.jinja_environment.get_template('admin_challenge.html')
         rendered = template.render(vars)
         self.response.out.write(rendered)
 
