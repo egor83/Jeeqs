@@ -65,11 +65,11 @@ class ChallengePage(webapp.RequestHandler):
 
 class ChallengeListPage(webapp.RequestHandler):
     def get(self):
-        query = Challenge.all().fetch(1000)
+        query = Challenge.query().fetch(1000)
         for item in query:
             self.response.out.write(
-                '<a href="/admin/challenges/edit?key=%s">Edit</a> '
-                % item.key())
+                '<a href="/admin/challenges/edit?ch=%s">Edit</a> '
+                % item.key)
             number = item.exercise.number if item.exercise else '--'
             self.response.out.write("%s %s <br>" % (number, item.name))
 
@@ -79,7 +79,9 @@ class ChallengeListPage(webapp.RequestHandler):
 
 def main():
     application = webapp.WSGIApplication(
-        [('/admin/challenges/new', ChallengePage),
+        [
+            ('/admin/challenges/new', ChallengePage),
+            ('/admin/challenges/edit', ChallengePage),
             ('/admin/challenges', ChallengeListPage),
             ('/admin/challenges/', ChallengeListPage),
          ],
