@@ -136,8 +136,8 @@
             var counter = 10;
             $("#more").on('click', function () {
                 var activities = $('#activities').html();
-                counter = counter+10;
-                if (counter>999)
+                counter = counter + 10;
+                if (counter > 999)
                     return;
                 $.ajax({
                     url: "/rpc",
@@ -154,9 +154,11 @@
                             $('#activities').html(activities + more_activities);
                             $('#more').text('more');
                         }
-                        else
+                        else {
+                            $('#more').text('Loading...');
+                            $('#activities').html(activities + more_activities);
                             $('#more').hide();
-
+                        }
                     },
                     error: function (response) {
                         $('#more').text('Error!');
