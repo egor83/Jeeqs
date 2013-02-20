@@ -120,3 +120,12 @@ div.submission-feedback .ui-state-active.flag_label {
 .deeplink:hover {
     background-color: #0074cc;
 }
+
+.load_more {
+    text-align: center;
+}
+
+#load_more {
+    width: 81%;
+    margin-top: 18px;
+}

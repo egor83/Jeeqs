@@ -57,6 +57,8 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
             self.get_in_jeeqs()
         elif method == 'get_challenge_avatars':
             self.get_challenge_avatars()
+        elif method == 'get_activities':
+            self.get_activities()
         else:
             self.error(status_code.StatusCode.forbidden)
             return
@@ -139,6 +141,28 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
         RPCHandler.apply_new_status(
             jeeqser_challenge, previous_status, submission)
 
+
+    @core.authenticate(False)
+    def get_activities(self):
+        cursor = self.request.get('cursor')
+        all_activities = Activity.query().order(-Activity.date)
+
+        if cursor == '':
+            activities_for_page, cursor, more = all_activities.fetch_page(10)
+            qo = ndb.QueryOptions(start_cursor=ndb.Cursor(urlsafe=cursor.to_websafe_string()))
+            activities_for_page, cursor, more = all_activities.fetch_page(10, options=qo)
+        else:
+            qo = ndb.QueryOptions(start_cursor=ndb.Cursor(urlsafe=cursor))
+            activities_for_page, cursor, more = all_activities.fetch_page(10, options=qo)
+
+        vars = core.add_common_vars({'activities': activities_for_page})
+        template = core.jinja_environment.get_template('activities_list.html')
+        rendered = template.render(vars)
+        json_response = json.dumps({'cursor': cursor.to_websafe_string(),
+                                    'activities': rendered, 'more': more})
+        self.response.write(json_response)
+
+
     @core.authenticate(False)
     def get_in_jeeqs(self):
         submission_key = self.request.get('submission_key')
@@ -172,6 +196,7 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
         template = core.jinja_environment.get_template('in_jeeqs_list.html')
         rendered = template.render(vars)
         self.response.write(rendered)
+
 
     def submit_challenge_vertical_scroll(self):
         """updates a challenge's source url """

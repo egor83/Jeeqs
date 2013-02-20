@@ -82,30 +82,29 @@
         });
 
         $(document).ready(function () {
-            $( '#home_tabs a:first' ).tab('show');
+            $('#home_tabs a:first').tab('show');
 
             $(':button').button();
 
-            $('#take_tour').on('click', function() {
+            $('#take_tour').on('click', function () {
                 guiders.show('first')
             })
 
-            $('#show_tour').on('click', function(event) {
+            $('#show_tour').on('click', function (event) {
                 event.preventDefault()
                 guiders.show('first')
             })
 
             $('.challenge_in_list').on({
-                        'mouseenter': function() {
+                        'mouseenter': function () {
                             $(this).css('background', "#FFC");
-                        }
-                        ,'mouseleave': function() {
+                        }, 'mouseleave': function () {
                             $(this).css('background', '');
                         }
                     }
             )
 
-            $(".challenge_stats").on('click', function(event) {
+            $(".challenge_stats").on('click', function (event) {
                 event.stopPropagation();
                 var $avatars = $(this).parents('.challenge_in_list').find('.challenge_avatars')
                 if ($avatars.css('display') == 'none') {
@@ -116,7 +115,7 @@
                         async: true,
                         type: "GET",
                         data: {'method': 'get_challenge_avatars', 'challenge_key': $challenge_key},
-                        success: function(response){
+                        success: function (response) {
                             $avatars.html(response);
                         }
                     })
@@ -127,9 +126,44 @@
                 }
             })
 
-            $(".challenge_in_list").on('click', function() {
-                window.location=$(this).find("a").attr("href");
+            $(".challenge_in_list").on('click', function () {
+                window.location = $(this).find("a").attr("href");
                 // return false;
+            });
+
+            var cursor = '';
+            var more = false;
+            var counter = 10;
+            $("#load_more").on('click', function () {
+                var activities = $('#activities_more').html();
+                counter = counter + 10;
+                if (counter > 999)
+                    return;
+                $.ajax({
+                    url: "/rpc",
+                    async: true,
+                    type: "GET",
+                    data: {'method': 'get_activities', 'cursor': cursor},
+                    success: function (response) {
+                        response_object = JSON.parse(response);
+                        cursor = response_object.cursor;
+                        more = response_object.more;
+                        more_activities = response_object.activities;
+                        if (more){
+                            $('#load_more').text('Loading...');
+                            $('#activities_more').html(activities + more_activities);
+                            $('#load_more').text('more');
+                        }
+                        else {
+                            $('#load_more').text('Loading...');
+                            $('#activities_more').html(activities + more_activities);
+                            $('#load_more').hide();
+                        }
+                    },
+                    error: function (response) {
+                        $('#more').text('An error has occurred! Please try again!');
+                    }
+                });
             });
         });
     </script>
@@ -262,9 +296,10 @@
                 <a href="#">Activities</a>
             </li>
         </ul>
-        <div>
+        <div id="activities_more">
             {% include "activities_list.html"%}
         </div>
+        <div class="load_more"><button id="load_more" class="btn btn-small">more</button></div>
     </div>
 {% endblock column2 %}
 
