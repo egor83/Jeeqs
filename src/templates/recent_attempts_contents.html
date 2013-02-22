@@ -12,16 +12,16 @@
 {% endif %}
 
 {% if cursor or has_newer %}
-    <div style="margin-top: 20px; float:left; clear:left">
+    <div style="margin-top: 20px; margin-left: 15px; float:left; clear:left">
         <ul class="pager">
+            {% if has_newer %}
+                <li>
+                    <a id="attempts_newer" href="#" data-challenge_key="{{ challenge.key.urlsafe() }}" style="margin-right: 10px;" >Newer</a>
+                </li>
+            {% endif %}
             {% if cursor %}
                 <li>
                     <a id="attempts_older" href="#" data-challenge_key="{{ challenge.key.urlsafe() }}" data-cursor="{{ cursor }}" >Older</a>
-                </li>
-            {% endif %}
-            {% if has_newer %}
-                <li>
-                  <a id="attempts_newer" href="#" data-challenge_key="{{ challenge.key.urlsafe() }}" >Newer</a>
                 </li>
             {% endif %}
         </ul>
