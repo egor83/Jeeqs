@@ -3,13 +3,6 @@ body {
     font-size: 14px;
 }
 
-#userInfo {
-    float: right;
-    background-color: #f0f8ff;
-    height: 45px;
-    /*font-family: sans-serif;*/
-}
-
 p {
     margin: 0.5em;
     /*font-family: arial;*/
