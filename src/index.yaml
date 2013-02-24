@@ -91,6 +91,13 @@ indexes:
 - kind: Feedback
   properties:
   - name: attempt
+  - name: author
+  - name: date
+    direction: desc
+
+- kind: Feedback
+  properties:
+  - name: attempt
   - name: date
     direction: desc
 

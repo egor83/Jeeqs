@@ -29,26 +29,53 @@
                     {{ submission.content|safe }}
                 </div>
                 {% if review_qualified %}
-                    <div class="submission-feedback" style="padding: 5px">
-                        <div class="feedback-buttons btn-group" data-toggle="buttons-radio" style="margin: 10px; margin-left: 0px;">
-                            <button value="correct" class="btn"><i class="icon-ok"></i></button>
-                            <button value="incorrect" class="btn"><i class="icon-remove"></i></button>
-                            <button value="flag" class="btn"><i class="icon-flag"></i></button>
-                        </div>
-                        <div>
-                            <div style="float:left; width: 100%">
-                                <textarea id="response__{{ submission.key.urlsafe() }}" rows="5" style="width: 50%;"></textarea>
+                    {% if submission.key.urlsafe() in own_reviews %}
+                        {# If this submission already has a review from current user,
+                           display review's content in a form and disable that form #}
+                        <div class="submission-feedback" style="padding: 5px; background: bisque; ">
+                            <div class="feedback-buttons btn-group" data-toggle="buttons-radio"
+                                    style="margin: 10px; margin-left: 0px;">
+                                <button value="correct" class="btn disabled"><i class="icon-ok"></i></button>
+                                <button value="incorrect" class="btn disabled"><i class="icon-remove"></i></button>
+                                <button value="flag" class="btn disabled"><i class="icon-flag"></i></button>
                             </div>
-                            <div style="float:left; clear:both; font-size:x-small;">
-                                <a href="#" rel="tooltip" title="Markdown and MathJax are supported."><i class="icon-info-sign"></i></a>
+                            <div>
+                                <div style="float:left; width: 100%">
+                                    <textarea id="response__{{ submission.key.urlsafe() }}"
+                                        rows="5" style="width: 50%;" disabled="disabled">{{ own_reviews[submission.key.urlsafe()].markdown }}
+                                    </textarea>
+                                </div>
+                                <div style="float:left; clear:both; font-size:x-small;">
+                                    <a href="#" rel="tooltip" title="Markdown and MathJax are supported."><i class="icon-info-sign"></i></a>
+                                </div>
                             </div>
+                            <button class="submit-vote btn btn-primary disabled" data-submitted-text="Submitted!"
+                                id="submit__{{ submission.key.urlsafe() }}" style="float:right">Submitted</button>
                         </div>
-                        {% set submitted = 'Submitted' %}
-                        {% if not submission.voted %}
-                            {% set submitted = 'Submit' %}
-                        {% endif %}
-                        <button class="submit-vote btn btn-primary" data-submitted-text="Submitted!" id="submit__{{ submission.key.urlsafe() }}" style="float:right">{{ submitted }}</button>
-                    </div>
+                    {% else %}
+                        {# No review found, display a form to submit a new one #}
+                        <div class="submission-feedback" style="padding: 5px">
+                            <div class="feedback-buttons btn-group" data-toggle="buttons-radio" style="margin: 10px; margin-left: 0px;">
+                                <button value="correct" class="btn"><i class="icon-ok"></i></button>
+                                <button value="incorrect" class="btn"><i class="icon-remove"></i></button>
+                                <button value="flag" class="btn"><i class="icon-flag"></i></button>
+                            </div>
+                            <div>
+                                <div style="float:left; width: 100%">
+                                    <textarea id="response__{{ submission.key.urlsafe() }}" rows="5" style="width: 50%;"></textarea>
+                                </div>
+                                <div style="float:left; clear:both; font-size:x-small;">
+                                    <a href="#" rel="tooltip" title="Markdown and MathJax are supported."><i class="icon-info-sign"></i></a>
+                                </div>
+                            </div>
+                            {% set submitted = 'Submitted' %}
+                            {% if not submission.voted %}
+                                {% set submitted = 'Submit' %}
+                            {% endif %}
+                            <button class="submit-vote btn btn-primary" data-submitted-text="Submitted!"
+                                id="submit__{{ submission.key.urlsafe() }}" style="float:right">{{ submitted }}</button>
+                        </div>
+                    {% endif %}
                 {% endif %}
             </div>
         {% endfor %}
