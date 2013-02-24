@@ -50,7 +50,8 @@ class ReviewHandler(jeeqs_request_handler.JeeqsRequestHandler):
         else:
             review_qualified = True
 
-        # contains latest reviews from current user for submissions on this page
+        # contains latest reviews from current user
+        # for submissions on this page
         own_reviews = {}
 
         if review_qualified or challenge.public_submissions:
