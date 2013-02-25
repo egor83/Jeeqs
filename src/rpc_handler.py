@@ -517,7 +517,7 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
 
     def took_tour(self):
         jeeqser_key = self.getValueInQuery('jeeqser_key')
-        jeeqser = ndb.Key(jeeqser_key).get()
+        jeeqser = ndb.Key(urlsafe=jeeqser_key).get()
         jeeqser.took_tour = True
         jeeqser.put()
 
