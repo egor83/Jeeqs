@@ -1,13 +1,9 @@
-{% extends "base_twoColumn.html" %}
-{% block load_scripts %}
 {# pdfjs #}
 <script type="text/javascript" src="/static/pdfjs/build/generic/build/pdf.js"></script>
 <script type="text/javascript" src="/static/pdfjs/build/generic/web/compatibility.js"></script>
 <script type="text/javascript">
     PDFJS.workerSrc = '/static/pdfjs/build/generic/build/pdf.js';
 </script>
-{% endblock %}
-{% block script %}
 <script>
     $(document).ready(function() {
         {% if challenge.pdf_url %}
@@ -116,67 +112,66 @@
 
     })
 </script>
-{% endblock script %}
-{% block container_header %}
-    <div class="challenge" style="float:left; width:100%;">
-        <h1 style="font-size: 20px">{{ challenge.name }}</h1>
-        <h3> {% include "exercise_breadcrumbs.html" %} </h3>
-        <div id="challenge" style="height: 450px; margin: 10px">
-            <ul id = "challenge_tabs" class="nav nav-tabs">
-                <li><a href="#tabs-1" data-toggle="tab">Problem</a></li>
-                <li><a href="#tabs-2" data-toggle="tab">Source</a></li>
-                <li><a href="#source-pdf" data-toggle="tab">PDF</a></li>
-                {% if challenge.attribution %}
-                    <li><a href="#challenge_info" data-toggle="tab">Info</a></li>
+
+<div class="challenge" style="float:left; width:100%;">
+    <h1 style="font-size: 20px">{{ challenge.name }}</h1>
+    <h3> {% include "exercise_breadcrumbs.html" %} </h3>
+    <div id="challenge" style="height: 450px; margin: 10px">
+        <ul id = "challenge_tabs" class="nav nav-tabs">
+            <li><a href="#tabs-1" data-toggle="tab">Problem</a></li>
+            <li><a href="#tabs-2" data-toggle="tab">Source</a></li>
+            <li><a href="#source-pdf" data-toggle="tab">PDF</a></li>
+            {% if challenge.attribution %}
+                <li><a href="#challenge_info" data-toggle="tab">Info</a></li>
+            {% endif %}
+        </ul>
+        <div id="challenge_tab_contents" class="tab-content" style="max-height: 400px">
+            <div id="tabs-1" class="fade tab-pane">
+                {% if challenge.content  %}
+                    <p> {{ challenge.content|safe }} </p>
+                {% else %}
+                    <p> To be completed! </p>
                 {% endif %}
-            </ul>
-            <div id="challenge_tab_contents" class="tab-content" style="max-height: 400px">
-                <div id="tabs-1" class="fade tab-pane">
-                    {% if challenge.content  %}
-                        <p> {{ challenge.content|safe }} </p>
-                    {% else %}
-                        <p> To be completed! </p>
-                    {% endif %}
-                </div>
-                <div id="tabs-2" class="fade tab-pane">
-                    <textarea id="challenge-source" {% if not isadmin %}readonly="true" {% endif %}rows="18" style="width: 100%; padding: 0px">{{ challenge.markdown }}</textarea>
-                    {% if isadmin %}
-                        <button class="btn btn-large btn-primary" data-updated-text="Updated" data-error-text="Oops!!" id="submitChallengeSource" style="margin-top: 10px">Update</button>
-                    {% endif %}
-                </div>
-                <div id="source-pdf" class="tab-pane fade">
-                    {% if challenge.pdf_url %}
-                        <div id='embedded_challenge' style="width: 100%; clear:both; float:left">
-                            <div id="viewer" style="border:1px solid black;"></div>
-                        </div>
-    {#                        TODO renable vertical scroll for pdf.js #}
-    {#                        {% if isadmin %}#}
-    {#                            <div style="clear: both; float:left;" >#}
-    {#                                <button class="btn btn-large btn-primary" data-updated-text="Updated" data-error-text="Oops!!" id="submit_challenge_vertical_scroll" style="margin-top: 20px">Update Vertical Scroll</button>#}
-    {#                            </div>#}
-    {#                        {% endif %}#}
-                    {% endif %}
-                </div>
-                <div id="challenge_info" class="tab-pane fade">
-                    {% if challenge.exercise %}
-                        <p>
-                            <strong>Course</strong>
-                            <br/>
-                            <small>{{ challenge.exercise_university }}, {{ challenge.exercise_program }} : {{ challenge.exercise_course_name }}</small>
-                        </p>
-                    {%  endif %}
-                    {% if challenge.attribution %}
-                        <p> <strong>Attribution</strong>
-                            <br/>
-                            <small>{{ challenge.attribution }}</small>
-                        </p>
-                    {% endif %}
-                    {% if challenge.source %}
-                        <p> <strong>Source</strong>
-                            <br/><small><a class="noline" target="_blank" href="{{ challenge.source }}">{{ challenge.source}}</a></small></p>
-                    {% endif %}
-                </div>
+            </div>
+            <div id="tabs-2" class="fade tab-pane">
+                <textarea id="challenge-source" {% if not isadmin %}readonly="true" {% endif %}rows="18" style="width: 100%; padding: 0px">{{ challenge.markdown }}</textarea>
+                {% if isadmin %}
+                    <button class="btn btn-large btn-primary" data-updated-text="Updated" data-error-text="Oops!!" id="submitChallengeSource" style="margin-top: 10px">Update</button>
+                {% endif %}
+            </div>
+            <div id="source-pdf" class="tab-pane fade">
+                {% if challenge.pdf_url %}
+                    <div id='embedded_challenge' style="width: 100%; clear:both; float:left">
+                        <div id="viewer" style="border:1px solid black;"></div>
+                    </div>
+{#                        TODO renable vertical scroll for pdf.js #}
+{#                        {% if isadmin %}#}
+{#                            <div style="clear: both; float:left;" >#}
+{#                                <button class="btn btn-large btn-primary" data-updated-text="Updated" data-error-text="Oops!!" id="submit_challenge_vertical_scroll" style="margin-top: 20px">Update Vertical Scroll</button>#}
+{#                            </div>#}
+{#                        {% endif %}#}
+                {% endif %}
+            </div>
+            <div id="challenge_info" class="tab-pane fade">
+                {% if challenge.exercise %}
+                    <p>
+                        <strong>Course</strong>
+                        <br/>
+                        <small>{{ challenge.exercise_university }}, {{ challenge.exercise_program }} : {{ challenge.exercise_course_name }}</small>
+                    </p>
+                {%  endif %}
+                {% if challenge.attribution %}
+                    <p> <strong>Attribution</strong>
+                        <br/>
+                        <small>{{ challenge.attribution }}</small>
+                    </p>
+                {% endif %}
+                {% if challenge.source %}
+                    <p> <strong>Source</strong>
+                        <br/><small><a class="noline" target="_blank" href="{{ challenge.source }}">{{ challenge.source}}</a></small></p>
+                {% endif %}
             </div>
         </div>
     </div>
-{% endblock container_header %}
+</div>
+
