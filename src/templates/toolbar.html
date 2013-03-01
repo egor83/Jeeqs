@@ -1,22 +1,24 @@
 {# Shows the user's information as well as authentication links #}
 
-<style>
-    a.noline { text-decoration: none;}
-</style>
-
-<div id="userInfo" class="navbar navbar-fixed-top" style="text-align: right;">
+<div id="userInfo" class="navbar navbar-fixed-top">
     <div class="navbar-inner">
         <div class="container">
-            <a class="brand" href="/">Jeeqs<img style="margin-left: 10px" src="/static/favicon.ico"/></a>
+            <ul class="nav pull-left">
+                <li><a class="brand" href="/">Jeeqs <img src="/static/favicon.ico"/></a></li>
+            </ul>
             <ul class="nav pull-right">
                 {# class="active" will highlight the navigation item! #}
                 {% if jeeqser %}
                     <li class="divider-vertical"></li>
-                    <li><img width="35px" height="35px" src="{{ jeeqser.profile_url }}" style="vertical-align: middle; border-radius: 5px"/></li>
-                    <li style="font-weight: bold">
-                        <a href="/user/" >{{ jeeqser.displayname }}
+                    <li><img class="nav_profile_pic" src="{{ jeeqser.profile_url }}"/></li>
+                    <li>
+                        <a href="/user/"
                         {% if jeeqser.suspended_until %}
-                            <strong style="color:red" title="Your account is suspended until {{ jeeqser.suspended_until }}">!</strong>
+                        title="Your account is suspended until {{ jeeqser.suspended_until }}"
+                        {% endif %}
+                        >{{ jeeqser.displayname }}
+                        {% if jeeqser.suspended_until %}
+                        <i class="icon-exclamation-sign"></i>
                         {% endif %}
                         </a>
                     </li>
