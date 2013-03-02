@@ -37,6 +37,7 @@ the following steps might help:
 > --high_replication --datastore_path="&lt;PATH_TO_DATASTORE_FILE&gt;" --use_sqlite --default_partition=""
 
 1.3) To cleanup the database, add --clear_datastore to the configuration above (you might want to save it as a separate project config);
+Do not access the website locally after clearing the datastore, otherwise your local data will be corrupt and you'll get 500 errors. 
 
 1.4) Use the following command to upload data from snapshot to local DB:
 > python &lt;PATH_TO_GAE's_appcfg.py&gt; upload_data --url=http://localhost:8080/_ah/remote_api --filename=&lt;SNAPSHOT_FILENAME&gt; --num_threads=1 &lt;PATH_TO_JEEQS_src_DIRECTORY&gt;

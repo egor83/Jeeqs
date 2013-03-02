@@ -3,14 +3,6 @@ body {
     font-size: 14px;
 }
 
-#userInfo {
-    float: right;
-    background-color: #f0f8ff;
-    height: 45px;
-    font-size: 16px;
-    /*font-family: sans-serif;*/
-}
-
 p {
     margin: 0.5em;
     /*font-family: arial;*/
@@ -119,4 +111,13 @@ div.submission-feedback .ui-state-active.flag_label {
 
 .deeplink:hover {
     background-color: #0074cc;
+}
+
+.load_more {
+    text-align: center;
+}
+
+#load_more {
+    width: 81%;
+    margin-top: 18px;
 }

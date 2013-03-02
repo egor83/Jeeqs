@@ -1,6 +1,7 @@
 import os
 import string
 
+from google.appengine.ext import ndb
 from google.appengine.api import users
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app
@@ -15,22 +16,29 @@ class ChallengePage(webapp.RequestHandler):
     """
     @core.authenticate(required=True)
     def get(self):
-        all_courses = Course.query().fetch(1000)
+        challenge = None
+        challenge_key = self.request.get('ch')
+        if challenge_key:
+            challenge = ndb.Key(urlsafe=challenge_key).get()
 
-        vars = core.add_common_vars({
+        all_courses = Course.query().fetch(1000)
+        page_vars = {
             'courses': all_courses,
             'jeeqser': self.jeeqser,
             'login_url': users.create_login_url(self.request.url),
             'logout_url': users.create_logout_url(self.request.url)
-        })
+        }
+        if challenge:
+          page_vars['challenge'] = challenge
+        vars = core.add_common_vars(page_vars)
 
-        template = core.jinja_environment.get_template('new_challenge.html')
+        template = core.jinja_environment.get_template('admin_challenge.html')
         rendered = template.render(vars)
         self.response.out.write(rendered)
 
     @core.authenticate(required=True)
     def post(self):
-        course = Course.get(self.request.get('course'))
+        course = ndb.Key(urlsafe=self.request.get('course')).get()
         self.response.out.write(course.name)
         number = self.request.get('number')
         name = string.capwords(self.request.get('name'))
@@ -57,12 +65,12 @@ class ChallengePage(webapp.RequestHandler):
 
 class ChallengeListPage(webapp.RequestHandler):
     def get(self):
-        query = Challenge.all().fetch(1000)
+        query = Challenge.query().fetch(1000)
         for item in query:
             self.response.out.write(
-                '<a href="/admin/challenges/edit?key=%s">Edit</a> '
-                % item.key())
-            number = item.exercise.number if item.exercise else '--'
+                '<a href="/admin/challenges/edit?ch=%s">Edit</a> '
+                % item.key.urlsafe())
+            number = item.exercise.get().number if item.exercise else '--'
             self.response.out.write("%s %s <br>" % (number, item.name))
 
         self.response.out.write(
@@ -71,7 +79,9 @@ class ChallengeListPage(webapp.RequestHandler):
 
 def main():
     application = webapp.WSGIApplication(
-        [('/admin/challenges/new', ChallengePage),
+        [
+            ('/admin/challenges/new', ChallengePage),
+            ('/admin/challenges/edit', ChallengePage),
             ('/admin/challenges', ChallengeListPage),
             ('/admin/challenges/', ChallengeListPage),
          ],

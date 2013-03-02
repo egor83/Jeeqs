@@ -82,30 +82,29 @@
         });
 
         $(document).ready(function () {
-            $( '#home_tabs a:first' ).tab('show');
+            $('#home_tabs a:first').tab('show');
 
             $(':button').button();
 
-            $('#take_tour').on('click', function() {
+            $('#take_tour').on('click', function () {
                 guiders.show('first')
             })
 
-            $('#show_tour').on('click', function(event) {
+            $('#show_tour').on('click', function (event) {
                 event.preventDefault()
                 guiders.show('first')
             })
 
             $('.challenge_in_list').on({
-                        'mouseenter': function() {
+                        'mouseenter': function () {
                             $(this).css('background', "#FFC");
-                        }
-                        ,'mouseleave': function() {
+                        }, 'mouseleave': function () {
                             $(this).css('background', '');
                         }
                     }
             )
 
-            $(".challenge_stats").on('click', function(event) {
+            $(".challenge_stats").on('click', function (event) {
                 event.stopPropagation();
                 var $avatars = $(this).parents('.challenge_in_list').find('.challenge_avatars')
                 if ($avatars.css('display') == 'none') {
@@ -116,7 +115,7 @@
                         async: true,
                         type: "GET",
                         data: {'method': 'get_challenge_avatars', 'challenge_key': $challenge_key},
-                        success: function(response){
+                        success: function (response) {
                             $avatars.html(response);
                         }
                     })
@@ -127,9 +126,44 @@
                 }
             })
 
-            $(".challenge_in_list").on('click', function() {
-                window.location=$(this).find("a").attr("href");
+            $(".challenge_in_list").on('click', function () {
+                window.location = $(this).find("a").attr("href");
                 // return false;
+            });
+
+            var cursor = '';
+            var more = false;
+            var counter = 10;
+            $("#load_more").on('click', function () {
+                var activities = $('#activities_more').html();
+                counter = counter + 10;
+                if (counter > 999)
+                    return;
+                $.ajax({
+                    url: "/rpc",
+                    async: true,
+                    type: "GET",
+                    data: {'method': 'get_activities', 'cursor': cursor},
+                    success: function (response) {
+                        response_object = JSON.parse(response);
+                        cursor = response_object.cursor;
+                        more = response_object.more;
+                        more_activities = response_object.activities;
+                        if (more){
+                            $('#load_more').text('Loading...');
+                            $('#activities_more').html(activities + more_activities);
+                            $('#load_more').text('more');
+                        }
+                        else {
+                            $('#load_more').text('Loading...');
+                            $('#activities_more').html(activities + more_activities);
+                            $('#load_more').hide();
+                        }
+                    },
+                    error: function (response) {
+                        $('#more').text('An error has occurred! Please try again!');
+                    }
+                });
             });
         });
     </script>
@@ -187,8 +221,8 @@
                                 {% endif %}
                                 <span style="cursor: {{ cursor }}; color: #808080; font-size: smaller; float:left; margin-left: 20px;">
                                     <span style="border-radius: 0px; float:right; background-color: transparent; padding: 0px 0px 0px 0px ">
-                                        <a style="cursor: pointer; text-decoration: none" class="badge_links challenge_stats" href="#" rel="tooltip" data-original-title="{{ challenge.num_jeeqsers_submitted|d('0')}} jeeqser(s) submitted for this challenge."><span class="label font-normal"> {{ challenge.num_jeeqsers_submitted|d('0')}} <i class="shift-right-2 icon-upload icon-white"></i></span></a>
-                                        <a style="cursor: pointer; text-decoration: none" class="badge_links challenge_stats" href="#" rel="tooltip" data-original-title="{{ challenge.num_jeeqsers_solved|d('0')}} jeeqser(s) solved"><span class="label font-normal">{{ challenge.num_jeeqsers_solved|d('0')}} <i class="icon-ok-circle shift-right-2 icon-white"></i></span></a>
+                                        <a style="cursor: pointer; text-decoration: none" class="badge_links challenge_stats" rel="tooltip" data-original-title="{{ challenge.num_jeeqsers_submitted|d('0')}} jeeqser(s) submitted for this challenge."><span class="label font-normal"> {{ challenge.num_jeeqsers_submitted|d('0')}} <i class="shift-right-2 icon-upload icon-white"></i></span></a>
+                                        <a style="cursor: pointer; text-decoration: none" class="badge_links challenge_stats" rel="tooltip" data-original-title="{{ challenge.num_jeeqsers_solved|d('0')}} jeeqser(s) solved"><span class="label font-normal">{{ challenge.num_jeeqsers_solved|d('0')}} <i class="icon-ok-circle shift-right-2 icon-white"></i></span></a>
                                         <a style="cursor: pointer; text-decoration: none" class="badge_links" href="/challenge/?ch={{ challenge.key.urlsafe() }}#review" rel="tooltip" data-original-title="{{ challenge.submissions_without_review|d('0') }} submissions don't have any reviews"><span class="label font-normal deeplink hover-effect"> {{ challenge.submissions_without_review|d('0')}} <i class="shift-right-2 icon-comment icon-white"></i></span></a>
                                     </span>
                                 </span>
@@ -262,9 +296,10 @@
                 <a href="#">Activities</a>
             </li>
         </ul>
-        <div>
+        <div id="activities_more">
             {% include "activities_list.html"%}
         </div>
+        <div class="load_more"><button id="load_more" class="btn btn-small">more</button></div>
     </div>
 {% endblock column2 %}
 
