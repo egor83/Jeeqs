@@ -14,11 +14,11 @@
                     <li>
                         <a href="/user/"
                         {% if jeeqser.suspended_until %}
-                        title="Your account is suspended until {{ jeeqser.suspended_until }}"
+                            title="Your account is suspended until {{ jeeqser.suspended_until }}"
                         {% endif %}
                         >{{ jeeqser.displayname }}
                         {% if jeeqser.suspended_until %}
-                        <i class="icon-exclamation-sign"></i>
+                            <i class="icon-exclamation-sign"></i>
                         {% endif %}
                         </a>
                     </li>
