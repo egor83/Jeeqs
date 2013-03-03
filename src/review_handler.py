@@ -80,12 +80,13 @@ class ReviewHandler(jeeqs_request_handler.JeeqsRequestHandler):
             # or self.jeeqser.key() in submission.users_voted)]
 
             for submission in submissions:
-                review = Feedback.query().\
-                    filter(Feedback.attempt == submission.key).\
-                    filter(Feedback.author == self.jeeqser.key).\
-                    order(-Feedback.date).fetch(1)
-                if len(review) > 0:
-                    own_reviews[submission.key.urlsafe()] = review[0]
+                if self.jeeqser.key in submission.users_voted:
+                    review = Feedback.query().\
+                        filter(Feedback.attempt == submission.key).\
+                        filter(Feedback.author == self.jeeqser.key).\
+                        order(-Feedback.date).get()
+                    if review:
+                        own_reviews[submission.key.urlsafe()] = review
         else:
             submissions, next_cursor, more = [], 'None', False
 

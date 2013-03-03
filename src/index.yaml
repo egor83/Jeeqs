@@ -139,6 +139,12 @@ indexes:
 
 - kind: Feedback
   properties:
+  - name: author
+  - name: date
+    direction: desc
+
+- kind: Feedback
+  properties:
   - name: submission
   - name: flag_count
   - name: date

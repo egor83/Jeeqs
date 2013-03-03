@@ -37,14 +37,13 @@
                         <div class="feedback-buttons btn-group" data-toggle="buttons-radio"
                                 style="margin: 10px; margin-left: 0px;">
                             {% if has_own %}
-                                <button value="correct" class="btn disabled"><i class="icon-ok"></i></button>
-                                <button value="incorrect" class="btn disabled"><i class="icon-remove"></i></button>
-                                <button value="flag" class="btn disabled"><i class="icon-flag"></i></button>
+                                {% set btn_class = "btn disabled" %}
                             {% else %}
-                                <button value="correct" class="btn"><i class="icon-ok"></i></button>
-                                <button value="incorrect" class="btn"><i class="icon-remove"></i></button>
-                                <button value="flag" class="btn"><i class="icon-flag"></i></button>
+                                {% set btn_class = "btn" %}
                             {% endif %}
+                            <button value="correct" class="{{ btn_class }}btn"><i class="icon-ok"></i></button>
+                            <button value="incorrect" class="{{ btn_class }}"><i class="icon-remove"></i></button>
+                            <button value="flag" class="{{ btn_class }}"><i class="icon-flag"></i></button>
                         </div>
                         <div>
                             <div style="float:left; width: 100%">
