@@ -121,3 +121,14 @@ div.submission-feedback .ui-state-active.flag_label {
     width: 81%;
     margin-top: 18px;
 }
+
+a.noline {
+    text-decoration: none;
+}
+
+.nav_profile_pic {
+    height: 32px;
+    width: 32px;
+    border-radius: 2px;
+    margin-top:3px;
+}
