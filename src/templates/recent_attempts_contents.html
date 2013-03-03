@@ -9,6 +9,10 @@
         </div>
         <hr/>
     {% endfor %}
+{% else %}
+    <div style="margin-left: 15px; margin-top: 15px; margin-bottom: 15px; ">
+        Login to submit and view your attempts.
+    </div>
 {% endif %}
 
 {% if cursor or has_newer %}
