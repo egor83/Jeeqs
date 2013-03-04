@@ -477,7 +477,7 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
             submission.author,
             submission.challenge,
             create=True,
-            submission_key=submission_key)
+            submission_key=submission.key)
 
         feedback = Feedback(
             parent=submission.key,
