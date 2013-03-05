@@ -95,15 +95,6 @@
                 guiders.show('first')
             })
 
-            $('.challenge_in_list').on({
-                        'mouseenter': function () {
-                            $(this).css('background', "#FFC");
-                        }, 'mouseleave': function () {
-                            $(this).css('background', '');
-                        }
-                    }
-            )
-
             $(".challenge_stats").on('click', function (event) {
                 event.stopPropagation();
                 var $avatars = $(this).parents('.challenge_in_list').find('.challenge_avatars')
@@ -174,10 +165,10 @@
     <a class="noline"
        href="http://ocw.mit.edu/courses/electrical-engineering-and-computer-science/6-189-a-gentle-introduction-to-programming-using-python-january-iap-2011/"
        target="_blank">
-        <i class="icon-share-alt" style="float: right"></i>
+        <i class="icon-share-alt pull-right"></i>
     </a>
     </h2>
-    <div id="challenge-list" style="float:left; margin: 10px;font-size: 14px; cell-padding: 5px;">
+    <div id="challenge-list">
         <ul id="home_tabs" class="nav nav-tabs">
             <li><a href="#challenges" data-toggle="tab">Challenges</a></li>
             <li><a href="#injeeqs" data-toggle="tab"><i class="icon icon-arrow-down"></i>Incoming Jeeqs</a></li>
@@ -186,8 +177,8 @@
             <div id="challenges" class="fade tab-pane">
                 <div style="cursor: pointer;">
                     {% for challenge in challenges %}
-                        <div class="challenge_in_list" style="padding-right: 10px; height: 80px; clear:both">
-                            <div style="float:left; margin-bottom: 2px">
+                        <div class="challenge_in_list clearfix">
+                            <div>
                                 <a class="noline" href="/challenge/?ch={{ challenge.key.urlsafe() }}" style="color:
                                         {% if challenge.status == 'correct' %}
                                             #089619
@@ -198,71 +189,70 @@
                                     ">
                                     {{ challenge.name }}
                                     {% if challenge.automatic_review %}
-                                        <a href="#" rel="tooltip" data-original-title="Jeeqs will review this!"><i class="icon-refresh"></i></a>
+                                    <a href="#" rel="tooltip" data-original-title="Jeeqs will review this!"><i class="icon-refresh"></i></a>
                                     {% endif %}
                                 </a>
+                                    <p>
+                                        {% if challenge.exercise_number %}
+                                    <div class="pull-left clear-left">
+                                        {{ challenge.exercise_number}}
+                                    </div>
+                                    {% endif %}
+
+                                    {% if challenge.exercise_number %}
+                                    <div class="pull-left" title="{{ challenge.exercise_course_name }}">
+                                        {{ challenge.exercise_course_code }}
+                                    </div>
+                                    <div class="pull-left">
+                                        {{ challenge.exercise_program }}{{ challenge.exercise_university }}
+                                    </div>
+                                    {% endif %}
+                                    </p>
+
+
                             </div>
-                            <div style="float:right; margin-bottom: 2px">
-                                <span>
+                            <div class="pull-right">
                                     <a class="noline" href="/challenge/?ch={{ challenge.key.urlsafe() }}" title="Solve this challenge">
                                         {% if challenge.status == 'correct' %}
-                                            <span class="ui-icon ui-icon-unlocked" style="float:left"></span>
+                                            <i class="ui-icon ui-icon-unlocked"></i>
                                         {% else %}
-                                            <span class="icon-lock" style="float:left"></span>
+                                            <i class="icon-lock"></i>
                                         {% endif %}
                                     </a>
-                                </span>
+                               
                             </div>
-                            <div style="float: right; clear:right; padding:0px; background: transparent;">
+                            <div class="challenge_stats_container pull-right clear-right ">
                                 {%if challenge.num_jeeqsers_solved > 0 %}
                                     {% set cursor = 'pointer' %}
                                 {% else %}
                                     {% set cursor = 'default' %}
                                 {% endif %}
-                                <span style="cursor: {{ cursor }}; color: #808080; font-size: smaller; float:left; margin-left: 20px;">
-                                    <span style="border-radius: 0px; float:right; background-color: transparent; padding: 0px 0px 0px 0px ">
-                                        <a style="cursor: pointer; text-decoration: none" class="badge_links challenge_stats" rel="tooltip" data-original-title="{{ challenge.num_jeeqsers_submitted|d('0')}} jeeqser(s) submitted for this challenge."><span class="label font-normal"> {{ challenge.num_jeeqsers_submitted|d('0')}} <i class="shift-right-2 icon-upload icon-white"></i></span></a>
-                                        <a style="cursor: pointer; text-decoration: none" class="badge_links challenge_stats" rel="tooltip" data-original-title="{{ challenge.num_jeeqsers_solved|d('0')}} jeeqser(s) solved"><span class="label font-normal">{{ challenge.num_jeeqsers_solved|d('0')}} <i class="icon-ok-circle shift-right-2 icon-white"></i></span></a>
-                                        <a style="cursor: pointer; text-decoration: none" class="badge_links" href="/challenge/?ch={{ challenge.key.urlsafe() }}#review" rel="tooltip" data-original-title="{{ challenge.submissions_without_review|d('0') }} submissions don't have any reviews"><span class="label font-normal deeplink hover-effect"> {{ challenge.submissions_without_review|d('0')}} <i class="shift-right-2 icon-comment icon-white"></i></span></a>
-                                    </span>
-                                </span>
+
+                                        <a class="noline challenge_stats noline badge_links pull-right" href="/challenge/?ch={{ challenge.key.urlsafe() }}#review" rel="tooltip" data-original-title="{{ challenge.submissions_without_review|d('0') }} submissions don't have any reviews"><span class="label font-normal deeplink hover-effect"> {{ challenge.submissions_without_review|d('0')}} <i class="shift-right-2 icon-comment icon-white"></i></span></a>
+                                        <a class="noline badge_links challenge_stats pull-right" rel="tooltip" data-original-title="{{ challenge.num_jeeqsers_solved|d('0')}} jeeqser(s) solved"><span class="label font-normal">{{ challenge.num_jeeqsers_solved|d('0')}} <i class="icon-ok-circle shift-right-2 icon-white"></i></span></a>
+                                        <a class="noline badge_links challenge_stats pull-right" rel="tooltip" data-original-title="{{ challenge.num_jeeqsers_submitted|d('0')}} jeeqser(s) submitted for this challenge."><span class="label font-normal"> {{ challenge.num_jeeqsers_submitted|d('0')}} <i class="shift-right-2 icon-upload icon-white"></i></span></a>
                             </div>
 
                             {% if challenge.last_solver %}
-                                <div style="float: right; clear:right; margin-top: 5px">
-                                    {{  avatar(challenge.last_solver, challenge.last_solver_picture_url, style='float:right') }}
-                                </div>
-                            {% endif %}
-
-                            {% if challenge.exercise_number %}
-                                <div style="float: left; clear:left; font-size: smaller; margin-left: 10px">
-                                    {{ challenge.exercise_number}}&nbsp;
-                                </div>
-                            {% endif %}
-
-                            {% if challenge.exercise_number %}
-                                <div style="float:left; font-size: smaller" title="{{ challenge.exercise_course_name }}">
-                                    {{ challenge.exercise_course_code }} &nbsp;
-                                </div>
-                                <div style="float: left; font-size: smaller;">
-                                    {{ challenge.exercise_program }}&nbsp;{{ challenge.exercise_university }}
+                                <div class="pull-right clear-right" style="margin-top: 10px;">
+                                    {{  avatar(challenge.last_solver, challenge.last_solver_picture_url, style='pull-right') }}
                                 </div>
                             {% endif %}
 
                             {% if challenge.submitted %}
-                                <div style="float: left; clear:left;">
+                                <div class="clearfix">
                                     {% with submission=challenge.jc %}
                                         {% include "attempt_score.html"%}
                                     {% endwith %}
                                 </div>
                             {% endif %}
 
-                            <div class="challenge_avatars" style="display:none; float:left; clear:both; margin: 5px; background-color: rgba(0, 0, 0, .05); width: 98%%; margin-left: 1%; margin-right: 1%">
-                                <input type=hidden name="challenge_key" value="{{ challenge.key.urlsafe() }}" style="display: none"/>
-                                <span style="color:#d3d3d3;">Loading ...</span>
+                            <div class="challenge_avatars pull-left" style="display:none;">
+                                <input type=hidden name="challenge_key" value="{{ challenge.key.urlsafe() }}"/>
+                                <span class="disabled">Loading ...</span>
                             </div>
 
-                            <div style="padding-top: 10px; clear:both"></div>
+                            
                         </div>
                     {% endfor %}
                 </div>
@@ -282,7 +272,7 @@
 {% endblock column1 %}
 {% block column2 %}
     {% if not jeeqser.took_tour %}
-        <div id="tour" style="float:right; margin: 10px; width: 100%; text-align: center">
+        <div id="tour" class="pull-right content_centered" >
             <button class="btn btn-info" id="take_tour">Take a Tour</button>
         </div>
     {% endif %}
@@ -290,7 +280,7 @@
         {% include "plusone.html" %}
         {#        {% include "facebook_likebox.html" %}#}
     </div>
-    <div id="all_activities" style="width:90%; float:right; clear:right; margin: 10px;">
+    <div id="all_activities" class="pull-right clear-right">
         <ul class="nav nav-tabs">
             <li class="active">
                 <a href="#">Activities</a>
