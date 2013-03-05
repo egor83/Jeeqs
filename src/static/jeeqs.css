@@ -178,7 +178,7 @@ a.noline {
 
 .challenge_in_list:hover {
     border: 1px solid #c0deed;
-    background: hsl(0, 0%, 95%);
+    background: #e3e9ff;
 }
 
 .clear-right {
