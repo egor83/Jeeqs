@@ -170,15 +170,15 @@ a.noline {
 }
 
 .challenge_in_list {
-    height: 100px;
+    height: 81px;
     padding: 9px;
     border: 1px solid #ffffff;
-    border-radius: 5px;
+    //border-radius: 9px;
 }
 
 .challenge_in_list:hover {
-    border: 1px solid #ffe45c;
-    background: #ffffcc;
+    //border: 1px solid #ffe45c;
+    background: hsl(0, 0%, 95%);
 }
 
 .clear-right {

@@ -2,7 +2,7 @@
 {% extends "base_twoColumn.html" %}
 {% block script %}
 
-    <script>
+<script xmlns="http://www.w3.org/1999/html">
         finish_tour = function() {
             guiders.hideAll();
             $('#tour').hide()
@@ -178,7 +178,7 @@
                 <div style="cursor: pointer;">
                     {% for challenge in challenges %}
                         <div class="challenge_in_list clearfix">
-                            <div>
+                            <div class="pull-left span5 clear-left">
                                 <a class="noline" href="/challenge/?ch={{ challenge.key.urlsafe() }}" style="color:
                                         {% if challenge.status == 'correct' %}
                                             #089619
@@ -208,7 +208,18 @@
                                     </div>
                                     {% endif %}
                                     </p>
-
+                                {% if challenge.submitted %}
+                                <div class="span4 clear-left">
+                                    {% with submission=challenge.jc %}
+                                    {% include "attempt_score.html"%}
+                                    {% endwith %}
+                                </div>
+                                {% endif %}
+                                <br>
+                                <div class="challenge_avatars pull-left" style="display:none; margin-top:5px;">
+                                    <input type=hidden name="challenge_key" value="{{ challenge.key.urlsafe() }}"/>
+                                    <span class="disabled">Loading ...</span>
+                                </div>
 
                             </div>
                             <div class="pull-right">
@@ -219,8 +230,8 @@
                                             <i class="icon-lock"></i>
                                         {% endif %}
                                     </a>
-                               
                             </div>
+
                             <div class="challenge_stats_container pull-right clear-right ">
                                 {%if challenge.num_jeeqsers_solved > 0 %}
                                     {% set cursor = 'pointer' %}
@@ -239,18 +250,6 @@
                                 </div>
                             {% endif %}
 
-                            {% if challenge.submitted %}
-                                <div class="clearfix">
-                                    {% with submission=challenge.jc %}
-                                        {% include "attempt_score.html"%}
-                                    {% endwith %}
-                                </div>
-                            {% endif %}
-
-                            <div class="challenge_avatars pull-left" style="display:none;">
-                                <input type=hidden name="challenge_key" value="{{ challenge.key.urlsafe() }}"/>
-                                <span class="disabled">Loading ...</span>
-                            </div>
 
                             
                         </div>
