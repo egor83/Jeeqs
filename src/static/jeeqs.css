@@ -207,3 +207,18 @@ a.noline {
     text-align: center;
 
 }
+
+a.gray {
+    color:gray;
+}
+
+a.gray:hover {
+    color:gray;
+}
+
+.share_social {
+    width: 90%;
+    margin: 10px;
+    float:right;
+    clear:right;
+}

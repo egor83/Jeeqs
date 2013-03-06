@@ -189,7 +189,7 @@
                                     ">
                                     {{ challenge.name }}
                                     {% if challenge.automatic_review %}
-                                    <a href="#" rel="tooltip" data-original-title="Jeeqs will review this!"><i class="icon-refresh"></i></a>
+                                    <a class="noline" href="#" rel="tooltip" data-original-title="Jeeqs will review this!"><i class="icon-refresh"></i></a>
                                     {% endif %}
                                 </a>
                                     <p>
@@ -223,10 +223,12 @@
 
                             </div>
                             <div class="pull-right">
-                                    <a class="noline" href="/challenge/?ch={{ challenge.key.urlsafe() }}" title="Solve this challenge">
+
                                         {% if challenge.status == 'correct' %}
-                                            <i class="ui-icon ui-icon-unlocked"></i>
+                                            <a class="noline gray" href="/challenge/?ch={{ challenge.key.urlsafe() }}" title="Solve this challenge">
+                                            <i class="icon-unlock"></i>
                                         {% else %}
+                                            <a class="noline" href="/challenge/?ch={{ challenge.key.urlsafe() }}" title="Solve this challenge">
                                             <i class="icon-lock"></i>
                                         {% endif %}
                                     </a>
@@ -275,7 +277,7 @@
             <button class="btn btn-info" id="take_tour">Take a Tour</button>
         </div>
     {% endif %}
-    <div style="width: 90%; margin: 10px; float:right; clear:right">
+    <div class="share_social">
         {% include "plusone.html" %}
         {#        {% include "facebook_likebox.html" %}#}
     </div>
