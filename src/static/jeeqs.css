@@ -208,8 +208,16 @@ a.noline {
 
 }
 
-a.gray {
+.gray {
     color: gray!important;
+}
+
+.challenge_title {
+    font-size: 14px;;
+}
+
+.course_details {
+    font-size: 11px!important;
 }
 
 a.black {
@@ -221,22 +229,18 @@ a.black:hover {
     color: black;
 }
 
-a.correct {
-    color: green;
+.correct {
+    //color: green;
+    background:green!important;
+    margin-right: 5px;
     //font-weight: bold;
 }
 
-a.correct:hover {
-    color: green;
-}
-
-a.incorrect {
-    color: red;
+.incorrect {
+    //color: red;
+    background:red!important;
+    margin-right: 5px;
     //font-weight: bold;
-}
-
-a.incorrect:hover {
-    color: red;
 }
 
 .share_social {

@@ -1,5 +1,5 @@
-<div style="font-size: smaller; margin-left: 10px">
-    <span style="color:green; float:left">{{ submission.correct_count }}</span><span class="icon-ok" style="float:left; margin-right: 5px"></span>
-    <span style="color:red; float:left">{{ submission.incorrect_count }}</span><span class="icon-remove" style="float:left; margin-right: 5px"></span>
-    <span style="color:grey; float:left">{{ submission.flag_count }}</span><span class="icon-flag" style="float:left; margin-right: 5px"></span>
+<div>
+    <span class="pull-left label correct">{{ submission.correct_count }} <i class="icon-thumbs-up"></i></span>
+    <span class="pull-left label incorrect">{{ submission.incorrect_count }} <i class="icon-thumbs-down"></i></span>
+    <span class="pull-left label">{{ submission.flag_count }} <i class="icon-flag"></i></span>
 </div>
