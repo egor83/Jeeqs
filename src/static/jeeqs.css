@@ -232,7 +232,7 @@ a.black:hover {
 
 .correct {
     //color: green;
-    background:green!important;
+    background:#21AB02!important;
     margin-right: 5px;
     //font-weight: bold;
 }
@@ -254,4 +254,8 @@ a.black:hover {
 .course:after {
     content: " > ";
     margin-right:5px;
+}
+
+.attempt_score {
+    margin-right: 5px;
 }
