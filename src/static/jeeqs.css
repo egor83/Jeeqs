@@ -209,11 +209,34 @@ a.noline {
 }
 
 a.gray {
-    color:gray;
+    color: gray!important;
 }
 
-a.gray:hover {
-    color:gray;
+a.black {
+    color: black;
+    font-weight: bold;
+}
+
+a.black:hover {
+    color: black;
+}
+
+a.correct {
+    color: green;
+    font-weight: bold;
+}
+
+a.correct:hover {
+    color: green;
+}
+
+a.incorrect {
+    color: red;
+    font-weight: bold;
+}
+
+a.incorrect:hover {
+    color: red;
 }
 
 .share_social {

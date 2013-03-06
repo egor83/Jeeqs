@@ -179,20 +179,20 @@
                     {% for challenge in challenges %}
                         <div class="challenge_in_list clearfix">
                             <div class="pull-left span5 clear-left">
-                                <a class="noline" href="/challenge/?ch={{ challenge.key.urlsafe() }}" style="color:
+                                <a class="noline black
                                         {% if challenge.status == 'correct' %}
-                                            #089619
+                                            gray
                                         {% endif %}
                                         {% if challenge.status == 'incorrect' %}
-                                            #960D22
+                                            gray
                                         {% endif %}
-                                    ">
+                                    " href="/challenge/?ch={{ challenge.key.urlsafe() }}">
                                     {{ challenge.name }}
                                     {% if challenge.automatic_review %}
-                                    <a class="noline" href="#" rel="tooltip" data-original-title="Jeeqs will review this!"><i class="icon-refresh"></i></a>
+                                    <a class="noline gray" href="#" rel="tooltip" data-original-title="Jeeqs will review this!"><i class="icon-refresh"></i></a>
                                     {% endif %}
                                 </a>
-                                    <p>
+                                    <p class="gray">
                                         {% if challenge.exercise_number %}
                                     <div class="pull-left clear-left">
                                         {{ challenge.exercise_number}}
@@ -228,7 +228,7 @@
                                             <a class="noline gray" href="/challenge/?ch={{ challenge.key.urlsafe() }}" title="Solve this challenge">
                                             <i class="icon-unlock"></i>
                                         {% else %}
-                                            <a class="noline" href="/challenge/?ch={{ challenge.key.urlsafe() }}" title="Solve this challenge">
+                                            <a class="noline black" href="/challenge/?ch={{ challenge.key.urlsafe() }}" title="Solve this challenge">
                                             <i class="icon-lock"></i>
                                         {% endif %}
                                     </a>
