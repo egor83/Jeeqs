@@ -194,17 +194,20 @@
                                 </a>
                                     <p class="gray">
                                         {% if challenge.exercise_number %}
-                                    <div class="pull-left clear-left">
+                                    <div class="pull-left clear-left course">
                                         {{ challenge.exercise_number}}
                                     </div>
                                     {% endif %}
 
                                     {% if challenge.exercise_number %}
-                                    <div class="pull-left" title="{{ challenge.exercise_course_name }}">
+                                    <div class="pull-left course" title="{{ challenge.exercise_course_name }}">
                                         {{ challenge.exercise_course_code }}
                                     </div>
+                                    <div class="pull-left course">
+                                        {{ challenge.exercise_program }}
+                                    </div>
                                     <div class="pull-left">
-                                        {{ challenge.exercise_program }}{{ challenge.exercise_university }}
+                                        {{ challenge.exercise_university }}
                                     </div>
                                     {% endif %}
                                     </p>

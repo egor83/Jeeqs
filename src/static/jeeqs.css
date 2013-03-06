@@ -245,3 +245,8 @@ a.incorrect:hover {
     float:right;
     clear:right;
 }
+
+.course:after {
+    content: " > ";
+    margin-right:5px;
+}
