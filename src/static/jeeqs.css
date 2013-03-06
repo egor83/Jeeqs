@@ -123,7 +123,7 @@ div.submission-feedback .ui-state-active.flag_label {
 }
 
 a.noline {
-    text-decoration: none;
+    text-decoration: none!important;
 }
 
 .nav_profile_pic {
@@ -162,5 +162,100 @@ a.noline {
 .avatar_img_url {
     height:25px;
     width:25px;
-    border-radius: 5px;
+    border-radius: 2px;
+}
+
+#challenge-list {
+    margin-top: 10px;
+}
+
+.challenge_in_list {
+    height: 81px;
+    padding: 9px;
+    border: 1px solid #ffffff;
+    //border-radius: 9px;
+}
+
+.challenge_in_list:hover {
+    border: 1px solid #c0deed;
+    background: #e3e9ff;
+}
+
+.clear-right {
+    clear: right;
+}
+
+.clear-left {
+    clear: left;
+}
+
+.challenge_stats {
+    cursor: pointer;
+    padding:0px!important;
+    margin:0px;
+    margin-left:5px;
+}
+
+.challenge_stats_container {
+    width: 150px;
+    padding:0px;
+    margin:0px;
+}
+
+.content_centered {
+    width: 100%;
+    text-align: center;
+
+}
+
+.gray {
+    color: gray!important;
+}
+
+.challenge_title {
+    font-size: 14px;;
+}
+
+.course_details {
+    font-size: 11px!important;
+    letter-spacing: 1px;
+}
+
+a.black {
+    color: black;
+    //font-weight: bold;
+}
+
+a.black:hover {
+    color: black;
+}
+
+.correct {
+    //color: green;
+    background:#21AB02!important;
+    margin-right: 5px;
+    //font-weight: bold;
+}
+
+.incorrect {
+    //color: red;
+    background:red!important;
+    margin-right: 5px;
+    //font-weight: bold;
+}
+
+.share_social {
+    width: 90%;
+    margin: 10px;
+    float:right;
+    clear:right;
+}
+
+.course:after {
+    content: " > ";
+    margin-right:5px;
+}
+
+.attempt_score {
+    margin-right: 5px;
 }
