@@ -1,13 +1,16 @@
 import logging
 import webapp2
 
+from datetime import datetime
 from google.appengine.ext.webapp.util import run_wsgi_app
+
+import jeeqs_request_handler
 
 from models import *
 from status_code import exercise_cmp
 
 
-class SanityCheck(webapp2.RequestHandler):
+class SanityCheck(jeeqs_request_handler.JeeqsRequestHandler):
     def get(self):
         """Check if  parameter values are consistent.
 
@@ -20,6 +23,8 @@ class SanityCheck(webapp2.RequestHandler):
 
         """
 
+        logging.info('Starting sanity check cron job on %s' %
+                     datetime.now().strftime('%y/%m/%d %H:%M %z'))
         res = []
 
         all_challenges = Challenge.query().fetch()
@@ -27,20 +32,9 @@ class SanityCheck(webapp2.RequestHandler):
             cmp=exercise_cmp,
             key=lambda challenge: challenge.exercise_number_persisted)
         for ch in all_challenges:
-            num_solved = Jeeqser_Challenge.query()\
-                .filter(Jeeqser_Challenge.challenge == ch.key)\
-                .filter(Jeeqser_Challenge.status == AttemptStatus.SUCCESS)\
-                .count()
-
-            num_submitted = Jeeqser_Challenge.query()\
-                .filter(Jeeqser_Challenge.challenge == ch.key)\
-                .count()
-
-            num_without_review = Attempt.query().\
-                filter(Attempt.challenge == ch.key).\
-                filter(Attempt.active == True).\
-                filter(Attempt.vote_count == 0).\
-                count()
+            num_solved = ch.get_num_jeeqsers_solved()
+            num_submitted = ch.get_num_jeeqsers_submitted()
+            num_without_review = ch.get_submissions_without_review()
 
             if (num_submitted != ch.num_jeeqsers_submitted or
                     num_solved != ch.num_jeeqsers_solved or
@@ -50,10 +44,11 @@ class SanityCheck(webapp2.RequestHandler):
                     ch.num_jeeqsers_submitted, num_solved,
                     ch.num_jeeqsers_solved, num_without_review,
                     ch.submissions_without_review)
-#                print ch_data
 
                 logging.error('A discrepancy in challenge parameters has been '
-                              'found:')
+                              'found, the number obtained from direct DB query'
+                              ' and the number stored as a DB record attribute'
+                              ' are not the same:')
                 logging.error(ch_data)
                 res.append(ch_data)
 
@@ -68,7 +63,7 @@ class SanityCheck(webapp2.RequestHandler):
 def main():
 #    logging.getLogger().setLevel(logging.DEBUG)
     application = webapp2.WSGIApplication(
-        [('/cron/sanity_check/', SanityCheck),])
+        [('/cron/sanity_check/', SanityCheck), ])
     run_wsgi_app(application)
 
 
