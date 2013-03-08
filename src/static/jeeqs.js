@@ -186,6 +186,25 @@ shell.done = function(req) {
   }
 };
 
+// Function that'd call RPC handler to get in-jeeqs for a submission specified
+// by sub_id and display the (already rendered) result provided by the server
+// in an element with id result_element
+function display_in_jeeqs(sub_id, result_element) {
+    $.ajax({
+        url: "/rpc",
+        async: true,
+        type: "GET",
+        data: {'method': 'get_in_jeeqs', 'submission_key':sub_id},
+        success: function(response) {
+            // The server sends an HTML
+            $('#' + result_element).html(response);
+        },
+        error: function(response) {
+            $('#' + result_element).html("Could not retrieve other In Jeeqs")
+        }
+    })
+}
+
 $('.submit-vote').live('click', function() {
 
     var $initiator = $(this)
@@ -203,19 +222,7 @@ $('.submit-vote').live('click', function() {
     $(this).siblings('.feedback-buttons').children().attr('disabled', 'disabled');
 
     // Get the in_jeeqs
-    $.ajax({
-        url: "/rpc",
-        async: true,
-        type: "GET",
-        data: {'method': 'get_in_jeeqs', 'submission_key':$submission_id},
-        success: function(response) {
-            // The sever sends an HTML
-            $('#submissionFeedbacks').html(response);
-        },
-        error: function(response) {
-            $('#submissionFeedbacks').html("Could not retrieve other In Jeeqs")
-        }
-    })
+    display_in_jeeqs($submission_id, 'submissionFeedbacks');
 
     $.ajax({
         url: "/rpc",

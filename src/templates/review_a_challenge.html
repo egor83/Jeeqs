@@ -64,6 +64,17 @@
                         {% endif %}
                         <button class="submit-vote btn btn-primary {% if has_own %} disabled" {% endif %} data-submitted-text="Submitted!"
                             id="submit__{{ submission.key.urlsafe() }}" style="float:right">{{ submitted }}</button>
+
+                        {% if has_own %}
+                            <div id="other_reviews_container__{{ submission.key.urlsafe() }}" style="width:80%; float:left; clear:both; margin-left: 10px;">
+                                <div id="other_reviews__{{ submission.key.urlsafe() }}" style="width: 100%; max-height: 200px;overflow-y: auto;">
+                                </div>
+                            </div>
+                            <script>
+                                // fetch and display in jeeqs
+                                display_in_jeeqs("{{ submission.key.urlsafe() }}", "other_reviews__{{ submission.key.urlsafe() }}");
+                            </script>
+                        {% endif %}
                     </div>
                 {% endif %}
             </div>
