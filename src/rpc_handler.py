@@ -1,5 +1,6 @@
 from models import *
 import core
+import jeeqs
 import status_code
 import logging
 import json
@@ -59,6 +60,8 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
             self.get_challenge_avatars()
         elif method == 'get_activities':
             self.get_activities()
+        elif method == 'get_feedbacks':
+            self.get_feedbacks()
         else:
             self.error(status_code.StatusCode.forbidden)
             return
@@ -196,6 +199,26 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
         template = core.jinja_environment.get_template('in_jeeqs_list.html')
         rendered = template.render(vars)
         self.response.write(rendered)
+
+
+    @core.authenticate(False)
+    def get_feedbacks(self):
+
+        fph = jeeqs.FeedbacksPagingHandler(self.request)
+        feedbacks, cursor, has_newer = fph.getResultSetInfo(self.jeeqser.key)
+
+        vars = core.add_common_vars({
+            'jeeqser': self.jeeqser,
+            'feedbacks': feedbacks,
+            'cursor': cursor,
+            'has_newer': has_newer,
+            'write_challenge_name': True
+            })
+
+        template = core.jinja_environment.get_template('in_jeeqs_list.html')
+        rendered = template.render(vars)
+        self.response.write(rendered)
+
 
 
     def submit_challenge_vertical_scroll(self):
