@@ -73,7 +73,8 @@ class FrontPageHandler(jeeqs_request_handler.JeeqsRequestHandler):
         for jc in jeeqser_challenges:
             active_submissions[jc.challenge] = jc
 
-        injeeqs = None
+        feedbacks = None
+        feedbacks_cursor = None
 
         if self.jeeqser:
             for ch in all_challenges:
