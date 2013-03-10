@@ -66,8 +66,8 @@
                             id="submit__{{ submission.key.urlsafe() }}" style="float:right">{{ submitted }}</button>
 
                         {% if has_own %}
-                            <div id="other_reviews_container__{{ submission.key.urlsafe() }}" style="width:80%; float:left; clear:both; margin-left: 10px;">
-                                <div id="other_reviews__{{ submission.key.urlsafe() }}" style="width: 100%; max-height: 200px;overflow-y: auto;">
+                            <div id="other_reviews_container__{{ submission.key.urlsafe() }}" class="other_reviews_container">
+                                <div id="other_reviews__{{ submission.key.urlsafe() }}" class="other_reviews_div">
                                 </div>
                             </div>
                             <script>
@@ -99,11 +99,11 @@
     {% endif %}
 </div>
 
-<div id="submissionFeedbacksContainer" style="width:80%; float:left; clear:both; margin-left: 10px; display:none">
+<div id="submissionFeedbacksContainer" class="other_reviews_container" style="display:none">
     <ul id="submission_feedbacks_tab" class="nav nav-tabs">
         <li class="active"><a href="#submissionFeedbacks" data-toggle="tab">Other Incoming Jeeqs</a></li>
     </ul>
-    <div id="submissionFeedbacks" style="width: 100%; max-height: 200px;overflow-y: auto;">
+    <div id="submissionFeedbacks" class="other_reviews_div">
         {% include "in_jeeqs_list.html" %}
     </div>
 </div>

@@ -194,7 +194,7 @@ function display_in_jeeqs(sub_id, result_element) {
         url: "/rpc",
         async: true,
         type: "GET",
-        data: {'method': 'get_in_jeeqs', 'submission_key':sub_id},
+        data: {'method': 'get_in_jeeqs', 'submission_key': sub_id},
         success: function(response) {
             // The server sends an HTML
             $('#' + result_element).html(response);
