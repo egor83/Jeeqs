@@ -242,8 +242,11 @@
 {#                                        <h4>Submission score: {{ submission.vote_average}}/4 based on votes by {{ submission.vote_count }} Jeeqsers</h4>#}
                                 {% include "attempt_score.html"%}
                             </div>
-                            {% include "in_jeeqs_list.html" %}
-                        </div>
+                            {% set cursor = feedbacks_cursor %}
+                            {% set submissionKey = submission.key.urlsafe() %}
+                            <div class="jeeqs-list">
+                                {% include "in_jeeqs_list.html" %}
+                            </div>
                     {% endif %}
                 </div>
 

@@ -375,17 +375,27 @@ $(document).on('click', '#feedbacks_older', function(event) {
     event.stopPropagation();
     event.preventDefault();
     var cursor = $(this).attr('data-cursor');
+    var submissionKey = null;
+    submissionKey = $('#submissionKey').val();
+
 
     // store cursor to be able to navigate back to the beginning of the list
     // by pressing "Newer"
     feedbacks_cursors_stack.push(cursor);
-    ajax_fetch_feedbacks(cursor);
+
+    if (submissionKey != null)
+        ajax_fetch_feedbacks_for_submission(cursor, submissionKey);
+    else
+        ajax_fetch_feedbacks(cursor);
 });
 
 
 $(document).on('click', '#feedbacks_newer', function(event) {
     event.stopPropagation();
     event.preventDefault();
+
+    var submissionKey = null;
+    submissionKey = $('#submissionKey').val();
 
     // stack top contains cursor for the current page:
     // on loading 'newer' we discard that cursor on top of the stack and pass
@@ -401,7 +411,11 @@ $(document).on('click', '#feedbacks_newer', function(event) {
         // the first page - denoted by cursor value of 'None'
         cursor = 'None';
     }
-    ajax_fetch_feedbacks(cursor);
+
+    if (submissionKey != null)
+        ajax_fetch_feedbacks_for_submission(cursor, submissionKey);
+    else
+        ajax_fetch_feedbacks(cursor);
 });
 
 
@@ -412,6 +426,22 @@ function ajax_fetch_feedbacks(cursor) {
         async: true,
         type: "GET",
         data: {'method': 'get_feedbacks', 'cursor': cursor},
+        success: function(response) {
+            //alert(response);
+            $('.jeeqs-list').html(response);
+        },
+        error: function(response) {
+            alert('An error occurred while loading this page. Please try again later ...');
+        }
+    })
+}
+
+function ajax_fetch_feedbacks_for_submission(cursor, submission) {
+    $.ajax({
+        url: "/rpc",
+        async: true,
+        type: "GET",
+        data: {'method': 'get_feedbacks_for_submissoin', 'cursor': cursor, 'submission': submission},
         success: function(response) {
             //alert(response);
             $('.jeeqs-list').html(response);

@@ -59,7 +59,6 @@
 {% endif %}
 
 
-
 {% if cursor or has_newer %}
 <div style="margin-top: 20px; margin-left: 15px; float:left; clear:left">
     <ul class="pager">
@@ -74,6 +73,9 @@
         </li>
         {% endif %}
     </ul>
+    {% if submissionKey %}
+    <input id="submissionKey"  type="hidden" value="{{submissionKey}}">
+    {% endif %}
 </div>
 {% endif %}
 

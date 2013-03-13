@@ -88,7 +88,7 @@ class FrontPageHandler(jeeqs_request_handler.JeeqsRequestHandler):
                     ch.submitted = False
 
             fph = FeedbacksPagingHandler(self.request)
-            feedbacks, feedbacks_cursor, has_newer = fph.getResultSetInfo(self.jeeqser.key)
+            feedbacks, feedbacks_cursor, has_newer = fph.getFeedbacksForJeeqser(self.jeeqser.key)
 
 
         all_activities = Activity.query().order(-Activity.date).fetch(10)
@@ -180,23 +180,16 @@ class ChallengeHandler(jeeqs_request_handler.JeeqsRequestHandler):
                     submission = None
 
             if submission:
-                feedbacks = Feedback.query()\
-                    .filter(Feedback.attempt == submission.key)\
-                    .filter(Feedback.flagged == False)\
-                    .order(Feedback.flag_count)\
-                    .order(-Feedback.date)\
-                    .fetch(10)
+                fph = FeedbacksPagingHandler(self.request)
+                feedbacks, feedbacks_cursor, has_newer = fph.getFeedbacksForSubmission(self.jeeqser.key, submission.key)
 
-            if feedbacks:
-                core.prettify_injeeqs(feedbacks)
-
-            # Fetch saved draft
-            try:
-                draft = Draft.query().filter(
-                    Draft.author == self.jeeqser.key,
-                    Draft.challenge == challenge.key).fetch(1)[0]
-            except IndexError:
-                draft = None
+        # Fetch saved draft
+        try:
+            draft = Draft.query().filter(
+                Draft.author == self.jeeqser.key,
+                Draft.challenge == challenge.key).fetch(1)[0]
+        except IndexError:
+            draft = None
 
         vars = core.add_common_vars({
             'server_software': os.environ['SERVER_SOFTWARE'],
@@ -209,6 +202,7 @@ class ChallengeHandler(jeeqs_request_handler.JeeqsRequestHandler):
             'template_code': challenge.template_code,
             'submission': submission,
             'feedbacks': feedbacks,
+            'feedbacks_cursor': feedbacks_cursor,
             'draft': draft,
             'attempt': attempt
         })
@@ -288,7 +282,7 @@ class AttemptsHandler(jeeqs_request_handler.JeeqsRequestHandler):
 class FeedbacksPagingHandler(jeeqs_request_handler.JeeqsRequestHandler):
     FEEDBACKS_PER_PAGE = 5
 
-    def getResultSetInfo(self, jeeqserKey):
+    def getFeedbacksForJeeqser(self, jeeqserKey):
         qo = ndb.QueryOptions()
 
         feedbacks_query = Feedback \
@@ -298,8 +292,43 @@ class FeedbacksPagingHandler(jeeqs_request_handler.JeeqsRequestHandler):
             .order(Feedback.flag_count) \
             .order(-Feedback.date)
 
-        cursor = self.request.get('cursor') if self.request.get('cursor') \
-            else "None"
+        cursor = "None"
+        if self.request.get('cursor'):
+           cursor = self.request.get('cursor')
+
+        if cursor and cursor != "None":
+            # a cursor was passed along with the request, we're in
+            # the middle of the list of attempts, show "Newer" button
+            # to navigate to the newer attempts
+            qo = ndb.QueryOptions(start_cursor=ndb.Cursor(urlsafe=cursor))
+            has_newer = True
+        else:
+            # no cursor was passed, we are at the beginning of the list
+            # of attempts already and shouldn't display "Newer" button
+            qo = ndb.QueryOptions()
+            has_newer = False
+
+        feedbacks, cursor, more = feedbacks_query.fetch_page(self.FEEDBACKS_PER_PAGE,options=qo)
+        core.prettify_injeeqs(feedbacks)
+
+        if cursor and more:
+            cursor = cursor.urlsafe()
+        else:
+            cursor = ''
+
+        return feedbacks, cursor, has_newer
+
+    def getFeedbacksForSubmission(self, jeeqserKey, submissionKey):
+        feedbacks_query = Feedback.query() \
+            .filter(Feedback.attempt == submissionKey) \
+            .filter(Feedback.flagged == False) \
+            .order(Feedback.flag_count) \
+            .order(-Feedback.date)
+
+        cursor = "None"
+        if self.request.get('cursor'):
+            cursor = self.request.get('cursor')
+
         if cursor and cursor != "None":
             # a cursor was passed along with the request, we're in
             # the middle of the list of attempts, show "Newer" button
