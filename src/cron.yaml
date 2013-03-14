@@ -1,0 +1,4 @@
+cron:
+- description: sanity check
+  url: /cron/sanity_check/
+  schedule: every day 00:00
