@@ -2,9 +2,14 @@
 <script>
     {# Need to run tooltip since this page is dynamically loaded into browser.  #}
     $(document).ready(function() {
-        $('a[rel=tooltip]').tooltip()
-    })
+        $('a[rel=tooltip]').tooltip();
+
+        $('.auto_injeeqs_display').each(function() {
+            display_in_jeeqs($(this).attr('sub_id'), $(this).attr('id'));
+        });
+    });
 </script>
+
 <div id="submissions">
     {% if submissions|length == 0 %}
         {% if not review_qualified and not challenge.public_submissions %}
@@ -66,14 +71,10 @@
                             id="submit__{{ submission.key.urlsafe() }}" style="float:right">{{ submitted }}</button>
 
                         {% if has_own %}
-                            <div id="other_reviews_container__{{ submission.key.urlsafe() }}" class="other_reviews_container">
-                                <div id="other_reviews__{{ submission.key.urlsafe() }}" class="other_reviews_div">
+                            <div class="other_reviews_container">
+                                <div id="other_reviews__{{ submission.key.urlsafe() }}" class="other_reviews_div auto_injeeqs_display" sub_id="{{ submission.key.urlsafe() }}" >
                                 </div>
                             </div>
-                            <script>
-                                // fetch and display in jeeqs
-                                display_in_jeeqs("{{ submission.key.urlsafe() }}", "other_reviews__{{ submission.key.urlsafe() }}");
-                            </script>
                         {% endif %}
                     </div>
                 {% endif %}
