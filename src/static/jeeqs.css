@@ -254,8 +254,18 @@ a.black:hover {
 }
 
 #viewer {
-    border:1px solid black;
     height: 400px;
+}
+
+#pdf_display {
+    border: 1px solid black;
+    margin-bottom: 10px;
+
+}
+
+#challenge_tab_contents {
+    border-bottom: 1px solid #cccccc;
+    margin-bottom:20px;
 }
 
 #submission-content {
