@@ -2,7 +2,7 @@
 <script type="text/javascript" src="/static/pdfjs/build/generic/build/pdf.min.js"></script>
 <script type="text/javascript" src="/static/pdfjs/build/generic/web/compatibility.js"></script>
 <script type="text/javascript">
-    PDFJS.workerSrc = '/static/pdfjs/build/generic/build/pdf.js';
+    PDFJS.workerSrc = '/static/pdfjs/build/generic/build/pdf.min.js';
 </script>
 <script>
     $(document).ready(function() {
@@ -34,6 +34,7 @@
                 // Prepare canvas using PDF page dimensions
                 var canvas = $('<canvas></canvas>');
                 var context = canvas[0].getContext('2d');
+                canvas.attr('id', 'pdf_display');
                 canvas.attr('width', pageDisplayWidth);
                 canvas.attr('height', pageDisplayHeight);
                 pageDivHolder.append(canvas);
@@ -157,6 +158,5 @@
             </div>
         </div>
     </div>
-    <hr>
 </div>
 
