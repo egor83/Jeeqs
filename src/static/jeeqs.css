@@ -167,6 +167,7 @@ a.noline {
     overflow:auto!important;
     padding: 9px;
     border: 1px solid #ffffff;
+    cursor: pointer;
 }
 
 .challenge_in_list:hover {
