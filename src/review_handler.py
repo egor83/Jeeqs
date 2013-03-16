@@ -70,8 +70,10 @@ class ReviewHandler(jeeqs_request_handler.JeeqsRequestHandler):
             submissions, next_cursor, more = submissions_query.fetch_page(
                 SUBMISSIONS_PER_PAGE, options=qo)
 
-            if next_cursor:
+            if next_cursor and more:
                 next_cursor = next_cursor.urlsafe()
+            else:
+                next_cursor = ''
             previous_cursor = cursor
 
             # TODO: replace this iteration with a data oriented approach

@@ -375,6 +375,43 @@ class Challenge(ndb.Model):
             .filter(TestCase.challenge == self.key)\
             .fetch(MAX_FETCH)
 
+    def get_num_jeeqsers_solved(self):
+        """Get num_jeeqsers_solved as a direct DB query.
+
+        num_jeeqsers_solved itself is updated manually during submission.
+
+        """
+
+        return Jeeqser_Challenge.query()\
+            .filter(Jeeqser_Challenge.challenge == self.key)\
+            .filter(Jeeqser_Challenge.status == AttemptStatus.SUCCESS)\
+            .count()
+
+    def get_num_jeeqsers_submitted(self):
+        """Get num_jeeqsers_submitted as a direct DB query.
+
+        num_jeeqsers_submitted itself is updated manually during submission.
+
+        """
+
+        return Jeeqser_Challenge.query()\
+            .filter(Jeeqser_Challenge.challenge == self.key)\
+            .count()
+
+    def get_submissions_without_review(self):
+        """Get submissions_without_review as a direct DB query.
+
+        submissions_without_review itself is updated manually during
+        submission.
+
+        """
+
+        return Attempt.query().\
+            filter(Attempt.challenge == self.key).\
+            filter(Attempt.active == True).\
+            filter(Attempt.vote_count == 0).\
+            count()
+
 
 class Draft(ndb.Model):
     """Models a draft (un-submitted) attempt"""

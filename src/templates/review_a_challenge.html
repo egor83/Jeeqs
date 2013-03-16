@@ -7,7 +7,7 @@
 </script>
 <div id="submissions">
     {% if submissions|length == 0 %}
-        {%if not review_qualified and not challenge.public_submissions%}
+        {% if not review_qualified and not challenge.public_submissions %}
             <div style="color:grey">The submissions to this challenge are only visible to users who have solved the challenge.</div>
         {% else %}
             <div style="color:grey"> No Submissions</div>
@@ -89,7 +89,7 @@
                         <a id="challenge_submissions_previous" href="#" data-challenge_key="{{ challenge.key.urlsafe() }}">Previous</a>
                     </li>
                 {% endif %}
-                {% if submissions|length > 0 %}
+                {% if submissions|length > 0 and next_cursor %}
                     <li>
                         <a id="challenge_submissions_next" href="#" data-cursor="{{ next_cursor }}" data-previous_cursor="{{ previous_cursor }}" data-challenge_key="{{ challenge.key.urlsafe() }}">Next</a>
                     </li>
