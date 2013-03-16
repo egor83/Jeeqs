@@ -1,7 +1,7 @@
 {% macro avatar(jeeqser_key, avatar_url, style='avatar') -%}
-    <div class="{{ style }}">
-        <a class="noline" href="/user/?jk={{ jeeqser_key.urlsafe() }}">
-            <img class="avatar_img_url" src="{{  avatar_url }}"/>
-        </a>
-    </div>
+<div class="{{ style }} clearfix">
+    <a class="noline" href="/user/?jk={{ jeeqser_key.urlsafe() }}">
+        <img class="avatar_img_url" src="{{  avatar_url }}"/>
+    </a>
+</div>
 {%- endmacro %}
