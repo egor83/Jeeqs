@@ -7,68 +7,62 @@
 </script>
 <div id="submissions">
     {% if submissions|length == 0 %}
-        {% if not review_qualified and not challenge.public_submissions %}
-            <div style="color:grey">The submissions to this challenge are only visible to users who have solved the challenge.</div>
-        {% else %}
-            <div style="color:grey"> No Submissions</div>
-        {% endif %}
+    {%if not review_qualified and not challenge.public_submissions%}
+    <div class="gray">The submissions to this challenge are only visible to users who have solved the challenge.</div>
     {% else %}
-        {% for submission in submissions %}
-            <div class="submission-placeholder" style="float:left; clear:left; width: 90%; margin-top: 20px">
-                <div>
-                    {{ avatar(style='float:left; margin-right: 10px;', jeeqser_key=submission.author, avatar_url=submission.author.get().profile_url) }}
-                    <div style="float:left; color: grey">
-                        Submitted by {{ submission.author.get().displayname }}
-                        &nbsp; <span style="color:grey; font-size:smaller;">{{ submission.date|timesince }} </span>
-                    </div>
-                    <div style="float:right; color:grey; font-size: smaller">
-                        {{ submission.vote_count }} votes submitted
-                    </div>
-                </div>
-                <div style="padding: 10px; overflow: auto; clear:left;">
-                    {{ submission.content|safe }}
-                </div>
-                {% if review_qualified %}
-                    <div class="submission-feedback" style="padding: 5px">
-                        <div class="feedback-buttons btn-group" data-toggle="buttons-radio" style="margin: 10px; margin-left: 0px;">
-                            <button value="correct" class="btn"><i class="icon-ok"></i></button>
-                            <button value="incorrect" class="btn"><i class="icon-remove"></i></button>
-                            <button value="flag" class="btn"><i class="icon-flag"></i></button>
-                        </div>
-                        <div>
-                            <div style="float:left; width: 100%">
-                                <textarea id="response__{{ submission.key.urlsafe() }}" rows="5" style="width: 50%;"></textarea>
-                            </div>
-                            <div style="float:left; clear:both; font-size:x-small;">
-                                <a href="#" rel="tooltip" title="Markdown and MathJax are supported."><i class="icon-info-sign"></i></a>
-                            </div>
-                        </div>
-                        {% set submitted = 'Submitted' %}
-                        {% if not submission.voted %}
-                            {% set submitted = 'Submit' %}
-                        {% endif %}
-                        <button class="submit-vote btn btn-primary" data-submitted-text="Submitted!" id="submit__{{ submission.key.urlsafe() }}" style="float:right">{{ submitted }}</button>
-                    </div>
-                {% endif %}
+    <div class="gray"> No Submissions</div>
+    {% endif %}
+    {% else %}
+    {% for submission in submissions %}
+    <div class="submission-placeholder" class="pull-left clear-left">
+        <div>
+            {{ avatar(style='pull-left avatar_review', jeeqser_key=submission.author, avatar_url=submission.author.get().profile_url) }}
+            <div class="pull-left gray">
+                Submitted by {{ submission.author.get().displayname }}
+                <span class="gray">{{ submission.date|timesince }} </span>
             </div>
-        {% endfor %}
+            <div class="pull-right gray">
+                {{ submission.vote_count }} votes submitted
+            </div>
+        </div>
+        <div style="padding: 10px; overflow: auto; clear:left;">
+            {{ submission.content|safe }}
+        </div>
+        {% if review_qualified %}
+        <div class="submission-feedback">
+            <div class="feedback-buttons btn-group" data-toggle="buttons-radio">
+                <button value="correct" class="btn"><i class="icon-ok"></i></button>
+                <button value="incorrect" class="btn"><i class="icon-remove"></i></button>
+                <button value="flag" class="btn"><i class="icon-flag"></i></button>
+            </div>
+            <textarea id="response__{{ submission.key.urlsafe() }}" class="span12"></textarea>
+            <a href="#" rel="tooltip" title="Markdown and MathJax are supported."><i class="icon-info-sign"></i></a>
+            {% set submitted = 'Submitted' %}
+            {% if not submission.voted %}
+            {% set submitted = 'Submit' %}
+            {% endif %}
+            <button class="submit-vote btn btn-primary pull-right" data-submitted-text="Submitted!" id="submit__{{ submission.key.urlsafe() }}" >{{ submitted }}</button>
+        </div>
+        {% endif %}
+    </div>
+    {% endfor %}
     {% endif %}
 
     {% if next_cursor or previous_cursor %}
-        <div style="margin-top: 20px; float:left; clear:left">
-            <ul class="pager">
-                {% if previous_cursor %}
-                    <li>
-                        <a id="challenge_submissions_previous" href="#" data-challenge_key="{{ challenge.key.urlsafe() }}">Previous</a>
-                    </li>
-                {% endif %}
-                {% if submissions|length > 0 and next_cursor %}
-                    <li>
-                        <a id="challenge_submissions_next" href="#" data-cursor="{{ next_cursor }}" data-previous_cursor="{{ previous_cursor }}" data-challenge_key="{{ challenge.key.urlsafe() }}">Next</a>
-                    </li>
-                {% endif %}
-            </ul>
-        </div>
+    <div style="margin-top: 20px; float:left; clear:left">
+        <ul class="pager">
+            {% if previous_cursor %}
+            <li>
+                <a id="challenge_submissions_previous" href="#" data-challenge_key="{{ challenge.key.urlsafe() }}">Previous</a>
+            </li>
+            {% endif %}
+            {% if submissions|length > 0 %}
+            <li>
+                <a id="challenge_submissions_next" href="#" data-cursor="{{ next_cursor }}" data-previous_cursor="{{ previous_cursor }}" data-challenge_key="{{ challenge.key.urlsafe() }}">Next</a>
+            </li>
+            {% endif %}
+        </ul>
+    </div>
     {% endif %}
 </div>
 
@@ -80,4 +74,3 @@
         {% include "in_jeeqs_list.html" %}
     </div>
 </div>
-
