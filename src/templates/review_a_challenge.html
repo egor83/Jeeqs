@@ -2,50 +2,76 @@
 <script>
     {# Need to run tooltip since this page is dynamically loaded into browser.  #}
     $(document).ready(function() {
-        $('a[rel=tooltip]').tooltip()
-    })
+        $('a[rel=tooltip]').tooltip();
+
+        $('.auto_injeeqs_display').each(function() {
+            display_in_jeeqs($(this).attr('sub_id'), $(this).attr('id'));
+        });
+    });
 </script>
+
 <div id="submissions">
     {% if submissions|length == 0 %}
-    {%if not review_qualified and not challenge.public_submissions%}
-    <div class="gray">The submissions to this challenge are only visible to users who have solved the challenge.</div>
-    {% else %}
-    <div class="gray"> No Submissions</div>
-    {% endif %}
-    {% else %}
-    {% for submission in submissions %}
-    <div class="submission-placeholder" class="pull-left clear-left">
-        <div>
-            {{ avatar(style='pull-left avatar_review', jeeqser_key=submission.author, avatar_url=submission.author.get().profile_url) }}
-            <div class="pull-left gray">
-                Submitted by {{ submission.author.get().displayname }}
-                <span class="gray">{{ submission.date|timesince }} </span>
-            </div>
-            <div class="pull-right gray">
-                {{ submission.vote_count }} votes submitted
-            </div>
-        </div>
-        <div style="padding: 10px; overflow: auto; clear:left;">
-            {{ submission.content|safe }}
-        </div>
-        {% if review_qualified %}
-        <div class="submission-feedback">
-            <div class="feedback-buttons btn-group" data-toggle="buttons-radio">
-                <button value="correct" class="btn"><i class="icon-ok"></i></button>
-                <button value="incorrect" class="btn"><i class="icon-remove"></i></button>
-                <button value="flag" class="btn"><i class="icon-flag"></i></button>
-            </div>
-            <textarea id="response__{{ submission.key.urlsafe() }}" class="span12"></textarea>
-            <a href="#" rel="tooltip" title="Markdown and MathJax are supported."><i class="icon-info-sign"></i></a>
-            {% set submitted = 'Submitted' %}
-            {% if not submission.voted %}
-            {% set submitted = 'Submit' %}
-            {% endif %}
-            <button class="submit-vote btn btn-primary pull-right" data-submitted-text="Submitted!" id="submit__{{ submission.key.urlsafe() }}" >{{ submitted }}</button>
-        </div>
+        {% if not review_qualified and not challenge.public_submissions %}
+            <div class="gray">The submissions to this challenge are only visible to users who have solved the challenge.</div>
+        {% else %}
+            <div class="gray"> No Submissions</div>
         {% endif %}
-    </div>
-    {% endfor %}
+    {% else %}
+        {% for submission in submissions %}
+            <div class="submission-placeholder" class="pull-left clear-left">
+                <div>
+                    {{ avatar(style='pull-left avatar_review', jeeqser_key=submission.author, avatar_url=submission.author.get().profile_url) }}
+                    <div class="pull-left gray">
+                        Submitted by {{ submission.author.get().displayname }}
+                        <span class="gray">{{ submission.date|timesince }} </span>
+                    </div>
+                    <div class="pull-right gray">
+                        {{ submission.vote_count }} votes submitted
+                    </div>
+                </div>
+                <div style="padding: 10px; overflow: auto; clear:left;">
+                    {{ submission.content|safe }}
+                </div>
+                {% if review_qualified %}
+                    {# If this submission already has a review from current user,
+                       display review's content in a form and disable that form;
+                       if no review found, display a form to submit a new one #}
+                    {% set has_own = (submission.key.urlsafe() in own_reviews) %}
+                    <div class="submission-feedback" {% if has_own %}style="background: bisque; "{% endif %}>
+                        <div class="feedback-buttons btn-group" data-toggle="buttons-radio">
+                            {% if has_own %}
+                                {% set btn_class = "btn disabled" %}
+                            {% else %}
+                                {% set btn_class = "btn" %}
+                            {% endif %}
+                            <button value="correct" class="{{ btn_class }}"><i class="icon-ok"></i></button>
+                            <button value="incorrect" class="{{ btn_class }}"><i class="icon-remove"></i></button>
+                            <button value="flag" class="{{ btn_class }}"><i class="icon-flag"></i></button>
+                        </div>
+                        {% if has_own %}
+                            <textarea id="response__{{ submission.key.urlsafe() }}" class="span12"
+                                disabled="disabled">{{ own_reviews[submission.key.urlsafe()].markdown }}</textarea>
+                        {% else %}
+                            <textarea id="response__{{ submission.key.urlsafe() }}" class="span12"></textarea>
+                        {% endif %}
+                        <a href="#" rel="tooltip" title="Markdown and MathJax are supported."><i class="icon-info-sign"></i></a>
+                        {% set submitted = 'Submitted' %}
+                        {% if not submission.voted and not has_own %}
+                            {% set submitted = 'Submit' %}
+                        {% endif %}
+                        <button class="submit-vote btn btn-primary pull-right {% if has_own %} disabled" {% endif %}
+                                data-submitted-text="Submitted!" id="submit__{{ submission.key.urlsafe() }}">{{ submitted }}</button>
+                        {% if has_own %}
+                            <div class="other_reviews_container">
+                                <div id="other_reviews__{{ submission.key.urlsafe() }}" class="other_reviews_div auto_injeeqs_display" sub_id="{{ submission.key.urlsafe() }}" >
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+        {% endfor %}
     {% endif %}
 
     {% if next_cursor or previous_cursor %}
@@ -66,11 +92,11 @@
     {% endif %}
 </div>
 
-<div id="submissionFeedbacksContainer" style="width:80%; float:left; clear:both; margin-left: 10px; display:none">
+<div id="submissionFeedbacksContainer" class="other_reviews_container" style="display:none">
     <ul id="submission_feedbacks_tab" class="nav nav-tabs">
         <li class="active"><a href="#submissionFeedbacks" data-toggle="tab">Other Incoming Jeeqs</a></li>
     </ul>
-    <div id="submissionFeedbacks" style="width: 100%; max-height: 200px;overflow-y: auto;">
+    <div id="submissionFeedbacks" class="other_reviews_div">
         {% include "in_jeeqs_list.html" %}
     </div>
 </div>

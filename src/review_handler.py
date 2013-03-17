@@ -50,6 +50,10 @@ class ReviewHandler(jeeqs_request_handler.JeeqsRequestHandler):
         else:
             review_qualified = True
 
+        # contains latest reviews from current user
+        # for submissions on this page
+        own_reviews = {}
+
         if review_qualified or challenge.public_submissions:
             # Retrieve other users' submissions
             submissions_query = Attempt.query()\
@@ -76,6 +80,15 @@ class ReviewHandler(jeeqs_request_handler.JeeqsRequestHandler):
             submissions[:] = [submission for submission in submissions if
                               not (submission.author == self.jeeqser.key)]
             # or self.jeeqser.key() in submission.users_voted)]
+
+            for submission in submissions:
+                if self.jeeqser.key in submission.users_voted:
+                    review = Feedback.query().\
+                        filter(Feedback.attempt == submission.key).\
+                        filter(Feedback.author == self.jeeqser.key).\
+                        order(-Feedback.date).get()
+                    if review:
+                        own_reviews[submission.key.urlsafe()] = review
         else:
             submissions, next_cursor, more = [], 'None', False
 
@@ -90,7 +103,8 @@ class ReviewHandler(jeeqs_request_handler.JeeqsRequestHandler):
             'review_qualified': review_qualified,
             'next_cursor': next_cursor,
             'previous_cursor': previous_cursor,
-            'more': more
+            'more': more,
+            'own_reviews': own_reviews
         })
 
         template = jinja_environment.get_template('review_a_challenge.html')
