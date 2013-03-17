@@ -4,7 +4,7 @@
     {% include "head.html" %}
     <link href="https://plus.google.com/106977484742528046029" rel="publisher" />
     {% if not local %}
-        {% include "analytics.html" %}
+    {% include "analytics.html" %}
     {% endif %}
     {% block load_scripts %}
     {% endblock %}
@@ -13,15 +13,14 @@
 {% block script %}
 {% endblock script %}
 <body>
-    {% include "toolbar.html" %}
-    <div id="container" class="container-fluid container">
-        {% block container %}
-        {% endblock %}
-    </div>
-    <div class="clearfix"/>
-    <div id="footer">
-        {% block footer %}
-        {% endblock footer %}
-    </div>
+{% include "toolbar.html" %}
+<div class="container">
+    {% block container %}
+    {% endblock %}
+</div>
+<div id="footer">
+    {% block footer %}
+    {% endblock footer %}
+</div>
 </body>
 </html>

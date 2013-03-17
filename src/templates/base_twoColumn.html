@@ -1,23 +1,23 @@
 {% extends "base.html" %}
 
 {% block container %}
-    <div id="container_header" class="container row">
-        {% block container_header %}
-        {% endblock container_header %}
+<div id="container_header" class="row">
+    {% block container_header %}
+    {% endblock container_header %}
+</div>
+<div class="row">
+    <div id="column1" class="span8">
+        {% block column1 %}{% endblock %}
     </div>
-    <div class="row-fluid">
-        <div id="column1" class="span8">
-            {% block column1 %}{% endblock %}
-        </div>
-        <div id="column2" class="span4">
-            {% include "advertisement.html" %}
-            {% block column2 %}
-            {% endblock %}
-        </div>
+    <div id="column2" class="span4">
+        {% include "advertisement.html" %}
+        {% block column2 %}
+        {% endblock %}
     </div>
-    <div id="container_footer" class="container row ">
-        <hr/>
-        {% block container_footer %}
-        {% endblock container_footer %}
-    </div>
+</div>
+<div id="container_footer" class="row ">
+    <hr/>
+    {% block container_footer %}
+    {% endblock container_footer %}
+</div>
 {% endblock %}
