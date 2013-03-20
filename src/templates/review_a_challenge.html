@@ -82,7 +82,7 @@
                 <a id="challenge_submissions_previous" href="#" data-challenge_key="{{ challenge.key.urlsafe() }}">Previous</a>
             </li>
             {% endif %}
-            {% if submissions|length > 0 %}
+            {% if next_cursor %}
             <li>
                 <a id="challenge_submissions_next" href="#" data-cursor="{{ next_cursor }}" data-previous_cursor="{{ previous_cursor }}" data-challenge_key="{{ challenge.key.urlsafe() }}">Next</a>
             </li>
