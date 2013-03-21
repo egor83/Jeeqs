@@ -25,15 +25,15 @@
         <input type="text" id="name" name="name" size="40" placeholder="Challenge name" {% if challenge is defined %} value="{{ challenge.name }}" {% endif %}>
         <div class="well">
             <legend>PDF controls</legend>
-        <label>PDF</label>
+        <label>PDF URL</label>
         <input type="text" id="pdf_url" name="pdf_url" size="80" style="width: 700px" placeholder="URL to PDF" {% if challenge is defined %} value="{{ challenge.pdf_url }}"{% endif %}>
-        <label>PDF</label>
+        <label>Start page number</label>
         <input type="text" id="pdf_startpage" name="pdf_startpage" size="80" style="width: 150px" placeholder="Start page number" {% if challenge is defined %} value="{{ challenge.pdf_startpage }}"{% endif %}>
-        <label>PDF</label>
+        <label>End page number</label>
         <input type="text" id="pdf_endpage" name="pdf_endpage" size="80" style="width: 150px" placeholder="End page number" {% if challenge is defined %} value="{{ challenge.pdf_endpage }}"{% endif %}>
-        <label>PDF</label>
+        <label>Offset from top(pixels)</label>
         <input type="text" id="pdf_startoffset" name="pdf_startoffset" size="80" style="width: 150px" placeholder="Start offset" {% if challenge is defined %} value="{{ challenge.pdf_startoffset }}"{% endif %}>
-        <label>PDF</label>
+        <label>Length of PDF to display(pixels)</label>
         <input type="text" id="pdf_endoffset" name="pdf_endoffset" size="80" style="width: 150px" placeholder="End offset" {% if challenge is defined %} value="{{ challenge.pdf_endoffset }}"{% endif %}>
         </div>
         <label>Markdown</label>
