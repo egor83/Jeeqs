@@ -17,9 +17,13 @@ class ChallengePage(webapp.RequestHandler):
     @core.authenticate(required=True)
     def get(self):
         challenge = None
+        exercise = None
+        course_key = None
         challenge_key = self.request.get('ch')
         if challenge_key:
             challenge = ndb.Key(urlsafe=challenge_key).get()
+            exercise = challenge.exercise.get()
+            course_key = exercise.course.urlsafe()
 
         all_courses = Course.query().fetch(1000)
         page_vars = {
@@ -30,6 +34,8 @@ class ChallengePage(webapp.RequestHandler):
         }
         if challenge:
           page_vars['challenge'] = challenge
+          page_vars['exercise']  = exercise
+          page_vars['course_key']  = course_key
         vars = core.add_common_vars(page_vars)
 
         template = core.jinja_environment.get_template('admin_challenge.html')
@@ -38,25 +44,33 @@ class ChallengePage(webapp.RequestHandler):
 
     @core.authenticate(required=True)
     def post(self):
-        course = ndb.Key(urlsafe=self.request.get('course')).get()
-        self.response.out.write(course.name)
+        course = ndb.Key(urlsafe=self.request.get('course'))
         number = self.request.get('number')
         name = string.capwords(self.request.get('name'))
+
+        #pdf controls
+        pdf_url = self.request.get('pdf_url')
+        pdf_startpage = self.request.get('pdf_startpage')
+        pdf_endpage = self.request.get('pdf_endpage')
+        pdf_startoffset = self.request.get('pdf_startoffset')
+        pdf_endoffset = self.request.get('pdf_endoffset')
+
         markdown = self.request.get('markdown')
         template_code = self.request.get('template_code')
-        document_id = self.request.get('document_id')
-        access_key = self.request.get('access_key')
 
         exercise = Exercise(number=number, name=name, course=course)
-        exercise.put()
+        exercise_key = exercise.put()
 
         challenge = Challenge(
             name_persistent=name,
             markdown=markdown,
+            pdf_url=pdf_url,
+            pdf_startpage=pdf_startpage,
+            pdf_endpage=pdf_endpage,
+            pdf_startoffset=pdf_startoffset,
+            pdf_endoffset=pdf_endoffset,
             template_code=template_code,
-            exercise=exercise,
-            document_id=document_id,
-            access_key=access_key)
+            exercise=exercise_key)
 
         challenge.put()
 

@@ -30,6 +30,8 @@
                 pageDivHolder.css('width', pageDisplayWidth + 'px');
                 pageDivHolder.css('height', pageDisplayHeight + 'px');
                 viewer.append(pageDivHolder);
+                $("#viewer").css('height', {{challenge.pdf_endoffset}}+'px')
+                $("#pdf_display").css('top', '-'+{{challenge.pdf_startoffset}}+'px')
 
                 // Prepare canvas using PDF page dimensions
                 var canvas = $('<canvas></canvas>');
@@ -126,7 +128,7 @@
             <div id="source-pdf" class="fade tab-pane">
                 {% if challenge.pdf_url %}
                 <div id='embedded_challenge' class="pull-left">
-                    <div id="viewer" class="pull-left span11"></div>
+                    <div id="viewer_container" class="pull-left span11"><div id="viewer"></div></div>
                 </div>
                 {#                        TODO renable vertical scroll for pdf.js #}
                 {#                        {% if isadmin %}#}
