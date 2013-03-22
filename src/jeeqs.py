@@ -14,7 +14,7 @@ import sys
 import webapp2
 import program_handler
 import review_handler
-from rpc_handler import RPCHandler
+import rpc_handler
 import jeeqs_request_handler
 sys.path.append(os.path.join(os.path.dirname(__file__), 'lib'))
 
@@ -30,6 +30,7 @@ from google.appengine.ext import ndb
 import lib.markdown as markdown
 
 import core
+import paging_handler
 
 ## This for enabling ctypes to improve jinja2 error messages, which is
 ## unfortunately not working!
@@ -87,9 +88,8 @@ class FrontPageHandler(jeeqs_request_handler.JeeqsRequestHandler):
                 else:
                     ch.submitted = False
 
-            fph = FeedbacksPagingHandler(self.request)
+            fph = paging_handler.FeedbacksPagingHandler(self.request)
             feedbacks, feedbacks_cursor, has_newer = fph.getFeedbacksForJeeqser(self.jeeqser.key)
-
 
         all_activities = Activity.query().order(-Activity.date).fetch(10)
 
@@ -101,7 +101,7 @@ class FrontPageHandler(jeeqs_request_handler.JeeqsRequestHandler):
             'jeeqser': self.jeeqser,
             'login_url': users.create_login_url(self.request.url),
             'logout_url': users.create_logout_url(self.request.url)
-            })
+        })
 
         template = core.jinja_environment.get_template('home.html')
         rendered = template.render(vars)
@@ -180,7 +180,7 @@ class ChallengeHandler(jeeqs_request_handler.JeeqsRequestHandler):
                     submission = None
 
             if submission:
-                fph = FeedbacksPagingHandler(self.request)
+                fph = paging_handler.FeedbacksPagingHandler(self.request)
                 feedbacks, feedbacks_cursor, has_newer = fph.getFeedbacksForSubmission(self.jeeqser.key, submission.key)
 
         # Fetch saved draft
@@ -279,79 +279,6 @@ class AttemptsHandler(jeeqs_request_handler.JeeqsRequestHandler):
 
 
 
-class FeedbacksPagingHandler(jeeqs_request_handler.JeeqsRequestHandler):
-    FEEDBACKS_PER_PAGE = 5
-
-    def getFeedbacksForJeeqser(self, jeeqserKey):
-        qo = ndb.QueryOptions()
-
-        feedbacks_query = Feedback \
-            .query() \
-            .filter(Feedback.attempt_author == jeeqserKey) \
-            .filter(Feedback.flagged == False) \
-            .order(Feedback.flag_count) \
-            .order(-Feedback.date)
-
-        cursor = "None"
-        if self.request.get('cursor'):
-           cursor = self.request.get('cursor')
-
-        if cursor and cursor != "None":
-            # a cursor was passed along with the request, we're in
-            # the middle of the list of attempts, show "Newer" button
-            # to navigate to the newer attempts
-            qo = ndb.QueryOptions(start_cursor=ndb.Cursor(urlsafe=cursor))
-            has_newer = True
-        else:
-            # no cursor was passed, we are at the beginning of the list
-            # of attempts already and shouldn't display "Newer" button
-            qo = ndb.QueryOptions()
-            has_newer = False
-
-        feedbacks, cursor, more = feedbacks_query.fetch_page(self.FEEDBACKS_PER_PAGE,options=qo)
-        core.prettify_injeeqs(feedbacks)
-
-        if cursor and more:
-            cursor = cursor.urlsafe()
-        else:
-            cursor = ''
-
-        return feedbacks, cursor, has_newer
-
-    def getFeedbacksForSubmission(self, jeeqserKey, submissionKey):
-        feedbacks_query = Feedback.query() \
-            .filter(Feedback.attempt == submissionKey) \
-            .filter(Feedback.flagged == False) \
-            .order(Feedback.flag_count) \
-            .order(-Feedback.date)
-
-        cursor = "None"
-        if self.request.get('cursor'):
-            cursor = self.request.get('cursor')
-
-        if cursor and cursor != "None":
-            # a cursor was passed along with the request, we're in
-            # the middle of the list of attempts, show "Newer" button
-            # to navigate to the newer attempts
-            qo = ndb.QueryOptions(start_cursor=ndb.Cursor(urlsafe=cursor))
-            has_newer = True
-        else:
-            # no cursor was passed, we are at the beginning of the list
-            # of attempts already and shouldn't display "Newer" button
-            qo = ndb.QueryOptions()
-            has_newer = False
-
-        feedbacks, cursor, more = feedbacks_query.fetch_page(self.FEEDBACKS_PER_PAGE,options=qo)
-        core.prettify_injeeqs(feedbacks)
-
-        if cursor and more:
-            cursor = cursor.urlsafe()
-        else:
-            cursor = ''
-
-        return feedbacks, cursor, has_newer
-
-
 def main():
     application = webapp2.WSGIApplication(
         [('/', FrontPageHandler),
@@ -359,7 +286,7 @@ def main():
             ('/attempts/', AttemptsHandler),
             ('/challenge/shell.runProgram', program_handler.ProgramHandler),
             ('/review/', review_handler.ReviewHandler),
-            ('/rpc', RPCHandler),
+            ('/rpc', rpc_handler.RPCHandler),
             ('/user/', UserHandler),
             ('/about/', AboutHandler)])
     run_wsgi_app(application)
