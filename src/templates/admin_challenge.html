@@ -23,24 +23,92 @@
         <input type="text" id="number" name="number" size="40" style="width: 100px" placeholder="1.6.1" {% if challenge is defined %}value="{{ exercise.number }}" {% endif %}>
         <label>Name</label>
         <input type="text" id="name" name="name" size="40" placeholder="Challenge name" {% if challenge is defined %} value="{{ challenge.name }}" {% endif %}>
-        <div class="well">
-            <legend>PDF controls</legend>
-        <label>PDF URL</label>
-        <input type="text" id="pdf_url" name="pdf_url" size="80" style="width: 700px" placeholder="URL to PDF" {% if challenge is defined %} value="{{ challenge.pdf_url }}"{% endif %}>
-        <label>Start page number</label>
-        <input type="text" id="pdf_startpage" name="pdf_startpage" size="80" style="width: 150px" placeholder="Start page number" {% if challenge is defined %} value="{{ challenge.pdf_startpage }}"{% endif %}>
-        <label>End page number</label>
-        <input type="text" id="pdf_endpage" name="pdf_endpage" size="80" style="width: 150px" placeholder="End page number" {% if challenge is defined %} value="{{ challenge.pdf_endpage }}"{% endif %}>
-        <label>Offset from top(pixels)</label>
-        <input type="text" id="pdf_startoffset" name="pdf_startoffset" size="80" style="width: 150px" placeholder="Start offset" {% if challenge is defined %} value="{{ challenge.pdf_startoffset }}"{% endif %}>
-        <label>Length of PDF to display(pixels)</label>
-        <input type="text" id="pdf_endoffset" name="pdf_endoffset" size="80" style="width: 150px" placeholder="End offset" {% if challenge is defined %} value="{{ challenge.pdf_endoffset }}"{% endif %}>
-        </div>
         <label>Markdown</label>
         <textarea id="markdown" name="markdown" rows="10" cols="40" style="width: 400px">{% if challenge is defined %}{{ challenge.markdown }}{% endif %}</textarea>
         <label>Template Code</label>
         <textarea id="template_code" name="template_code" rows="10" cols="40" style="width: 400px">{% if challenge is defined %}{{ challenge.template_code }}{% endif %}</textarea>
         <br/>
+        <div class="well">
+            <legend>PDF controls</legend>
+            <label>PDF URL</label>
+            <input type="text" id="pdf_url" name="pdf_url" size="80" style="width: 700px" placeholder="URL to PDF" {% if challenge is defined %} value="{{ challenge.pdf_url }}"{% endif %}>
+            <label>Start page number</label>
+            <input type="text" id="pdf_startpage" name="pdf_startpage" size="80" style="width: 150px" placeholder="Start page number" {% if challenge is defined %} value="{{ challenge.pdf_startpage }}"{% endif %}>
+            <label>End page number</label>
+            <input type="text" id="pdf_endpage" name="pdf_endpage" size="80" style="width: 150px" placeholder="End page number" {% if challenge is defined %} value="{{ challenge.pdf_endpage }}"{% endif %}>
+            <label>Offset from top(pixels)</label>
+            <input type="text" id="pdf_startoffset" name="pdf_startoffset" size="80" style="width: 150px" placeholder="Start offset" {% if challenge is defined %} value="{{ challenge.pdf_startoffset }}"{% endif %}>
+            <label>Length of PDF to display(pixels)</label>
+            <input type="text" id="pdf_endoffset" name="pdf_endoffset" size="80" style="width: 150px" placeholder="End offset" {% if challenge is defined %} value="{{ challenge.pdf_endoffset }}"{% endif %}>
+        <hr><a class="btn btn-primary" href="javascript:pdf_preview();">PDF Preview</a>
+        </div>
         <button type="submit" id="submit" class="btn-large btn-primary">Submit</button>
     </form>
+<script type="text/javascript" src="/static/pdfjs/build/generic/build/pdf.min.js"></script>
+<script type="text/javascript" src="/static/pdfjs/build/generic/web/compatibility.js"></script>
+<script type="text/javascript">
+    PDFJS.workerSrc = '/static/pdfjs/build/generic/build/pdf.min.js';
+</script>
+<script>
+
+    var pdf_preview = function () {
+
+        $(document).ready(function () {
+
+            var challenge = {};
+            challenge.pdf_url = $("#pdf_url").val();
+
+            challenge.pdf_startpage = $("#pdf_startpage").val();
+            challenge.pdf_endpage = $("#pdf_endpage").val();
+            challenge.pdf_startoffset = $("#pdf_startoffset").val();
+            challenge.pdf_endoffset = $("#pdf_endoffset").val();
+            var viewer = $('#viewer');
+            PDFJS.getDocument(challenge.pdf_url).then(function (pdf) {
+                var pages = [challenge.pdf_startpage, challenge.pdf_endpage]
+                for (var page_num = pages[0]; page_num <= pages[1]; page_num++) {
+                    // Using promise to fetch the page
+                    pdf.getPage(page_num).then(function (page) {
+                        var scale = 1.5;
+                        var viewport = page.getViewport(scale);
+
+                        var pageDisplayWidth = viewport.width;
+                        var pageDisplayHeight = viewport.height;
+
+                        var pageDivHolder = $('<div></div>')
+                        pageDivHolder.addClass('pdfpage')
+                        pageDivHolder.css('width', pageDisplayWidth + 'px');
+                        pageDivHolder.css('height', pageDisplayHeight + 'px');
+                        viewer.append(pageDivHolder);
+                        $("#viewer").css('height', challenge.pdf_endoffset + 'px')
+                        $("#pdf_display").css('top', '-' + challenge.pdf_startoffset + 'px')
+
+                        // Prepare canvas using PDF page dimensions
+                        var canvas = $('<canvas></canvas>');
+                        var context = canvas[0].getContext('2d');
+                        canvas.attr('id', 'pdf_display');
+                        canvas.attr('width', pageDisplayWidth);
+                        canvas.attr('height', pageDisplayHeight);
+                        pageDivHolder.append(canvas);
+
+                        // Render PDF page into canvas context
+                        var renderContext = {
+                            canvasContext: context,
+                            viewport: viewport
+                        };
+                        page.render(renderContext);
+                    })
+                    ;
+                }
+            })
+
+        })
+    }
+</script>
+
+
+    <div id='embedded_challenge' class="pull-left">
+        <div id="viewer_container" class="pull-left span11"><div id="viewer"></div></div>
+    </div>
+
+
 {% endblock column1 %}
