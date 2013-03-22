@@ -12,6 +12,7 @@ from google.appengine.api import users
 from google.appengine.ext import deferred
 import jeeqs_request_handler
 import jeeqs_exceptions
+import paging_handler
 
 
 class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
@@ -145,7 +146,6 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
         RPCHandler.apply_new_status(
             jeeqser_challenge, previous_status, submission)
 
-
     @core.authenticate(False)
     def get_activities(self):
         cursor = self.request.get('cursor')
@@ -165,7 +165,6 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
         json_response = json.dumps({'cursor': cursor.to_websafe_string(),
                                     'activities': rendered, 'more': more})
         self.response.write(json_response)
-
 
     @core.authenticate(False)
     def get_in_jeeqs(self):
@@ -201,37 +200,16 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
         rendered = template.render(vars)
         self.response.write(rendered)
 
-
-
-
-
     @core.authenticate(False)
     def get_feedbacks(self):
-
-        fph = jeeqs.FeedbacksPagingHandler(self.request)
-        feedbacks, cursor, has_newer = fph.getFeedbacksForJeeqser(self.jeeqser.key)
-
-        vars = core.add_common_vars({
-            'jeeqser': self.jeeqser,
-            'feedbacks': feedbacks,
-            'cursor': cursor,
-            'has_newer': has_newer,
-            'write_challenge_name': True
-            })
-
-        template = core.jinja_environment.get_template('in_jeeqs_list.html')
-        rendered = template.render(vars)
-        self.response.write(rendered)
-
-
-    @core.authenticate(False)
-    def get_feedbacks_for_submissoin(self):
-
+        fph = paging_handler.FeedbacksPagingHandler(self.request)
         submission = self.request.get('submission')
-        submission = ndb.Key(urlsafe=submission)
 
-        fph = jeeqs.FeedbacksPagingHandler(self.request)
-        feedbacks, cursor, has_newer = fph.getFeedbacksForSubmission(self.jeeqser.key, submission)
+        if submission and submission is not None:
+            submission = ndb.Key(urlsafe=submission)
+            feedbacks, cursor, has_newer = fph.getFeedbacksForSubmission(self.jeeqser.key, submission)
+        else:
+            feedbacks, cursor, has_newer = fph.getFeedbacksForJeeqser(self.jeeqser.key)
 
         vars = core.add_common_vars({
             'jeeqser': self.jeeqser,
@@ -245,9 +223,26 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
         rendered = template.render(vars)
         self.response.write(rendered)
 
-
-
-
+    # @core.authenticate(False)
+    # def get_feedbacks_for_submissoin(self):
+    #
+    #     submission = self.request.get('submission')
+    #     submission = ndb.Key(urlsafe=submission)
+    #
+    #     fph = paging_handler.FeedbacksPagingHandler(self.request)
+    #     feedbacks, cursor, has_newer = fph.getFeedbacksForSubmission(self.jeeqser.key, submission)
+    #
+    #     vars = core.add_common_vars({
+    #         'jeeqser': self.jeeqser,
+    #         'feedbacks': feedbacks,
+    #         'cursor': cursor,
+    #         'has_newer': has_newer,
+    #         'write_challenge_name': True
+    #     })
+    #
+    #     template = core.jinja_environment.get_template('in_jeeqs_list.html')
+    #     rendered = template.render(vars)
+    #     self.response.write(rendered)
 
     def submit_challenge_vertical_scroll(self):
         """updates a challenge's source url """

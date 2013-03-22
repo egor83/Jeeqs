@@ -382,11 +382,8 @@ $(document).on('click', '#feedbacks_older', function(event) {
     // store cursor to be able to navigate back to the beginning of the list
     // by pressing "Newer"
     feedbacks_cursors_stack.push(cursor);
+    ajax_fetch_feedbacks(cursor, submissionKey);
 
-    if (submissionKey != null)
-        ajax_fetch_feedbacks_for_submission(cursor, submissionKey);
-    else
-        ajax_fetch_feedbacks(cursor);
 });
 
 
@@ -412,20 +409,17 @@ $(document).on('click', '#feedbacks_newer', function(event) {
         cursor = 'None';
     }
 
-    if (submissionKey != null)
-        ajax_fetch_feedbacks_for_submission(cursor, submissionKey);
-    else
-        ajax_fetch_feedbacks(cursor);
+    ajax_fetch_feedbacks(cursor, submissionKey);
 });
 
 
 
-function ajax_fetch_feedbacks(cursor) {
+function ajax_fetch_feedbacks(cursor, submission) {
     $.ajax({
         url: "/rpc",
         async: true,
         type: "GET",
-        data: {'method': 'get_feedbacks', 'cursor': cursor},
+        data: {'method': 'get_feedbacks', 'cursor': cursor, 'submission': submission},
         success: function(response) {
             //alert(response);
             $('.jeeqs-list').html(response);
@@ -436,21 +430,6 @@ function ajax_fetch_feedbacks(cursor) {
     })
 }
 
-function ajax_fetch_feedbacks_for_submission(cursor, submission) {
-    $.ajax({
-        url: "/rpc",
-        async: true,
-        type: "GET",
-        data: {'method': 'get_feedbacks_for_submissoin', 'cursor': cursor, 'submission': submission},
-        success: function(response) {
-            //alert(response);
-            $('.jeeqs-list').html(response);
-        },
-        error: function(response) {
-            alert('An error occurred while loading this page. Please try again later ...');
-        }
-    })
-}
 
 
 $(document).ready(function() {
