@@ -257,11 +257,9 @@ a.black:hover {
 #viewer_container {
     height: 400px!important;
     overflow: auto;
-
 }
 
 #viewer {
-    //height: 750px;
     overflow: hidden;
 }
 
@@ -269,7 +267,6 @@ a.black:hover {
     border-bottom: 1px solid black;
     margin-bottom: 10px;
     position:relative;
-    //top: -300px;
 }
 
 #challenge_tab_contents {
