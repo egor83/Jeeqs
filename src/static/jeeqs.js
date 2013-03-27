@@ -421,7 +421,6 @@ function ajax_fetch_feedbacks(cursor, submission) {
         type: "GET",
         data: {'method': 'get_feedbacks', 'cursor': cursor, 'submission': submission},
         success: function(response) {
-            //alert(response);
             $('.jeeqs-list').html(response);
         },
         error: function(response) {
