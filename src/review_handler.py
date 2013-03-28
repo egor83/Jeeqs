@@ -70,10 +70,6 @@ class ReviewHandler(jeeqs_request_handler.JeeqsRequestHandler):
                 next_cursor = next_cursor.urlsafe()
             previous_cursor = cursor
 
-            # TODO: replace this iteration with a data oriented approach
-            submissions[:] = [submission for submission in submissions if
-                              not (submission.author == self.jeeqser.key)]
-            # or self.jeeqser.key() in submission.users_voted)]
         else:
             submissions, next_cursor, more = [], 'None', False
 
