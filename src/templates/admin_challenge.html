@@ -54,13 +54,21 @@
     var pdf_preview = function () {
             var challenge = {};
             challenge.pdf_url = $("#pdf_url").val();
-            if (challenge.pdf_url==''){challenge.pdf_url = '/static/MIT6_189IAP11_hw1.pdf';}
+            if (challenge.pdf_url==''){
+                challenge.pdf_url = '/static/MIT6_189IAP11_hw1.pdf';
+            }
             challenge.pdf_startpage = $("#pdf_startpage").val();
-            if (challenge.pdf_startpage==''){challenge.pdf_startpage = 1;}
+            if (challenge.pdf_startpage==''){
+                challenge.pdf_startpage = 1;
+            }
             challenge.pdf_endpage = $("#pdf_endpage").val();
-            if (challenge.pdf_endpage=='' || challenge.pdf_endpage==0){challenge.pdf_endpage = 1;}
+            if (challenge.pdf_endpage=='' || challenge.pdf_endpage==0){
+                challenge.pdf_endpage = 1;
+            }
             challenge.pdf_startoffset = $("#pdf_startoffset").val();
-            if (challenge.pdf_startoffset==''){challenge.pdf_startoffset = 0;}
+            if (challenge.pdf_startoffset==''){
+                challenge.pdf_startoffset = 0;
+            }
             challenge.pdf_endoffset = $("#pdf_endoffset").val();
             if (challenge.pdf_endoffset==''){challenge.pdf_endoffset = 1200;}
             var viewer = $('#viewer');
@@ -114,6 +122,7 @@
 
 
     <div id='embedded_challenge' class="pull-left">
+        <h3 class="hero-unit">Pdf Preview: </h3>
         <div id="viewer_container" class="pull-left span11"><div id="viewer"></div></div>
     </div>
 
