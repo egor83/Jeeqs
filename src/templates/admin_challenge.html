@@ -31,11 +31,11 @@
         <div class="well">
             <legend>PDF controls</legend>
             <label>PDF URL</label>
-            <input type="text" id="pdf_url" class="pdf_control" name="pdf_url" size="80" style="width: 700px" placeholder="URL to PDF" {% if challenge is defined %} value="{{ challenge.pdf_url }}"{% endif %}>
+            <input type="text" id="pdf_url" class="pdf_control" name="pdf_url" size="80" style="width: 700px" placeholder="/static/MIT6_189IAP11_hw1.pdf" {% if challenge is defined %} value="{{ challenge.pdf_url }}"{% endif %}>
             <label>Start page number</label>
-            <input type="text" id="pdf_startpage" class="pdf_control" name="pdf_startpage" size="80" style="width: 150px" placeholder="Start page number" {% if challenge is defined %} value="{{ challenge.pdf_startpage }}"{% endif %}>
+            <input type="text" id="pdf_startpage" class="pdf_control" name="pdf_startpage" size="80" style="width: 150px" placeholder="1" {% if challenge is defined %} value="{{ challenge.pdf_startpage }}"{% endif %}>
             <label>End page number</label>
-            <input type="text" id="pdf_endpage" class="pdf_control" name="pdf_endpage" size="80" style="width: 150px" placeholder="End page number" {% if challenge is defined %} value="{{ challenge.pdf_endpage }}"{% endif %}>
+            <input type="text" id="pdf_endpage" class="pdf_control" name="pdf_endpage" size="80" style="width: 150px" placeholder="0" {% if challenge is defined %} value="{{ challenge.pdf_endpage }}"{% endif %}>
             <label>Offset from top(pixels)</label>
             <input type="text" id="pdf_startoffset" class="pdf_control" name="pdf_startoffset" size="80" style="width: 150px" placeholder="Start offset" {% if challenge is defined %} value="{{ challenge.pdf_startoffset }}"{% endif %}>
             <label>Length of PDF to display(pixels)</label>
@@ -58,7 +58,7 @@
             challenge.pdf_startpage = $("#pdf_startpage").val();
             if (challenge.pdf_startpage==''){challenge.pdf_startpage = 1;}
             challenge.pdf_endpage = $("#pdf_endpage").val();
-            if (challenge.pdf_endpage==''){challenge.pdf_endpage = 1;}
+            if (challenge.pdf_endpage=='' || challenge.pdf_endpage==0){challenge.pdf_endpage = 1;}
             challenge.pdf_startoffset = $("#pdf_startoffset").val();
             if (challenge.pdf_startoffset==''){challenge.pdf_startoffset = 0;}
             challenge.pdf_endoffset = $("#pdf_endoffset").val();
