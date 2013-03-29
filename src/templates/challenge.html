@@ -30,8 +30,8 @@
                 pageDivHolder.css('width', pageDisplayWidth + 'px');
                 pageDivHolder.css('height', pageDisplayHeight + 'px');
                 viewer.append(pageDivHolder);
-                $("#viewer").css('height', {{challenge.pdf_endoffset}}+'px')
-                $("#pdf_display").css('top', '-'+{{challenge.pdf_startoffset}}+'px')
+                $("#viewer").css('height', {{ challenge.pdf_endoffset }} + 'px')
+                $("#pdf_display").css('top', '-' + {{ challenge.pdf_startoffset }} + 'px')
 
                 // Prepare canvas using PDF page dimensions
                 var canvas = $('<canvas></canvas>');
@@ -74,28 +74,6 @@
                 }
             })
         })
-
-
-        $('#submit_challenge_vertical_scroll').bind('click', function(event, ui) {
-            $(this).attr("disabled", "disabled");
-            var $new_vertical_scroll = scribd_doc.api.getVerticalScroll()
-            $initiator = $(this)
-
-            $.ajax({
-                url: "/rpc",
-                async: true,
-                type: "POST",
-                data: {'method': 'submit_challenge_vertical_scroll', 'challenge_key': '{{ challenge.key.urlsafe() }}', 'vertical_scroll':$new_vertical_scroll},
-                success: function(response){
-                    $initiator.button('updated');
-                    window.location.reload();
-                },
-                error: function(response) {
-                    $initiator.button('error');
-                }
-            })
-        })
-
     })
 </script>
 
@@ -130,12 +108,6 @@
                 <div id='embedded_challenge' class="pull-left">
                     <div id="viewer_container" class="pull-left span11"><div id="viewer"></div></div>
                 </div>
-                {#                        TODO renable vertical scroll for pdf.js #}
-                {#                        {% if isadmin %}#}
-                {#                            <div class="clearfix pull-left">#}
-                {#                                <button class="btn btn-large btn-primary" data-updated-text="Updated" data-error-text="Oops!!" id="submit_challenge_vertical_scroll">Update Vertical Scroll</button>#}
-                {#                            </div>#}
-                {#                        {% endif %}#}
                 {% endif %}
             </div>
 
