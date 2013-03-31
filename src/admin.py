@@ -17,13 +17,9 @@ class ChallengePage(webapp.RequestHandler):
     @core.authenticate(required=True)
     def get(self):
         challenge = None
-        exercise = None
-        course_key = None
         challenge_key = self.request.get('ch')
         if challenge_key:
             challenge = ndb.Key(urlsafe=challenge_key).get()
-            exercise = challenge.exercise.get()
-            course_key = exercise.course.urlsafe()
 
         all_courses = Course.query().fetch(1000)
         page_vars = {
@@ -34,8 +30,7 @@ class ChallengePage(webapp.RequestHandler):
         }
         if challenge:
           page_vars['challenge'] = challenge
-          page_vars['exercise']  = exercise
-          page_vars['course_key']  = course_key
+
         vars = core.add_common_vars(page_vars)
 
         template = core.jinja_environment.get_template('admin_challenge.html')
