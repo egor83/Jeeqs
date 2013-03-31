@@ -55,23 +55,19 @@
             challenge.pdf_url = $("#pdf_url").val();
             if (challenge.pdf_url==''){
                 challenge.pdf_url = '/static/MIT6_189IAP11_hw1.pdf';
-                $("#pdf_url").val('/static/MIT6_189IAP11_hw1.pdf');
             }
             challenge.pdf_startpage = $("#pdf_startpage").val();
             if (challenge.pdf_startpage==''){
                 challenge.pdf_startpage = 1;
-                $("#pdf_startpage").val(1);
             }
             challenge.pdf_endpage = $("#pdf_endpage").val();
             challenge.pdf_startoffset = $("#pdf_startoffset").val();
             if (challenge.pdf_startoffset==''){
                 challenge.pdf_startoffset = 0;
-                $("#pdf_startoffset").val(0);
             }
             challenge.pdf_endoffset = $("#pdf_endoffset").val();
             if (challenge.pdf_endoffset==''){
                 challenge.pdf_endoffset = 0;
-                $("#pdf_endoffset").val(0);
             }
             var viewer = $('#viewer');
             var pdf_container = $('#pdf_container');
@@ -125,7 +121,7 @@
 
         if($('.pdfpage')){
             $('.pdfpage').each(function(){
-                delete $(this);
+                $(this).remove();
             });
         }
         pdf_preview();
