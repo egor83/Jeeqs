@@ -119,9 +119,7 @@
         if($('.pdfpage')){
             console.log('updated')
             $('.pdfpage').each(function(){
-                $(this).remove();
                 delete $(this);
-
             });
         }
         pdf_preview();
