@@ -172,7 +172,7 @@ class Course(ndb.Model):
                                                'May',
                                                'June',
                                                'July',
-                                               'Auguest',
+                                               'August',
                                                'September',
                                                'October',
                                                'November',
