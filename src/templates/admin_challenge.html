@@ -50,9 +50,7 @@
     PDFJS.workerSrc = '/static/pdfjs/build/generic/build/pdf.min.js';
 </script>
 <script>
-    var pdf_loaded = false;
-    var context='';
-    var canvas='';
+
     var pdf_preview = function () {
             var challenge = {};
             challenge.pdf_url = $("#pdf_url").val();
@@ -71,6 +69,7 @@
             challenge.pdf_endoffset = $("#pdf_endoffset").val();
             if (challenge.pdf_endoffset==''){challenge.pdf_endoffset = 0;}
             var viewer = $('#viewer');
+            var pdf_container = $('#pdf_container');
             PDFJS.getDocument(challenge.pdf_url).then(function (pdf) {
                 if (challenge.pdf_endpage=='' || challenge.pdf_endpage==0){
                     challenge.pdf_endpage = pdf.numPages;
@@ -89,18 +88,17 @@
                         pageDivHolder.addClass('pdfpage');
                         pageDivHolder.css('width', pageDisplayWidth + 'px');
                         pageDivHolder.css('height', pageDisplayHeight + 'px');
-                        viewer.append(pageDivHolder);
+                        pdf_container.append(pageDivHolder);
 
                         if (challenge.pdf_endoffset!='' || challenge.pdf_endoffset!=0){
                             $("#viewer").css('height', challenge.pdf_endoffset + 'px');
                         }
 
                         // Prepare canvas using PDF page dimensions
-                        pdf_loaded = true;
-                        var canvas = $('<canvas></canvas>');
-                        var context = canvas[0].getContext('2d');
-                        canvas.attr('id', 'pdf_display');
-                        $("#pdf_display").css('top', '-' + challenge.pdf_startoffset + 'px');
+                        canvas = $('<canvas></canvas>');
+                        context = canvas[0].getContext('2d');
+                        canvas.attr('class', 'pdf_display');
+                        $('#pdf_container').css('top', '-' + challenge.pdf_startoffset + 'px');
                         canvas.attr('width', pageDisplayWidth);
                         canvas.attr('height', pageDisplayHeight);
                         pageDivHolder.append(canvas);
@@ -116,9 +114,22 @@
             })
     }
 
+
+    var repaint_preview = function(){
+        if($('.pdfpage')){
+            console.log('updated')
+            $('.pdfpage').each(function(){
+                $(this).remove();
+                delete $(this);
+
+            });
+        }
+        pdf_preview();
+    }
+
     $(document).ready(function () {
         pdf_preview();
-        $('.pdf_control').on('change', pdf_preview)
+        $('.pdf_control').on('change', repaint_preview);
 
     })
 </script>
@@ -127,7 +138,7 @@
         <h3 class="hero-unit">
             Pdf Preview
         </h3>
-        <div id="viewer_container" class="pull-left span11"><div id="viewer"></div></div>
+        <div id="viewer_container" class="pull-left span11"><div id="viewer"><div id="pdf_container"></div> </div></div>
     </div>
 
 

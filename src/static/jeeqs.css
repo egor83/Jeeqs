@@ -265,9 +265,13 @@ a.black:hover {
     overflow: hidden;
 }
 
-#pdf_display {
+.pdf_display {
     border-bottom: 1px solid black;
     margin-bottom: 10px;
+    position: relative;
+}
+
+#pdf_container{
     position: relative;
 }
 
