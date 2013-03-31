@@ -31,15 +31,15 @@
         <div class="well">
             <legend>PDF controls</legend>
             <label>PDF URL</label>
-            <input type="text" id="pdf_url" class="pdf_control" name="pdf_url" size="80" style="width: 700px" placeholder="/static/MIT6_189IAP11_hw1.pdf" {% if challenge is defined %} value="{{ challenge.pdf_url }}"{% endif %}>
+            <input type="text" id="pdf_url" class="pdf_control" name="pdf_url" size="80" style="width: 700px" placeholder="/static/MIT6_189IAP11_hw1.pdf" {% if challenge is defined %} value="{{ challenge.pdf_url }}" {% else %} value="/static/MIT6_189IAP11_hw1.pdf" {% endif %}>
             <label>Start page number</label>
-            <input type="text" id="pdf_startpage" class="pdf_control" name="pdf_startpage" size="80" style="width: 150px" placeholder="1" {% if challenge is defined %} value="{{ challenge.pdf_startpage }}"{% endif %}>
+            <input type="text" id="pdf_startpage" class="pdf_control" name="pdf_startpage" size="80" style="width: 150px" placeholder="1" {% if challenge is defined %} value="{{ challenge.pdf_startpage }}" {% else %} value="1" {% endif %}>
             <label>End page number</label>
             <input type="text" id="pdf_endpage" class="pdf_control" name="pdf_endpage" size="80" style="width: 150px" placeholder="0" {% if challenge is defined %} value="{{ challenge.pdf_endpage }}"{% endif %}>
             <label>Offset from top(pixels)</label>
-            <input type="text" id="pdf_startoffset" class="pdf_control" name="pdf_startoffset" size="80" style="width: 150px" placeholder="0" {% if challenge is defined %} value="{{ challenge.pdf_startoffset }}"{% endif %}>
+            <input type="text" id="pdf_startoffset" class="pdf_control" name="pdf_startoffset" size="80" style="width: 150px" placeholder="0" {% if challenge is defined %} value="{{ challenge.pdf_startoffset }}" {% else %} value="0" {% endif %}>
             <label>Length of PDF to display(pixels)</label>
-            <input type="text" id="pdf_endoffset" class="pdf_control" name="pdf_endoffset" size="80" style="width: 150px" placeholder="0" {% if challenge is defined %} value="{{ challenge.pdf_endoffset }}"{% endif %}>
+            <input type="text" id="pdf_endoffset" class="pdf_control" name="pdf_endoffset" size="80" style="width: 150px" placeholder="0" {% if challenge is defined %} value="{{ challenge.pdf_endoffset }}" {% else %} value="0" {% endif %}>
             <span class="alert alert-info pull-right" id="preloader">Please wait..generating PDF preview...</span>
         </div>
         <button type="submit" id="submit" class="btn-large btn-primary">Submit</button>
@@ -68,7 +68,7 @@
                 challenge.pdf_startoffset = 0;
             }
             challenge.pdf_endoffset = $("#pdf_endoffset").val();
-            if (challenge.pdf_endoffset==''){
+            if (challenge.pdf_endoffset==''|| challenge.pdf_endoffset=='0'){
                 challenge.pdf_endoffset = 0;
             }
             var viewer = $('#viewer');
