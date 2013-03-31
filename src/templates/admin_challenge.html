@@ -40,7 +40,6 @@
             <input type="text" id="pdf_startoffset" class="pdf_control" name="pdf_startoffset" size="80" style="width: 150px" placeholder="0" {% if challenge is defined %} value="{{ challenge.pdf_startoffset }}"{% endif %}>
             <label>Length of PDF to display(pixels)</label>
             <input type="text" id="pdf_endoffset" class="pdf_control" name="pdf_endoffset" size="80" style="width: 150px" placeholder="0" {% if challenge is defined %} value="{{ challenge.pdf_endoffset }}"{% endif %}>
-
         </div>
         <button type="submit" id="submit" class="btn-large btn-primary">Submit</button>
     </form>
@@ -112,12 +111,13 @@
                     ;
                 }
             })
+
     }
 
 
     var repaint_preview = function(){
+
         if($('.pdfpage')){
-            console.log('updated')
             $('.pdfpage').each(function(){
                 delete $(this);
             });
