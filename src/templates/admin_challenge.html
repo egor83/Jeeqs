@@ -59,7 +59,7 @@
                 challenge.pdf_url = '/static/MIT6_189IAP11_hw1.pdf';
             }
             challenge.pdf_startpage = $("#pdf_startpage").val();
-            if (challenge.pdf_startpage==''){
+            if (challenge.pdf_startpage==''||challenge.pdf_startpage==0){
                 challenge.pdf_startpage = 1;
             }
             challenge.pdf_endpage = $("#pdf_endpage").val();

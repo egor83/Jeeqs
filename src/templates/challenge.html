@@ -13,9 +13,23 @@
         {% endif %}
 
         {% if challenge.pdf_url %}
-            var viewer = $('#viewer')
+            var viewer = $('#viewer');
+            var pdf_container = $('#pdf_container');
+
+            var challenge = {};
+            challenge.pdf_endoffset = {{ challenge.pdf_endoffset }};
+            challenge.pdf_endpage = {{ challenge.pdf_endpage }};
+            challenge.pdf_startpage = {{ challenge.pdf_startpage }};
+
             PDFJS.getDocument('{{ challenge.pdf_url }}').then(function(pdf) {
-                var pages = [{{ challenge.pdf_startpage }}, {{ challenge.pdf_endpage }}]
+
+                if (challenge.pdf_endpage=='' || challenge.pdf_endpage==0){
+                    challenge.pdf_endpage = pdf.numPages;
+                }
+                if (challenge.pdf_startpage==''||challenge.pdf_startpage==0){
+                    challenge.pdf_startpage = 1;
+                }
+                var pages = [challenge.pdf_startpage, challenge.pdf_endpage]
         for (var page_num = pages[0]; page_num <= pages[1]; page_num ++) {
             // Using promise to fetch the page
             pdf.getPage(page_num).then(function(page) {
@@ -29,9 +43,11 @@
                 pageDivHolder.addClass('pdfpage')
                 pageDivHolder.css('width', pageDisplayWidth + 'px');
                 pageDivHolder.css('height', pageDisplayHeight + 'px');
-                viewer.append(pageDivHolder);
-                $("#viewer").css('height', {{ challenge.pdf_endoffset }} + 'px')
-                $("#pdf_display").css('top', '-' + {{ challenge.pdf_startoffset }} + 'px')
+                pdf_container.append(pageDivHolder);
+                if (challenge.pdf_endoffset!='' || challenge.pdf_endoffset!=0){
+                    $("#viewer").css('height', challenge.pdf_endoffset + 'px');
+                }
+                $("#pdf_container").css('top', '-' + {{ challenge.pdf_startoffset }} + 'px')
 
                 // Prepare canvas using PDF page dimensions
                 var canvas = $('<canvas></canvas>');
@@ -106,7 +122,7 @@
             <div id="source-pdf" class="fade tab-pane">
                 {% if challenge.pdf_url %}
                 <div id='embedded_challenge' class="pull-left">
-                    <div id="viewer_container" class="pull-left span11"><div id="viewer"></div></div>
+                    <div id="viewer_container" class="pull-left span11"><div id="viewer"><div id="pdf_container"></div> </div></div>
                 </div>
                 {% endif %}
             </div>
