@@ -17,10 +17,10 @@
                 {% endfor %}
             </select>
         {% else %}
-        <input type="hidden" name="course" value={{course_key}}>
+        <input type="hidden" name="course" value="{{ challenge.exercise.get().course.urlsafe() }}">
         {% endif %}
         <label>Exercise Number</label>
-        <input type="text" id="number" name="number" size="40" style="width: 100px" placeholder="1.6.1" {% if challenge is defined %}value="{{ exercise.number }}" {% endif %}>
+        <input type="text" id="number" name="number" size="40" style="width: 100px" placeholder="1.6.1" {% if challenge is defined %}value="{{ challenge.exercise_number}}" {% endif %}>
         <label>Name</label>
         <input type="text" id="name" name="name" size="40" placeholder="Challenge name" {% if challenge is defined %} value="{{ challenge.name }}" {% endif %}>
         <label>Markdown</label>
@@ -59,22 +59,25 @@
                 challenge.pdf_url = '/static/MIT6_189IAP11_hw1.pdf';
             }
             challenge.pdf_startpage = $("#pdf_startpage").val();
-            if (challenge.pdf_startpage==''||challenge.pdf_startpage==0){
+            if (challenge.pdf_startpage==''||challenge.pdf_startpage==0||challenge.pdf_startpage=='None'){
                 challenge.pdf_startpage = 1;
+                $("#pdf_startpage").val(1);
             }
             challenge.pdf_endpage = $("#pdf_endpage").val();
             challenge.pdf_startoffset = $("#pdf_startoffset").val();
-            if (challenge.pdf_startoffset==''){
+            if (challenge.pdf_startoffset==''||challenge.pdf_startoffset=='None'){
                 challenge.pdf_startoffset = 0;
+                $("#pdf_startoffset").val(0);
             }
             challenge.pdf_endoffset = $("#pdf_endoffset").val();
-            if (challenge.pdf_endoffset==''|| challenge.pdf_endoffset=='0'){
+            if (challenge.pdf_endoffset==''|| challenge.pdf_endoffset=='0'||challenge.pdf_endoffset=='None'){
                 challenge.pdf_endoffset = 0;
+                $("#pdf_endoffset").val(0);
             }
             var viewer = $('#viewer');
             var pdf_container = $('#pdf_container');
             PDFJS.getDocument(challenge.pdf_url).then(function (pdf) {
-                if (challenge.pdf_endpage=='' || challenge.pdf_endpage==0){
+                if (challenge.pdf_endpage=='' || challenge.pdf_endpage==0|| challenge.pdf_endpage=='None'){
                     challenge.pdf_endpage = pdf.numPages;
                     $('#pdf_endpage').val(pdf.numPages);
                 }
