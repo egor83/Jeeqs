@@ -181,7 +181,8 @@ class ChallengeHandler(jeeqs_request_handler.JeeqsRequestHandler):
 
             if submission:
                 fph = paging_handler.FeedbacksPagingHandler(self.request)
-                feedbacks, feedbacks_cursor, has_newer = fph.getFeedbacksForSubmission(self.jeeqser.key, submission.key)
+                feedbacks, feedbacks_cursor, has_newer = \
+                    fph.getFeedbacksForSubmission(self.jeeqser.key, submission.key)
 
         # Fetch saved draft
         try:
@@ -276,7 +277,6 @@ class AttemptsHandler(jeeqs_request_handler.JeeqsRequestHandler):
             'recent_attempts_contents.html')
         rendered = template.render(vars)
         self.response.write(rendered)
-
 
 
 def main():
