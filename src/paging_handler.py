@@ -4,9 +4,9 @@ import core
 
 
 class FeedbacksPagingHandler(jeeqs_request_handler.JeeqsRequestHandler):
-    FEEDBACKS_PER_PAGE = 10
+    feedbacks_per_page = 10
 
-    def getFeedbacksForJeeqser(self, jeeqserKey):
+    def get_feedbacks_for_feeqser(self, jeeqserKey):
         qo = ndb.QueryOptions()
 
         feedbacks_query = Feedback \
@@ -32,7 +32,7 @@ class FeedbacksPagingHandler(jeeqs_request_handler.JeeqsRequestHandler):
             qo = ndb.QueryOptions()
             has_newer = False
 
-        feedbacks, cursor, more = feedbacks_query.fetch_page(self.FEEDBACKS_PER_PAGE, options=qo)
+        feedbacks, cursor, more = feedbacks_query.fetch_page(self.feedbacks_per_page, options=qo)
         core.prettify_injeeqs(feedbacks)
 
         if cursor and more:
@@ -42,7 +42,7 @@ class FeedbacksPagingHandler(jeeqs_request_handler.JeeqsRequestHandler):
 
         return feedbacks, cursor, has_newer
 
-    def getFeedbacksForSubmission(self, jeeqserKey, submissionKey):
+    def get_feedbacks_for_submission(self, jeeqserKey, submissionKey):
         feedbacks_query = Feedback.query() \
             .filter(Feedback.attempt == submissionKey) \
             .filter(Feedback.flagged == False) \
@@ -65,7 +65,7 @@ class FeedbacksPagingHandler(jeeqs_request_handler.JeeqsRequestHandler):
             qo = ndb.QueryOptions()
             has_newer = False
 
-        feedbacks, cursor, more = feedbacks_query.fetch_page(self.FEEDBACKS_PER_PAGE, options=qo)
+        feedbacks, cursor, more = feedbacks_query.fetch_page(self.feedbacks_per_page, options=qo)
         core.prettify_injeeqs(feedbacks)
 
         if cursor and more:

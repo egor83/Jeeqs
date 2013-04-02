@@ -208,10 +208,10 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
         if submission:
             submission = ndb.Key(urlsafe=submission)
             feedbacks, cursor, has_newer = \
-                fph.getFeedbacksForSubmission(self.jeeqser.key, submission)
+                fph.get_feedbacks_for_submission(self.jeeqser.key, submission)
         else:
             feedbacks, cursor, has_newer = \
-                fph.getFeedbacksForJeeqser(self.jeeqser.key)
+                fph.get_feedbacks_for_feeqser(self.jeeqser.key)
 
         vars = core.add_common_vars({
             'jeeqser': self.jeeqser,

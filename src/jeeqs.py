@@ -89,7 +89,8 @@ class FrontPageHandler(jeeqs_request_handler.JeeqsRequestHandler):
                     ch.submitted = False
 
             fph = paging_handler.FeedbacksPagingHandler(self.request)
-            feedbacks, feedbacks_cursor, has_newer = fph.getFeedbacksForJeeqser(self.jeeqser.key)
+            feedbacks, feedbacks_cursor, has_newer = \
+                fph.get_feedbacks_for_feeqser(self.jeeqser.key)
 
         all_activities = Activity.query().order(-Activity.date).fetch(10)
 
@@ -182,7 +183,7 @@ class ChallengeHandler(jeeqs_request_handler.JeeqsRequestHandler):
             if submission:
                 fph = paging_handler.FeedbacksPagingHandler(self.request)
                 feedbacks, feedbacks_cursor, has_newer = \
-                    fph.getFeedbacksForSubmission(self.jeeqser.key, submission.key)
+                    fph.get_feedbacks_for_submission(self.jeeqser.key, submission.key)
 
         # Fetch saved draft
         try:
