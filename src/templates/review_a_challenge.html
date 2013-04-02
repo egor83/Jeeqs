@@ -28,7 +28,7 @@
                 <div style="padding: 10px; overflow: auto; clear:left;">
                     {{ submission.content|safe }}
                 </div>
-                {% if review_qualified and submission.author != jeeqser.key%}
+                {% if review_qualified %}
                     <div class="submission-feedback" style="padding: 5px">
                         <div class="feedback-buttons btn-group" data-toggle="buttons-radio" style="margin: 10px; margin-left: 0px;">
                             <button value="correct" class="btn"><i class="icon-ok"></i></button>
