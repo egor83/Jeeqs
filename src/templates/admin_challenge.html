@@ -52,35 +52,39 @@
 <script>
     var pdf_preview = function () {
             $('#preloader').show();
-            var counter = 0;
+            var counter = 1;
             var challenge = {};
             challenge.pdf_url = $("#pdf_url").val();
             if (challenge.pdf_url==''){
                 challenge.pdf_url = '/static/MIT6_189IAP11_hw1.pdf';
             }
-            challenge.pdf_startpage = $("#pdf_startpage").val();
-            if (challenge.pdf_startpage==''||challenge.pdf_startpage==0||challenge.pdf_startpage=='None'){
+            challenge.pdf_startpage = parseInt($("#pdf_startpage").val());
+
+            if (isNaN(challenge.pdf_startpage)||challenge.pdf_startpage==0){
                 challenge.pdf_startpage = 1;
                 $("#pdf_startpage").val(1);
             }
-            challenge.pdf_endpage = $("#pdf_endpage").val();
-            challenge.pdf_startoffset = $("#pdf_startoffset").val();
-            if (challenge.pdf_startoffset==''||challenge.pdf_startoffset=='None'){
+            challenge.pdf_endpage = parseInt($("#pdf_endpage").val());
+
+            challenge.pdf_startoffset = parseInt($("#pdf_startoffset").val());
+            if (isNaN(challenge.pdf_startoffset)){
                 challenge.pdf_startoffset = 0;
                 $("#pdf_startoffset").val(0);
             }
-            challenge.pdf_endoffset = $("#pdf_endoffset").val();
-            if (challenge.pdf_endoffset==''|| challenge.pdf_endoffset=='0'||challenge.pdf_endoffset=='None'){
+            challenge.pdf_endoffset = parseInt($("#pdf_endoffset").val());
+            if (isNaN(challenge.pdf_endoffset)){
                 challenge.pdf_endoffset = 0;
                 $("#pdf_endoffset").val(0);
             }
             var viewer = $('#viewer');
             var pdf_container = $('#pdf_container');
             PDFJS.getDocument(challenge.pdf_url).then(function (pdf) {
-                if (challenge.pdf_endpage=='' || challenge.pdf_endpage==0|| challenge.pdf_endpage=='None'){
+
+                if (isNaN(challenge.pdf_endpage) || challenge.pdf_endpage == 0){
                     challenge.pdf_endpage = pdf.numPages;
-                    $('#pdf_endpage').val(pdf.numPages);
+                    $('#pdf_endpage').val(challenge.pdf_endpage);
                 }
+
                 var pages = [parseInt(challenge.pdf_startpage), parseInt(challenge.pdf_endpage)]
                 console.log(typeof(pages[0]));
                 console.log(pages[1]);
@@ -100,7 +104,7 @@
                         pageDivHolder.css('height', pageDisplayHeight + 'px');
                         pdf_container.append(pageDivHolder);
 
-                        if (challenge.pdf_endoffset!='' || challenge.pdf_endoffset!=0){
+                        if (challenge.pdf_endoffset!=0){
                             $("#viewer").css('height', challenge.pdf_endoffset + 'px');
                         }
 
