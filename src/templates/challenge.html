@@ -29,7 +29,7 @@
                 if (challenge.pdf_startpage==''||challenge.pdf_startpage==0){
                     challenge.pdf_startpage = 1;
                 }
-                var pages = [challenge.pdf_startpage, challenge.pdf_endpage]
+                var pages = [parseInt(challenge.pdf_startpage), parseInt(challenge.pdf_endpage)]
         for (var page_num = pages[0]; page_num <= pages[1]; page_num ++) {
             // Using promise to fetch the page
             pdf.getPage(page_num).then(function(page) {
