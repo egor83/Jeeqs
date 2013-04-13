@@ -86,13 +86,9 @@
                 }
 
                 var pages = [parseInt(challenge.pdf_startpage), parseInt(challenge.pdf_endpage)]
-                console.log(typeof(pages[0]));
-                console.log(pages[1]);
                 for (page_num = pages[0]; page_num <= pages[1]; page_num++) {
                     // Using promise to fetch the page
-                    console.log('for loop');
                     pdf.getPage(page_num).then(function (page) {
-                        console.log('page_num->'+page_num)
                         var scale = 1.5;
                         var viewport = page.getViewport(scale);
                         var pageDisplayWidth = viewport.width;
@@ -122,11 +118,8 @@
                             viewport: viewport
                         };
                         page_rendering = page.render(renderContext);
-                        //console.log(page_num);
-                        console.log(counter);
                         counter++;
                         if(counter==pages[1]){
-                            console.log(counter);
                             page_rendering.onData(function(){
                                 $('#preloader').hide();
                             });
