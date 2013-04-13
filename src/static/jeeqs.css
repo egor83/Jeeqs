@@ -25,8 +25,9 @@ a img {
 
 #output {
     margin-top: 10px;
-    height:200px;
+    height: 200px;
 }
+
 #toolbar {
     margin-left: 0.5em;
     padding-left: 0.5em;
@@ -56,7 +57,7 @@ a img {
 }
 
 #wmd-input {
-    height:200px;
+    height: 200px;
 }
 
 .recent-jeeqs {
@@ -116,24 +117,25 @@ div.submission-feedback .ui-state-active.flag_label {
 }
 
 a.noline {
-    text-decoration: none!important;
+    text-decoration: none !important;
 }
 
 .nav_profile_pic {
     height: 32px;
     width: 32px;
     border-radius: 2px;
-    margin-top:3px;
+    margin-top: 3px;
 }
 
 .activity_entry {
     margin-top: 10px;
-    font-size:small;
-    float:left; clear:both;
+    font-size: small;
+    float: left;
+    clear: both;
 }
 
 .activity_avatar {
-    float:left;
+    float: left;
     width: 30px;
 }
 
@@ -142,19 +144,19 @@ a.noline {
 }
 
 .activity_time {
-    color:grey;
-    font-size:smaller;
+    color: grey;
+    font-size: smaller;
 }
 
 .avatar {
     margin-right: 5px;
-    float:left;
-    padding-bottom:5px;
+    float: left;
+    padding-bottom: 5px;
 }
 
 .avatar_img_url {
-    height:25px;
-    width:25px;
+    height: 25px;
+    width: 25px;
     border-radius: 2px;
 }
 
@@ -164,7 +166,7 @@ a.noline {
 
 .challenge_in_list {
     min-height: 81px;
-    overflow:auto!important;
+    overflow: auto !important;
     padding: 9px;
     border: 1px solid #ffffff;
     cursor: pointer;
@@ -186,15 +188,15 @@ a.noline {
 
 .challenge_stats {
     cursor: pointer;
-    padding:0px!important;
-    margin:0px;
-    margin-left:5px;
+    padding: 0px !important;
+    margin: 0px;
+    margin-left: 5px;
 }
 
 .challenge_stats_container {
     width: 150px;
-    padding:0px;
-    margin:0px;
+    padding: 0px;
+    margin: 0px;
 }
 
 .content_centered {
@@ -204,7 +206,7 @@ a.noline {
 }
 
 .gray {
-    color: gray!important;
+    color: gray !important;
 }
 
 .challenge_title {
@@ -212,7 +214,7 @@ a.noline {
 }
 
 .course_details {
-    font-size: 11px!important;
+    font-size: 11px !important;
     letter-spacing: 1px;
 }
 
@@ -225,25 +227,25 @@ a.black:hover {
 }
 
 .correct {
-    background:#21AB02!important;
+    background: #21AB02 !important;
     margin-right: 5px;
 }
 
 .incorrect {
-    background:red!important;
+    background: red !important;
     margin-right: 5px;
 }
 
 .share_social {
     width: 90%;
     margin: 10px;
-    float:right;
-    clear:right;
+    float: right;
+    clear: right;
 }
 
 .course:after {
     content: " > ";
-    margin-right:5px;
+    margin-right: 5px;
 }
 
 .attempt_score {
@@ -254,28 +256,38 @@ a.black:hover {
     margin-bottom: 20px;
 }
 
-#viewer {
-    height: 400px;
+#viewer_container {
+    height: 400px !important;
+    overflow: auto;
 }
 
-#pdf_display {
-    border: 1px solid black;
-    margin-bottom: 10px;
+#viewer {
+    overflow: hidden;
+}
 
+.pdf_display {
+    border-bottom: 1px solid black;
+    margin-bottom: 10px;
+    position: relative;
+}
+
+#pdf_container{
+    position: relative;
 }
 
 #challenge_tab_contents {
     border-bottom: 1px solid #cccccc;
-    margin-bottom:20px;
+    padding-bottom: 20px;
+    margin-bottom: 20px;
 }
 
 #submission-content {
-    overflow:auto;
+    overflow: auto;
 }
 
 .injeeqs_item {
-    padding:5px;
-    border-bottom:1px solid #c0deed!important;
+    padding: 5px;
+    border-bottom: 1px solid #c0deed !important;
 }
 
 .injeeqs_item:hover {
@@ -283,7 +295,7 @@ a.black:hover {
 }
 
 #your_submission_in_jeeqs {
-    margin-left:0px;
+    margin-left: 0px;
     margin-top: 20px;
 }
 
@@ -301,37 +313,38 @@ a.black:hover {
 }
 
 #editor {
-    height:300px; "
+    height: 300px;
+"
 }
 
 #recent-attempts {
     margin-top: 30px;
-    margin-left:0px;
+    margin-left: 0px;
 }
 
 .hero-unit {
-    padding:20px!important;
+    padding: 20px !important;
 }
 
 .submission-placeholder {
     margin-bottom: 10px;
-    clear:both;
+    clear: both;
     border: 1px solid #eeeeee;
     border-radius: 5px;
 }
 
 .submission-feedback {
-    clear:both;
-    padding:10px;
+    clear: both;
+    padding: 10px;
 
 }
 
 .feedback-buttons {
-    margin-bottom:10px;
+    margin-bottom: 10px;
 }
 
 #solutionContainer {
-    margin-left:0px;
+    margin-left: 0px;
 }
 
 #console {
@@ -339,17 +352,17 @@ a.black:hover {
 }
 
 .margin-left-zero {
-    margin-left:0px!important;
+    margin-left: 0px !important;
 }
 
 .avatar_review {
-    margin-right:5px;
+    margin-right: 5px;
 }
 
 .other_reviews_container {
-    width:80%;
-    float:left;
-    clear:both;
+    width: 80%;
+    float: left;
+    clear: both;
     margin-left: 10px;
 }
 

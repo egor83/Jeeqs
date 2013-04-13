@@ -1,11 +1,6 @@
 {% extends "base_twoColumn.html" %}
 
 {% block script %}
-    <script>
-        $(document).ready(function () {
-            $(':button').button();
-        })
-    </script>
 {% endblock script %}
 
 {% block column1 %}
@@ -18,21 +13,147 @@
             <select name="course" id="course">
                 <option value="" selected="selected">---------</option>
                 {% for course in courses %}
-                    <option value="{{ course.key.urlsafe() }}">{{ course.name}} </option>
+                    <option value="{{course.key.urlsafe()}}">{{ course.name}} </option>
                 {% endfor %}
             </select>
+        {% else %}
+        <input type="hidden" name="course" value="{{ challenge.exercise.get().course.urlsafe() }}">
         {% endif %}
         <label>Exercise Number</label>
-        <input type="text" id="number" name="number" size="40" style="width: 100px" placeholder="1.6.1" {% if challenge is defined %}value="{{ challenge.exercise_number }}" {% endif %}>
+        <input type="text" id="number" name="number" size="40" style="width: 100px" placeholder="1.6.1" {% if challenge is defined %}value="{{ challenge.exercise_number}}" {% endif %}>
         <label>Name</label>
         <input type="text" id="name" name="name" size="40" placeholder="Challenge name" {% if challenge is defined %} value="{{ challenge.name }}" {% endif %}>
-        <label>PDF</label>
-        <input type="text" id="pdf_url" name="pdf_url" size="80" style="width: 700px" placeholder="URL to PDF" {% if challenge is defined %} value="{{ challenge.pdf_url }}"{% endif %}>
         <label>Markdown</label>
         <textarea id="markdown" name="markdown" rows="10" cols="40" style="width: 400px">{% if challenge is defined %}{{ challenge.markdown }}{% endif %}</textarea>
         <label>Template Code</label>
         <textarea id="template_code" name="template_code" rows="10" cols="40" style="width: 400px">{% if challenge is defined %}{{ challenge.template_code }}{% endif %}</textarea>
         <br/>
+        <div class="well">
+            <legend>PDF controls</legend>
+            <label>PDF URL</label>
+            <input type="text" id="pdf_url" class="pdf_control" name="pdf_url" size="80" style="width: 700px" placeholder="/static/MIT6_189IAP11_hw1.pdf" {% if challenge is defined %} value="{{ challenge.pdf_url }}" {% else %} value="/static/MIT6_189IAP11_hw1.pdf" {% endif %}>
+            <label>Start page number</label>
+            <input type="text" id="pdf_startpage" class="pdf_control" name="pdf_startpage" size="80" style="width: 150px" placeholder="1" {% if challenge is defined %} value="{{ challenge.pdf_startpage }}" {% else %} value="1" {% endif %}>
+            <label>End page number</label>
+            <input type="text" id="pdf_endpage" class="pdf_control" name="pdf_endpage" size="80" style="width: 150px" placeholder="0" {% if challenge is defined %} value="{{ challenge.pdf_endpage }}"{% endif %}>
+            <label>Offset from top(pixels)</label>
+            <input type="text" id="pdf_startoffset" class="pdf_control" name="pdf_startoffset" size="80" style="width: 150px" placeholder="0" {% if challenge is defined %} value="{{ challenge.pdf_startoffset }}" {% else %} value="0" {% endif %}>
+            <label>Length of PDF to display(pixels)</label>
+            <input type="text" id="pdf_endoffset" class="pdf_control" name="pdf_endoffset" size="80" style="width: 150px" placeholder="0" {% if challenge is defined %} value="{{ challenge.pdf_endoffset }}" {% else %} value="0" {% endif %}>
+            <span class="alert alert-info pull-right" id="preloader">Please wait..generating PDF preview...</span>
+        </div>
         <button type="submit" id="submit" class="btn-large btn-primary">Submit</button>
     </form>
+<script type="text/javascript" src="/static/pdfjs/build/generic/build/pdf.min.js"></script>
+<script type="text/javascript" src="/static/pdfjs/build/generic/web/compatibility.js"></script>
+<script type="text/javascript">
+    PDFJS.workerSrc = '/static/pdfjs/build/generic/build/pdf.min.js';
+</script>
+<script>
+    var pdf_preview = function () {
+            $('#preloader').show();
+            var counter = 1;
+            var challenge = {};
+            challenge.pdf_url = $("#pdf_url").val();
+            if (challenge.pdf_url==''){
+                challenge.pdf_url = '/static/MIT6_189IAP11_hw1.pdf';
+            }
+            challenge.pdf_startpage = parseInt($("#pdf_startpage").val());
+
+            if (isNaN(challenge.pdf_startpage)||challenge.pdf_startpage==0){
+                challenge.pdf_startpage = 1;
+                $("#pdf_startpage").val(1);
+            }
+            challenge.pdf_endpage = parseInt($("#pdf_endpage").val());
+
+            challenge.pdf_startoffset = parseInt($("#pdf_startoffset").val());
+            if (isNaN(challenge.pdf_startoffset)){
+                challenge.pdf_startoffset = 0;
+                $("#pdf_startoffset").val(0);
+            }
+            challenge.pdf_endoffset = parseInt($("#pdf_endoffset").val());
+            if (isNaN(challenge.pdf_endoffset)){
+                challenge.pdf_endoffset = 0;
+                $("#pdf_endoffset").val(0);
+            }
+            var viewer = $('#viewer');
+            var pdf_container = $('#pdf_container');
+            PDFJS.getDocument(challenge.pdf_url).then(function (pdf) {
+
+                if (isNaN(challenge.pdf_endpage) || challenge.pdf_endpage == 0){
+                    challenge.pdf_endpage = pdf.numPages;
+                    $('#pdf_endpage').val(challenge.pdf_endpage);
+                }
+
+                var pages = [parseInt(challenge.pdf_startpage), parseInt(challenge.pdf_endpage)]
+                for (page_num = pages[0]; page_num <= pages[1]; page_num++) {
+                    // Using promise to fetch the page
+                    pdf.getPage(page_num).then(function (page) {
+                        var scale = 1.5;
+                        var viewport = page.getViewport(scale);
+                        var pageDisplayWidth = viewport.width;
+                        var pageDisplayHeight = viewport.height;
+                        var pageDivHolder = $('<div></div>');
+                        pageDivHolder.addClass('pdfpage');
+                        pageDivHolder.css('width', pageDisplayWidth + 'px');
+                        pageDivHolder.css('height', pageDisplayHeight + 'px');
+                        pdf_container.append(pageDivHolder);
+
+                        if (challenge.pdf_endoffset!=0){
+                            $("#viewer").css('height', challenge.pdf_endoffset + 'px');
+                        }
+
+                        // Prepare canvas using PDF page dimensions
+                        var canvas = $('<canvas></canvas>');
+                        var context = canvas[0].getContext('2d');
+                        canvas.attr('class', 'pdf_display');
+                        $('#pdf_container').css('top', '-' + challenge.pdf_startoffset + 'px');
+                        canvas.attr('width', pageDisplayWidth);
+                        canvas.attr('height', pageDisplayHeight);
+                        pageDivHolder.append(canvas);
+                        // Render PDF page into canvas context
+                        var renderContext = {
+                            canvasContext: context,
+                            viewport: viewport
+                        };
+                        var page_rendering = page.render(renderContext);
+                        counter++;
+                        if(counter==pages[1]){
+                            page_rendering.onData(function(){
+                                $('#preloader').hide();
+                            });
+
+                        }
+                    })
+                    ;
+                }
+            })
+
+    }
+
+
+    var repaint_preview = function(){
+
+        if($('.pdfpage')){
+            $('.pdfpage').each(function(){
+                $(this).remove();
+            });
+        }
+        pdf_preview();
+    }
+
+    $(document).ready(function () {
+        pdf_preview();
+        $('.pdf_control').on('change', repaint_preview);
+
+    })
+</script>
+
+    <div id='embedded_challenge' class="pull-left">
+        <h3 class="hero-unit">
+            Pdf Preview
+        </h3>
+        <div id="viewer_container" class="pull-left span11"><div id="viewer"><div id="pdf_container"></div> </div></div>
+    </div>
+
 {% endblock column1 %}

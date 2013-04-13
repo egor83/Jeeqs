@@ -172,7 +172,7 @@ class Course(ndb.Model):
                                                'May',
                                                'June',
                                                'July',
-                                               'Auguest',
+                                               'August',
                                                'September',
                                                'October',
                                                'November',
@@ -230,18 +230,17 @@ class Challenge(ndb.Model):
     # the course breadcrumb
     breadcrumb_persisted = ndb.StringProperty(verbose_name="breadcrumb")
 
+    #pdf controls
     pdf_url = ndb.StringProperty()
-    pdf_startpage = ndb.IntegerProperty()
-    pdf_endpage = ndb.IntegerProperty()
-
-    #scribd-related info
-    document_id = ndb.StringProperty()
-    access_key = ndb.StringProperty()
-    vertical_scroll = ndb.FloatProperty()
+    pdf_startpage = ndb.StringProperty()
+    pdf_endpage = ndb.StringProperty()
+    pdf_startoffset = ndb.StringProperty()
+    pdf_endoffset = ndb.StringProperty()
 
     # stats
     num_jeeqsers_solved = ndb.IntegerProperty(default=0)
     num_jeeqsers_submitted = ndb.IntegerProperty(default=0)
+
     # number of submissions to this challenge that still need reviewing!
     submissions_without_review = ndb.IntegerProperty(default=0)
     last_solver = ndb.KeyProperty(kind=Jeeqser)

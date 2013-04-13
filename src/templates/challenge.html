@@ -13,9 +13,23 @@
         {% endif %}
 
         {% if challenge.pdf_url %}
-            var viewer = $('#viewer')
+            var viewer = $('#viewer');
+            var pdf_container = $('#pdf_container');
+
+            var challenge = {};
+            challenge.pdf_endoffset = parseInt({{ challenge.pdf_endoffset }});
+            challenge.pdf_endpage = parseInt({{ challenge.pdf_endpage }});
+            challenge.pdf_startpage = parseInt({{ challenge.pdf_startpage }});
+
             PDFJS.getDocument('{{ challenge.pdf_url }}').then(function(pdf) {
-                var pages = [{{ challenge.pdf_startpage }}, {{ challenge.pdf_endpage }}]
+
+                if (isNaN(challenge.pdf_endpage)|| challenge.pdf_endpage==0){
+                    challenge.pdf_endpage = pdf.numPages;
+                }
+                if (isNaN(challenge.pdf_startpage)||challenge.pdf_startpage==0){
+                    challenge.pdf_startpage = 1;
+                }
+                var pages = [parseInt(challenge.pdf_startpage), parseInt(challenge.pdf_endpage)]
         for (var page_num = pages[0]; page_num <= pages[1]; page_num ++) {
             // Using promise to fetch the page
             pdf.getPage(page_num).then(function(page) {
@@ -29,7 +43,11 @@
                 pageDivHolder.addClass('pdfpage')
                 pageDivHolder.css('width', pageDisplayWidth + 'px');
                 pageDivHolder.css('height', pageDisplayHeight + 'px');
-                viewer.append(pageDivHolder);
+                pdf_container.append(pageDivHolder);
+                if (challenge.pdf_endoffset!='' || challenge.pdf_endoffset!=0){
+                    $("#viewer").css('height', challenge.pdf_endoffset + 'px');
+                }
+                $("#pdf_container").css('top', '-' + {{ challenge.pdf_startoffset }} + 'px')
 
                 // Prepare canvas using PDF page dimensions
                 var canvas = $('<canvas></canvas>');
@@ -72,28 +90,6 @@
                 }
             })
         })
-
-
-        $('#submit_challenge_vertical_scroll').bind('click', function(event, ui) {
-            $(this).attr("disabled", "disabled");
-            var $new_vertical_scroll = scribd_doc.api.getVerticalScroll()
-            $initiator = $(this)
-
-            $.ajax({
-                url: "/rpc",
-                async: true,
-                type: "POST",
-                data: {'method': 'submit_challenge_vertical_scroll', 'challenge_key': '{{ challenge.key.urlsafe() }}', 'vertical_scroll':$new_vertical_scroll},
-                success: function(response){
-                    $initiator.button('updated');
-                    window.location.reload();
-                },
-                error: function(response) {
-                    $initiator.button('error');
-                }
-            })
-        })
-
     })
 </script>
 
@@ -126,14 +122,8 @@
             <div id="source-pdf" class="fade tab-pane">
                 {% if challenge.pdf_url %}
                 <div id='embedded_challenge' class="pull-left">
-                    <div id="viewer" class="pull-left span11"></div>
+                    <div id="viewer_container" class="pull-left span11"><div id="viewer"><div id="pdf_container"></div> </div></div>
                 </div>
-                {#                        TODO renable vertical scroll for pdf.js #}
-                {#                        {% if isadmin %}#}
-                {#                            <div class="clearfix pull-left">#}
-                {#                                <button class="btn btn-large btn-primary" data-updated-text="Updated" data-error-text="Oops!!" id="submit_challenge_vertical_scroll">Update Vertical Scroll</button>#}
-                {#                            </div>#}
-                {#                        {% endif %}#}
                 {% endif %}
             </div>
 
