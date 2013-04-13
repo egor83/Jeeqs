@@ -93,7 +93,6 @@
                         var viewport = page.getViewport(scale);
                         var pageDisplayWidth = viewport.width;
                         var pageDisplayHeight = viewport.height;
-
                         var pageDivHolder = $('<div></div>');
                         pageDivHolder.addClass('pdfpage');
                         pageDivHolder.css('width', pageDisplayWidth + 'px');
@@ -105,8 +104,8 @@
                         }
 
                         // Prepare canvas using PDF page dimensions
-                        canvas = $('<canvas></canvas>');
-                        context = canvas[0].getContext('2d');
+                        var canvas = $('<canvas></canvas>');
+                        var context = canvas[0].getContext('2d');
                         canvas.attr('class', 'pdf_display');
                         $('#pdf_container').css('top', '-' + challenge.pdf_startoffset + 'px');
                         canvas.attr('width', pageDisplayWidth);
@@ -117,7 +116,7 @@
                             canvasContext: context,
                             viewport: viewport
                         };
-                        page_rendering = page.render(renderContext);
+                        var page_rendering = page.render(renderContext);
                         counter++;
                         if(counter==pages[1]){
                             page_rendering.onData(function(){
