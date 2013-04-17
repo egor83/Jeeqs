@@ -4,7 +4,7 @@ import core
 
 
 class FeedbacksPagingHandler(jeeqs_request_handler.JeeqsRequestHandler):
-    feedbacks_per_page = 10
+    feedbacks_per_page = 1
 
     def get_feedbacks_for_feeqser(self, jeeqserKey):
         qo = ndb.QueryOptions()

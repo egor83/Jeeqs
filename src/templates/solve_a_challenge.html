@@ -235,31 +235,9 @@
                 <div id="submission-content">
                     {{ submission.content|safe}}
                 </div>
-<<<<<<< HEAD
-
-                <div id="your_submission_in_jeeqs" style="float:left; clear:both; width: 100%; margin-top:10px;">
-                    {% if submission %}
-                        <ul class="nav nav-tabs">
-                            <li class="active">
-                                <a href="#"><i class = "icon icon-arrow-down" ></i>Incoming Jeeqs</a>
-                            </li>
-                        </ul>
-                        <div style="max-height: 300px; overflow: auto; margin: 10px;">
-                            <div class="well">
-{#                                        <h4>Submission score: {{ submission.vote_average}}/4 based on votes by {{ submission.vote_count }} Jeeqsers</h4>#}
-                                {% include "attempt_score.html"%}
-                            </div>
-                            {% set cursor = feedbacks_cursor %}
-                            {% set submissionKey = submission.key.urlsafe() %}
-                            <div class="jeeqs-list">
-                                {% include "in_jeeqs_list.html" %}
-                            </div>
-                    {% endif %}
-=======
                 {% else %}
                 <div class="gray">
                     No submission found! Please Submit a solution!
->>>>>>> 0d4de686602ed6e65e89f576fc0535249977e21e
                 </div>
                 {% endif %}
             </div>
@@ -276,7 +254,9 @@
                     {% include "attempt_score.html"%}
                 </div>
                 <div class="injeeqs_container">
-                    <div class="span12">
+                    {% set cursor = feedbacks_cursor %}
+                    {% set submissionKey = submission.key.urlsafe() %}
+                    <div class="jeeqs-list">
                         {% include "in_jeeqs_list.html" %}
                     </div>
                 </div>

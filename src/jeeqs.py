@@ -137,6 +137,7 @@ class ChallengeHandler(jeeqs_request_handler.JeeqsRequestHandler):
         attempts = None
         feedbacks = None
         submission = None
+        feedbacks_cursor = None
         draft = None
 
         # get the challenge
@@ -221,6 +222,8 @@ class AttemptsHandler(jeeqs_request_handler.JeeqsRequestHandler):
     @core.authenticate(False)
     def get(self):
         # show this user's previous attempts
+        attempts = None
+
         # get the challenge
         ch_key = self.request.get('ch')
         if not ch_key:
@@ -236,9 +239,6 @@ class AttemptsHandler(jeeqs_request_handler.JeeqsRequestHandler):
                 self.error(StatusCode.forbidden)
                 return
 
-        cursor = ''
-        has_newer = False
-        attempts = None
         if (self.jeeqser):
             attempts_q = Attempt.query()\
                 .filter(Attempt.author == self.jeeqser.key)\

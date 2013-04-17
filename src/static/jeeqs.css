@@ -116,7 +116,6 @@ div.submission-feedback .ui-state-active.flag_label {
     margin-top: 18px;
 }
 
-<<<<<<< HEAD
 .pager {
     margin-top: 20px;
     margin-left: 15px;
@@ -128,8 +127,6 @@ div.submission-feedback .ui-state-active.flag_label {
     margin-right: 10px;"
 }
 
-
-=======
 a.noline {
     text-decoration: none !important;
 }
@@ -385,4 +382,3 @@ a.black:hover {
     max-height: 200px;
     overflow-y: auto;
 }
->>>>>>> 0d4de686602ed6e65e89f576fc0535249977e21e
