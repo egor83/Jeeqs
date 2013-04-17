@@ -373,6 +373,71 @@ function ajax_fetch_attempts (challenge_key, cursor) {
     })
 }
 
+
+// stores cursors to be able to navigate back in a list of recent feedbacks
+var feedbacks_cursors_stack = [];
+
+// handle 'newer'/'older' buttons in the list of your feedbacks
+$(document).on('click', '#feedbacks_older', function(event) {
+    event.stopPropagation();
+    event.preventDefault();
+    var cursor = $(this).attr('data-cursor');
+    var submissionKey = null;
+    submissionKey = $('#submissionKey').val();
+
+
+    // store cursor to be able to navigate back to the beginning of the list
+    // by pressing "Newer"
+    feedbacks_cursors_stack.push(cursor);
+    ajax_fetch_feedbacks(cursor, submissionKey);
+
+});
+
+
+$(document).on('click', '#feedbacks_newer', function(event) {
+    event.stopPropagation();
+    event.preventDefault();
+
+    var submissionKey = null;
+    submissionKey = $('#submissionKey').val();
+
+    // stack top contains cursor for the current page:
+    // on loading 'newer' we discard that cursor on top of the stack and pass
+    // the one below it (for the page containing newer attempts) to the server
+    feedbacks_cursors_stack.pop();
+    var cursor;
+    if(feedbacks_cursors_stack.length > 0) {
+        cursor = feedbacks_cursors_stack.pop();
+        // we still need current page's cursor to be on top of the stack
+        feedbacks_cursors_stack.push(cursor);
+    } else {
+        // We've got nothing left at the stack, meaning we should display
+        // the first page - denoted by cursor value of 'None'
+        cursor = 'None';
+    }
+
+    ajax_fetch_feedbacks(cursor, submissionKey);
+});
+
+
+
+function ajax_fetch_feedbacks(cursor, submission) {
+    $.ajax({
+        url: "/rpc",
+        async: true,
+        type: "GET",
+        data: {'method': 'get_feedbacks', 'cursor': cursor, 'submission': submission},
+        success: function(response) {
+            $('.jeeqs-list').html(response);
+        },
+        error: function(response) {
+            alert('An error occurred while loading this page. Please try again later ...');
+        }
+    })
+}
+
+
+
 $(document).ready(function() {
     $("#updateDisplayName").button().bind('click', function() {
         $displayname = $('#displayname').val();

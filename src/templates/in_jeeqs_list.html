@@ -55,5 +55,25 @@
 </div>
 {% endfor %}
 {% else %}
-No Feedbacks available!
+    No Feedbacks available!
 {% endif %}
+{% if cursor or has_newer %}
+<div>
+    <ul class="pager">
+        {% if has_newer %}
+        <li>
+            <a id="feedbacks_newer" href="#" >Newer</a>
+        </li>
+        {% endif %}
+        {% if cursor %}
+        <li>
+            <a id="feedbacks_older" href="#"  data-cursor="{{ cursor }}" >Older</a>
+        </li>
+        {% endif %}
+    </ul>
+    {% if submissionKey %}
+    <input id="submissionKey"  type="hidden" value="{{submissionKey}}">
+    {% endif %}
+</div>
+{% endif %}
+

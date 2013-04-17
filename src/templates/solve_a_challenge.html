@@ -254,7 +254,9 @@
                     {% include "attempt_score.html"%}
                 </div>
                 <div class="injeeqs_container">
-                    <div class="span12">
+                    {% set cursor = feedbacks_cursor %}
+                    {% set submissionKey = submission.key.urlsafe() %}
+                    <div class="jeeqs-list">
                         {% include "in_jeeqs_list.html" %}
                     </div>
                 </div>

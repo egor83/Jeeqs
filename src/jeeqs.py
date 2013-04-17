@@ -16,7 +16,6 @@ import program_handler
 import review_handler
 import rpc_handler
 import jeeqs_request_handler
-
 sys.path.append(os.path.join(os.path.dirname(__file__), 'lib'))
 
 from models import *
@@ -31,6 +30,7 @@ from google.appengine.ext import ndb
 import lib.markdown as markdown
 
 import core
+import paging_handler
 
 ## This for enabling ctypes to improve jinja2 error messages, which is
 ## unfortunately not working!
@@ -74,7 +74,8 @@ class FrontPageHandler(jeeqs_request_handler.JeeqsRequestHandler):
         for jc in jeeqser_challenges:
             active_submissions[jc.challenge] = jc
 
-        injeeqs = None
+        feedbacks = None
+        feedbacks_cursor = None
 
         if self.jeeqser:
             for ch in all_challenges:
@@ -87,20 +88,16 @@ class FrontPageHandler(jeeqs_request_handler.JeeqsRequestHandler):
                 else:
                     ch.submitted = False
 
-            injeeqs = Feedback\
-                .query()\
-                .filter(Feedback.attempt_author == self.jeeqser.key)\
-                .filter(Feedback.flagged == False)\
-                .order(Feedback.flag_count)\
-                .order(-Feedback.date)\
-                .fetch(10)
-            core.prettify_injeeqs(injeeqs)
+            fph = paging_handler.FeedbacksPagingHandler(self.request)
+            feedbacks, feedbacks_cursor, has_newer = \
+                fph.get_feedbacks_for_feeqser(self.jeeqser.key)
 
         all_activities = Activity.query().order(-Activity.date).fetch(10)
 
         vars = core.add_common_vars({
             'challenges': all_challenges,
-            'injeeqs': injeeqs,
+            'injeeqs': feedbacks,
+            'feedbacks_cursor': feedbacks_cursor,
             'activities': all_activities,
             'jeeqser': self.jeeqser,
             'login_url': users.create_login_url(self.request.url),
@@ -140,6 +137,7 @@ class ChallengeHandler(jeeqs_request_handler.JeeqsRequestHandler):
         attempts = None
         feedbacks = None
         submission = None
+        feedbacks_cursor = None
         draft = None
 
         # get the challenge
@@ -184,23 +182,17 @@ class ChallengeHandler(jeeqs_request_handler.JeeqsRequestHandler):
                     submission = None
 
             if submission:
-                feedbacks = Feedback.query()\
-                    .filter(Feedback.attempt == submission.key)\
-                    .filter(Feedback.flagged == False)\
-                    .order(Feedback.flag_count)\
-                    .order(-Feedback.date)\
-                    .fetch(10)
+                fph = paging_handler.FeedbacksPagingHandler(self.request)
+                feedbacks, feedbacks_cursor, has_newer = \
+                    fph.get_feedbacks_for_submission(self.jeeqser.key, submission.key)
 
-            if feedbacks:
-                core.prettify_injeeqs(feedbacks)
-
-            # Fetch saved draft
-            try:
-                draft = Draft.query().filter(
-                    Draft.author == self.jeeqser.key,
-                    Draft.challenge == challenge.key).fetch(1)[0]
-            except IndexError:
-                draft = None
+        # Fetch saved draft
+        try:
+            draft = Draft.query().filter(
+                Draft.author == self.jeeqser.key,
+                Draft.challenge == challenge.key).fetch(1)[0]
+        except IndexError:
+            draft = None
 
         vars = core.add_common_vars({
             'server_software': os.environ['SERVER_SOFTWARE'],
@@ -213,6 +205,7 @@ class ChallengeHandler(jeeqs_request_handler.JeeqsRequestHandler):
             'template_code': challenge.template_code,
             'submission': submission,
             'feedbacks': feedbacks,
+            'feedbacks_cursor': feedbacks_cursor,
             'draft': draft,
             'attempt': attempt
         })
@@ -229,6 +222,8 @@ class AttemptsHandler(jeeqs_request_handler.JeeqsRequestHandler):
     @core.authenticate(False)
     def get(self):
         # show this user's previous attempts
+        attempts = None
+
         # get the challenge
         ch_key = self.request.get('ch')
         if not ch_key:
@@ -244,9 +239,6 @@ class AttemptsHandler(jeeqs_request_handler.JeeqsRequestHandler):
                 self.error(StatusCode.forbidden)
                 return
 
-        cursor = ''
-        has_newer = False
-        attempts = None
         if (self.jeeqser):
             attempts_q = Attempt.query()\
                 .filter(Attempt.author == self.jeeqser.key)\

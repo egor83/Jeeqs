@@ -254,14 +254,15 @@
             </div>
             {% endfor %}
         </div>
-        <div class="tab-pane" id="injeeqs">
-
-            {% with %}
-            {% set feedbacks = injeeqs %}
-            {% set write_challenge_name = 'true' %}
-            {% include "in_jeeqs_list.html"%}
-            {% endwith %}
-
+        <div id="injeeqs" class="fade tab-pane">
+            <div class="jeeqs-list">
+                {% with %}
+                    {% set feedbacks = injeeqs %}
+                    {% set cursor = feedbacks_cursor %}
+                    {% set write_challenge_name = 'true' %}
+                    {% include "in_jeeqs_list.html"%}
+                {% endwith %}
+            </div>
         </div>
     </div>
 </div>

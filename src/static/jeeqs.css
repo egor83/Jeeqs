@@ -116,6 +116,17 @@ div.submission-feedback .ui-state-active.flag_label {
     margin-top: 18px;
 }
 
+.pager {
+    margin-top: 20px;
+    margin-left: 15px;
+    float:left;
+    clear:left;
+}
+
+.pager #feedbacks_newer{
+    margin-right: 10px;"
+}
+
 a.noline {
     text-decoration: none !important;
 }
