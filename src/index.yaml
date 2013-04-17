@@ -91,6 +91,13 @@ indexes:
 - kind: Feedback
   properties:
   - name: attempt
+  - name: author
+  - name: date
+    direction: desc
+
+- kind: Feedback
+  properties:
+  - name: attempt
   - name: date
     direction: desc
 
@@ -127,6 +134,12 @@ indexes:
   - name: attempt_author
   - name: flagged
   - name: flag_count
+  - name: date
+    direction: desc
+
+- kind: Feedback
+  properties:
+  - name: author
   - name: date
     direction: desc
 

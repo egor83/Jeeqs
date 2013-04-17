@@ -28,33 +28,34 @@
     });
 </script>
 {% if feedbacks and feedbacks|length > 0 %}
-    {% for feedback in feedbacks %}
-        <div class="well well-smalll" style='margin-bottom: 0; float:left; width:95%; {%if jeeqser.key in feedback.flagged_by  %}background-image: url("/static/flagged.png"){% endif %}; border-color:{{ feedback.background }}'>
-            <div style='float:left; width: 100%;'>
-                <div class="ui-icon {{ feedback.icon }}" style="float:left; clear:both;"></div>
-                <div style="float:right; font-size:small;">
-                    <div style="float:left; width: 30px">
-                        {{  avatar(jeeqser_key=feedback.author, avatar_url=feedback.author.get().profile_url) }}
-                    </div>
+{% for feedback in feedbacks %}
+<div class="injeeqs_item pull-left" style='margin-bottom: 0;margin-top:0px; width: 95%;{%if jeeqser.key in feedback.flagged_by  %}background-image: url("/static/flagged.png"){% endif %}; border-color:{{ feedback.background }}'>
+    <div class="pull-left span12">
+        <i class="{{ feedback.icon }} pull-left clearfix"></i>
+        <div class="pull-right">
+            <div class="pull-left">
+                {{  avatar(jeeqser_key=feedback.author, avatar_url=feedback.author.get().profile_url) }}
+            </div>
                     <span>
                         submitted by {{ feedback.author.get().displayname }} @ {{ feedback.date|timesince }}
                     </span>
-                    {% if write_challenge_name %}
-                        for <a class="noline" href='/challenge/?ch={{ feedback.attempt.get().challenge.urlsafe() }}&att={{ feedback.attempt.urlsafe() }}'>attempt #{{ feedback.attempt.get().index }}</a>  of {{ feedback.attempt.get().challenge.get().name }}
-                    {% endif %}
-                </div>
-            </div>
-            <br/>
-            <div style="margin-top: 10px; float:left; clear:both">
-                {{ feedback.content|safe }}
-            </div>
-            <input type="hidden" name="feedback-id" value="{{ feedback.key }}"/>
-            {%if jeeqser.key not in feedback.flagged_by  %}
-                <div style="float:right"><a class="feedback-flag-button" href="#"><span class="icon-flag" style="float:left"></span></a></div>
+            {% if write_challenge_name %}
+            for <a class="noline" href='/challenge/?ch={{ feedback.attempt.get().challenge.urlsafe() }}&att={{ feedback.attempt.urlsafe() }}'>attempt #{{ feedback.attempt.get().index }}</a>  of {{ feedback.attempt.get().challenge.get().name }}
             {% endif %}
         </div>
-    {% endfor %}
+    </div>
+    <br/>
+    <div class="pull-left clearfix">
+        {{ feedback.content|safe }}
+    </div>
+    <input type="hidden" name="feedback-id" value="{{ feedback.key }}"/>
+    {%if jeeqser.key not in feedback.flagged_by  %}
+    <div class="pull-right"><a class="feedback-flag-button" href="#"><span class="icon-flag pull-left"></span></a></div>
+    {% endif %}
+</div>
+{% endfor %}
 {% else %}
+<<<<<<< HEAD
     No Feedbacks available!
 {% endif %}
 
@@ -80,3 +81,7 @@
 {% endif %}
 
 
+=======
+No Feedbacks available!
+{% endif %}
+>>>>>>> 0d4de686602ed6e65e89f576fc0535249977e21e

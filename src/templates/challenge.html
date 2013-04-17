@@ -1,73 +1,75 @@
 {# pdfjs #}
-<script type="text/javascript" src="/static/pdfjs/build/generic/build/pdf.js"></script>
+<script type="text/javascript" src="/static/pdfjs/build/generic/build/pdf.min.js"></script>
 <script type="text/javascript" src="/static/pdfjs/build/generic/web/compatibility.js"></script>
 <script type="text/javascript">
-    PDFJS.workerSrc = '/static/pdfjs/build/generic/build/pdf.js';
+    PDFJS.workerSrc = '/static/pdfjs/build/generic/build/pdf.min.js';
 </script>
 <script>
     $(document).ready(function() {
-        {% if challenge.pdf_url %}
-            var viewer = $('#viewer')
-            PDFJS.getDocument('{{ challenge.pdf_url }}').then(function(pdf) {
-                var pages = [{{ challenge.pdf_startpage }}, {{ challenge.pdf_endpage }}]
-                for (var page_num = pages[0]; page_num <= pages[1]; page_num ++) {
-                    // Using promise to fetch the page
-                    pdf.getPage(page_num).then(function(page) {
-                        var scale = 1.5;
-                        var viewport = page.getViewport(scale);
-
-                        var pageDisplayWidth = viewport.width;
-                        var pageDisplayHeight = viewport.height;
-
-                        var pageDivHolder = $('<div></div>')
-                        pageDivHolder.addClass('pdfpage')
-                        pageDivHolder.css('width', pageDisplayWidth + 'px');
-                        pageDivHolder.css('height', pageDisplayHeight + 'px');
-                        viewer.append(pageDivHolder);
-
-                        // Prepare canvas using PDF page dimensions
-                        var canvas = $('<canvas></canvas>');
-                        var context = canvas[0].getContext('2d');
-                        canvas.attr('width', pageDisplayWidth);
-                        canvas.attr('height', pageDisplayHeight);
-                        pageDivHolder.append(canvas);
-
-                        // Render PDF page into canvas context
-                        var renderContext = {
-                            canvasContext: context,
-                            viewport: viewport
-                        };
-                        page.render(renderContext);
-                    });
-                }
-            })
-        {% endif %}
-    })
-
-    $(document).ready(function() {
         {% if not challenge.markdown and challenge.document_id and challenge.access_key %}
-            $( '#challenge_tabs a[href="#source-pdf"]' ).tab('show');
+        $( '#challenge_tabs a[href="#source-pdf"]' ).tab('show');
         {% else %}
-            $( '#challenge_tabs a:first' ).tab('show');
+        $( '#challenge_tabs a:[href="#tabs-1"]' ).tab('show');
         {% endif %}
+
+        {% if challenge.pdf_url %}
+            var viewer = $('#viewer');
+            var pdf_container = $('#pdf_container');
+
+            var challenge = {};
+            challenge.pdf_endoffset = parseInt({{ challenge.pdf_endoffset }});
+            challenge.pdf_endpage = parseInt({{ challenge.pdf_endpage }});
+            challenge.pdf_startpage = parseInt({{ challenge.pdf_startpage }});
+
+            PDFJS.getDocument('{{ challenge.pdf_url }}').then(function(pdf) {
+
+                if (isNaN(challenge.pdf_endpage)|| challenge.pdf_endpage==0){
+                    challenge.pdf_endpage = pdf.numPages;
+                }
+                if (isNaN(challenge.pdf_startpage)||challenge.pdf_startpage==0){
+                    challenge.pdf_startpage = 1;
+                }
+                var pages = [parseInt(challenge.pdf_startpage), parseInt(challenge.pdf_endpage)]
+        for (var page_num = pages[0]; page_num <= pages[1]; page_num ++) {
+            // Using promise to fetch the page
+            pdf.getPage(page_num).then(function(page) {
+                var scale = 1.5;
+                var viewport = page.getViewport(scale);
+
+                var pageDisplayWidth = viewport.width;
+                var pageDisplayHeight = viewport.height;
+
+                var pageDivHolder = $('<div></div>')
+                pageDivHolder.addClass('pdfpage')
+                pageDivHolder.css('width', pageDisplayWidth + 'px');
+                pageDivHolder.css('height', pageDisplayHeight + 'px');
+                pdf_container.append(pageDivHolder);
+                if (challenge.pdf_endoffset!='' || challenge.pdf_endoffset!=0){
+                    $("#viewer").css('height', challenge.pdf_endoffset + 'px');
+                }
+                $("#pdf_container").css('top', '-' + {{ challenge.pdf_startoffset }} + 'px')
+
+                // Prepare canvas using PDF page dimensions
+                var canvas = $('<canvas></canvas>');
+                var context = canvas[0].getContext('2d');
+                canvas.attr('id', 'pdf_display');
+                canvas.attr('width', pageDisplayWidth);
+                canvas.attr('height', pageDisplayHeight);
+                pageDivHolder.append(canvas);
+
+                // Render PDF page into canvas context
+                var renderContext = {
+                    canvasContext: context,
+                    viewport: viewport
+                };
+                page.render(renderContext);
+            });
+        }
+    })
+    {% endif %}
     })
 
-
     $(document).ready(function() {
-        $.ajax({
-            url: "/rpc",
-            async: true,
-            type: "GET",
-            data: {'method': 'get_challenge_avatars', 'challenge_key': $('#challenge_key').val()},
-            success: function(response){
-                $("#avatars").html(response+'<div style="clear:both;"></div>');
-            },
-            error: function(response) {
-                $("#avatars").text('error');
-            }
-        })
-
-
         $('#submitChallengeSource').bind('click', function(event, ui) {
             $(this).attr("disabled", "disabled");
             var $newSource = $('#challenge-source').val();
@@ -88,87 +90,60 @@
                 }
             })
         })
-
-
-        $('#submit_challenge_vertical_scroll').bind('click', function(event, ui) {
-            $(this).attr("disabled", "disabled");
-            var $new_vertical_scroll = scribd_doc.api.getVerticalScroll()
-            $initiator = $(this)
-
-            $.ajax({
-                url: "/rpc",
-                async: true,
-                type: "POST",
-                data: {'method': 'submit_challenge_vertical_scroll', 'challenge_key': '{{ challenge.key.urlsafe() }}', 'vertical_scroll':$new_vertical_scroll},
-                success: function(response){
-                    $initiator.button('updated');
-                    window.location.reload();
-                },
-                error: function(response) {
-                    $initiator.button('error');
-                }
-            })
-        })
-
     })
 </script>
 
-<div class="challenge" style="float:left; width:100%;">
-    <h1 style="font-size: 20px">{{ challenge.name }}</h1>
+<div class="challenge pull-left span12">
+    <h2>{{ challenge.name }}</h2>
     <h3> {% include "exercise_breadcrumbs.html" %} </h3>
-    <div id="challenge" style="height: 450px; margin: 10px">
+    <div id="challenge span12">
         <ul id = "challenge_tabs" class="nav nav-tabs">
             <li><a href="#tabs-1" data-toggle="tab">Problem</a></li>
             <li><a href="#tabs-2" data-toggle="tab">Source</a></li>
             <li><a href="#source-pdf" data-toggle="tab">PDF</a></li>
             {% if challenge.attribution %}
-                <li><a href="#challenge_info" data-toggle="tab">Info</a></li>
+            <li><a href="#challenge_info" data-toggle="tab">Info</a></li>
             {% endif %}
         </ul>
-        <div id="challenge_tab_contents" class="tab-content" style="max-height: 400px">
+        <div id="challenge_tab_contents" class="tab-content">
             <div id="tabs-1" class="fade tab-pane">
                 {% if challenge.content  %}
-                    <p> {{ challenge.content|safe }} </p>
+                <p> {{ challenge.content|safe }} </p>
                 {% else %}
-                    <p> To be completed! </p>
+                <p> To be completed! </p>
                 {% endif %}
             </div>
             <div id="tabs-2" class="fade tab-pane">
-                <textarea id="challenge-source" {% if not isadmin %}readonly="true" {% endif %}rows="18" style="width: 100%; padding: 0px">{{ challenge.markdown }}</textarea>
+                <textarea id="challenge-source" class="span12" {% if not isadmin %}readonly="true" {% endif %}rows="18">{{ challenge.markdown }}</textarea>
                 {% if isadmin %}
-                    <button class="btn btn-large btn-primary" data-updated-text="Updated" data-error-text="Oops!!" id="submitChallengeSource" style="margin-top: 10px">Update</button>
+                <button class="btn btn-large btn-primary" data-updated-text="Updated" data-error-text="Oops!!" id="submitChallengeSource">Update</button>
                 {% endif %}
             </div>
-            <div id="source-pdf" class="tab-pane fade">
+            <div id="source-pdf" class="fade tab-pane">
                 {% if challenge.pdf_url %}
-                    <div id='embedded_challenge' style="width: 100%; clear:both; float:left">
-                        <div id="viewer" style="border:1px solid black;"></div>
-                    </div>
-{#                        TODO renable vertical scroll for pdf.js #}
-{#                        {% if isadmin %}#}
-{#                            <div style="clear: both; float:left;" >#}
-{#                                <button class="btn btn-large btn-primary" data-updated-text="Updated" data-error-text="Oops!!" id="submit_challenge_vertical_scroll" style="margin-top: 20px">Update Vertical Scroll</button>#}
-{#                            </div>#}
-{#                        {% endif %}#}
+                <div id='embedded_challenge' class="pull-left">
+                    <div id="viewer_container" class="pull-left span11"><div id="viewer"><div id="pdf_container"></div> </div></div>
+                </div>
                 {% endif %}
             </div>
+
             <div id="challenge_info" class="tab-pane fade">
                 {% if challenge.exercise %}
-                    <p>
-                        <strong>Course</strong>
-                        <br/>
-                        <small>{{ challenge.exercise_university }}, {{ challenge.exercise_program }} : {{ challenge.exercise_course_name }}</small>
-                    </p>
+                <p>
+                    <strong>Course</strong>
+                    <br/>
+                    <small>{{ challenge.exercise_university }}, {{ challenge.exercise_program }} : {{ challenge.exercise_course_name }}</small>
+                </p>
                 {%  endif %}
                 {% if challenge.attribution %}
-                    <p> <strong>Attribution</strong>
-                        <br/>
-                        <small>{{ challenge.attribution }}</small>
-                    </p>
+                <p> <strong>Attribution</strong>
+                    <br/>
+                    <small>{{ challenge.attribution }}</small>
+                </p>
                 {% endif %}
                 {% if challenge.source %}
-                    <p> <strong>Source</strong>
-                        <br/><small><a class="noline" target="_blank" href="{{ challenge.source }}">{{ challenge.source}}</a></small></p>
+                <p> <strong>Source</strong>
+                    <br/><small><a class="noline" target="_blank" href="{{ challenge.source }}">{{ challenge.source}}</a></small></p>
                 {% endif %}
             </div>
         </div>

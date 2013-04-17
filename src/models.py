@@ -172,7 +172,7 @@ class Course(ndb.Model):
                                                'May',
                                                'June',
                                                'July',
-                                               'Auguest',
+                                               'August',
                                                'September',
                                                'October',
                                                'November',
@@ -230,18 +230,17 @@ class Challenge(ndb.Model):
     # the course breadcrumb
     breadcrumb_persisted = ndb.StringProperty(verbose_name="breadcrumb")
 
+    #pdf controls
     pdf_url = ndb.StringProperty()
-    pdf_startpage = ndb.IntegerProperty()
-    pdf_endpage = ndb.IntegerProperty()
-
-    #scribd-related info
-    document_id = ndb.StringProperty()
-    access_key = ndb.StringProperty()
-    vertical_scroll = ndb.FloatProperty()
+    pdf_startpage = ndb.StringProperty()
+    pdf_endpage = ndb.StringProperty()
+    pdf_startoffset = ndb.StringProperty()
+    pdf_endoffset = ndb.StringProperty()
 
     # stats
     num_jeeqsers_solved = ndb.IntegerProperty(default=0)
     num_jeeqsers_submitted = ndb.IntegerProperty(default=0)
+
     # number of submissions to this challenge that still need reviewing!
     submissions_without_review = ndb.IntegerProperty(default=0)
     last_solver = ndb.KeyProperty(kind=Jeeqser)
@@ -374,6 +373,43 @@ class Challenge(ndb.Model):
         return TestCase.query()\
             .filter(TestCase.challenge == self.key)\
             .fetch(MAX_FETCH)
+
+    def get_num_jeeqsers_solved(self):
+        """Get num_jeeqsers_solved as a direct DB query.
+
+        num_jeeqsers_solved itself is updated manually during submission.
+
+        """
+
+        return Jeeqser_Challenge.query()\
+            .filter(Jeeqser_Challenge.challenge == self.key)\
+            .filter(Jeeqser_Challenge.status == AttemptStatus.SUCCESS)\
+            .count()
+
+    def get_num_jeeqsers_submitted(self):
+        """Get num_jeeqsers_submitted as a direct DB query.
+
+        num_jeeqsers_submitted itself is updated manually during submission.
+
+        """
+
+        return Jeeqser_Challenge.query()\
+            .filter(Jeeqser_Challenge.challenge == self.key)\
+            .count()
+
+    def get_submissions_without_review(self):
+        """Get submissions_without_review as a direct DB query.
+
+        submissions_without_review itself is updated manually during
+        submission.
+
+        """
+
+        return Attempt.query().\
+            filter(Attempt.challenge == self.key).\
+            filter(Attempt.active == True).\
+            filter(Attempt.vote_count == 0).\
+            count()
 
 
 class Draft(ndb.Model):

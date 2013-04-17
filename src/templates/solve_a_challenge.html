@@ -3,41 +3,53 @@
 {% block load_scripts %}
 {#  Pagedown  #}
 
-    <link rel="stylesheet" type="text/css" href="/static/pagedown/demo/browser/demo.css" />
+<link rel="stylesheet" type="text/css" href="/static/pagedown/demo/browser/demo.css" />
 
-    <script type="text/javascript" src="/static/pagedown/Markdown.Converter.js"></script>
-    <script type="text/javascript" src="/static/pagedown/Markdown.Sanitizer.js"></script>
-    <script type="text/javascript" src="/static/pagedown/Markdown.Editor.js"></script>
+<script type="text/javascript" src="/static/pagedown/Markdown.Converter.js"></script>
+<script type="text/javascript" src="/static/pagedown/Markdown.Sanitizer.js"></script>
+<script type="text/javascript" src="/static/pagedown/Markdown.Editor.js"></script>
 
 {% endblock %}
 
 {% block script %}
-    <script>
-        function runProgram() {
-            var program = $editor.getSession().getValue();
-            shell.onRunKeyClick(program);
-        }
+<script>
+    function runProgram() {
+        var program = $editor.getSession().getValue();
+        shell.onRunKeyClick(program);
+    }
 
-        function clearOutput() {
-            var output = document.getElementById('output');
-            output.value = '';
-        }
+    function clearOutput() {
+        var output = document.getElementById('output');
+        output.value = '';
+    }
 
-        $(document).ready(function() {
-            {% if draft %}
-                $('#wmd-input').val('{{ draft.markdown|escapejs }}')
+    $(document).ready(function() {
+        $.ajax({
+            url: "/rpc",
+            async: true,
+            type: "GET",
+            data: {'method': 'get_challenge_avatars', 'challenge_key': $('#challenge_key').val()},
+            success: function(response){
+                $("#avatars").html(response);
+            },
+            error: function(response) {
+                $("#avatars").text('error');
+            }
+        });
+        {% if draft %}
+            $('#wmd-input').val('{{ draft.markdown|escapejs }}')
             {% endif %}
 
             {% if not challenge.automatic_review and not attempt%}
-                var converter = Markdown.getSanitizingConverter();
-                converter.hooks.chain("postConversion", function (text) {
-                    return text.replace(/\s*:::(:)*python\s*\n/, "");
-                });
-                var editor1 = new Markdown.Editor(converter);
-                editor1.hooks.chain("onPreviewRefresh", function() {
-                    MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
-                })
-                editor1.run();
+            var converter = Markdown.getSanitizingConverter();
+            converter.hooks.chain("postConversion", function (text) {
+                return text.replace(/\s*:::(:)*python\s*\n/, "");
+            });
+            var editor1 = new Markdown.Editor(converter);
+            editor1.hooks.chain("onPreviewRefresh", function() {
+                MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+            })
+            editor1.run();
             {% endif %}
 
             $consoleInitialized = false
@@ -120,35 +132,35 @@
                 $editor.getSession().setMode(new pythonMode());
                 {% if template_code %}
                     $editor.getSession().setValue("{{ template_code|escapejs }}");
-                {% else %}
+                    {% else %}
                     $editor.getSession().setValue("# Write your python code here!");
-                {% endif %}
-            }
+                    {% endif %}
+                }
 
-            $(':button').button();
+                $(':button').button();
 
-            {% if not jeeqser %}
+                {% if not jeeqser %}
                 $('#submitSolutionButton, #submit_program').
-                       attr('disabled', 'disabled');
-            {% endif %}
+                        attr('disabled', 'disabled');
+                {% endif %}
 
-            $('#insert_program').bind('click', function() {
-                var $codeLines = $editor.getSession().getValue().split(/\r\n|\r|\n/);
-                $('#wmd-input').val(
-                        $('#wmd-input').val()
-                        + '\n    :::python'
-                )
-                $.each($codeLines, function(index, value) {
+                $('#insert_program').bind('click', function() {
+                    var $codeLines = $editor.getSession().getValue().split(/\r\n|\r|\n/);
                     $('#wmd-input').val(
                             $('#wmd-input').val()
-                            + '\n    '
-                            + value
+                                    + '\n    :::python'
                     )
-                })
-            });
+                    $.each($codeLines, function(index, value) {
+                        $('#wmd-input').val(
+                                $('#wmd-input').val()
+                                        + '\n    '
+                                        + value
+                        )
+                    })
+                });
 
-            review_page_loaded = false;
-            $('#submissions a[href="#review"]').on('click shown', function(e){
+                review_page_loaded = false;
+                $('#submissions a[href="#review"]').on('click shown', function(e){
                     // Load the review page using ajax
                     if (review_page_loaded)
                         return;
@@ -166,39 +178,39 @@
                             $('#review').html('An Error occurred while loading this page. Please try again later ...');
                         }
                     })
-            });
-
-            var recent_attempts_loaded = false;
-            $('#submissions a[href="#recent-attempt-contents"]').on('click shown', function(e) {
-                // Load recent attempts section using AJAX
-                if (recent_attempts_loaded)
-                    return;
-
-                $('#recent-attempt-contents').html('<br />Loading...');
-                $.ajax({
-                    url: "/attempts/?ch={{ challenge.key.urlsafe() }}",
-                    async: true,
-                    type: "GET",
-                    success: function(response) {
-                        $('#recent-attempt-contents').html(response);
-                        recent_attempts_loaded = true;
-                    },
-                    error: function(response) {
-                        $('#recent-attempt-contents').html('An error occurred while loading this page. Please try again later ...');
-                    }
                 });
-            });
 
-            var activeTab = $('[href=' + location.hash + ']');
-            if (activeTab && !(window.location.hash === "")) {
-                activeTab.tab('show');
-            }
-            else {
-                // select Your submissions tab
-                $('#submissions a:first').tab('show');
-            }
-        })
-    </script>
+                var recent_attempts_loaded = false;
+                $('#submissions a[href="#recent-attempt-contents"]').on('click shown', function(e) {
+                    // Load recent attempts section using AJAX
+                    if (recent_attempts_loaded)
+                        return;
+
+                    $('#recent-attempt-contents').html('<br />Loading...');
+                    $.ajax({
+                        url: "/attempts/?ch={{ challenge.key.urlsafe() }}",
+                        async: true,
+                        type: "GET",
+                        success: function(response) {
+                            $('#recent-attempt-contents').html(response);
+                            recent_attempts_loaded = true;
+                        },
+                        error: function(response) {
+                            $('#recent-attempt-contents').html('An error occurred while loading this page. Please try again later ...');
+                        }
+                    });
+                });
+
+                var activeTab = $('[href=' + location.hash + ']');
+                if (activeTab && !(window.location.hash === "")) {
+                    activeTab.tab('show');
+                }
+                else {
+                    // select Your submissions tab
+                    $('#submissions a:first').tab('show');
+                }
+            })
+</script>
 {% endblock script %}
 
 {% block container_header %}
@@ -206,29 +218,24 @@
 {% endblock container_header %}
 
 {% block column1 %}
-    <div id="submissions" style="float:left; clear:left; margin-top: 20px; width: 100%">
-        <ul id="submissions_tabs" class="nav nav-tabs">
-            <li><a href="#your_submission" data-toggle="tab">Your Submission</a></li>
-            <li><a href="#review" data-toggle="tab">Review</a></li>
-        </ul>
-        <div id="submissions_tabs_content" class="tab-content" style="min-height: 200px">
-            <div id="your_submission" class="fade tab-pane">
-                <div id="submission" style="padding:15px; clear:both">
-                    {% if submission %}
-                        {% set active = 'Active' %}
-                        {% if not submission.active %}
-                            {% set active = 'Not Active' %}
-                        {% endif %}
-                        <h3> Submitted for review ({{ active }})</h3>
-                        <div id="submission-content" style="overflow:auto">
-                            {{ submission.content|safe}}
-                        </div>
-                    {% else %}
-                        <div style="color:grey">
-                            No submission found! Please Submit a solution!
-                        </div>
-                    {% endif %}
+<div id="submissions" class="row-fluid">
+    <ul id="submissions_tabs" class="nav nav-tabs">
+        <li><a href="#your_submission" data-toggle="tab">Your Submission</a></li>
+        <li><a href="#review" data-toggle="tab">Review</a></li>
+    </ul>
+    <div id="submissions_tabs_content" class="tab-content">
+        <div id="your_submission" class="fade tab-pane">
+            <div id="submission" class="clearfix">
+                {% if submission %}
+                {% set active = 'Active' %}
+                {% if not submission.active %}
+                {% set active = 'Not Active' %}
+                {% endif %}
+                <h3> Submitted for review ({{ active }})</h3>
+                <div id="submission-content">
+                    {{ submission.content|safe}}
                 </div>
+<<<<<<< HEAD
 
                 <div id="your_submission_in_jeeqs" style="float:left; clear:both; width: 100%; margin-top:10px;">
                     {% if submission %}
@@ -248,101 +255,126 @@
                                 {% include "in_jeeqs_list.html" %}
                             </div>
                     {% endif %}
+=======
+                {% else %}
+                <div class="gray">
+                    No submission found! Please Submit a solution!
+>>>>>>> 0d4de686602ed6e65e89f576fc0535249977e21e
                 </div>
-
-                {% if not attempt %}
-                    <div id="new_submission" style="float:left; clear:both; width: 100%; margin-top:10px;">
-                        <div id="answerForm">
-                            <input type="hidden" name="challenge_key" id="challenge_key" value="{{ challenge_key.urlsafe() }}" />
-
-                            {% if not challenge.automatic_review %}
-                                <div id="solutionContainer">
-                                    <ul class="nav nav-tabs">
-                                        <li class="active">
-                                            <a href="#">Solution</a>
-                                        </li>
-                                    </ul>
-                                    <div>
-                                        <div class="wmd-panel">
-                                            <div id="wmd-button-bar"></div>
-                                            <textarea class="wmd-input" id="wmd-input"></textarea>
-                                            <div style="float:right; font-size: x-small;"><a href="http://daringfireball.net/projects/markdown/syntax">Markdown</a> and <a href="http://www.mathjax.org/">MathJax</a> are supported.</div>
-                                        </div>
-                                        <div id="wmd-preview" class="wmd-panel wmd-preview" style="margin-top: 15px;"></div>
-                                        <div id="submitButton" style="margin-top: 10px;">
-                                            {% if jeeqser %}
-                                                {% if jeeqser.reviews_out_num >= jeeqser.submissions_num or challenge.name == 'Factorial' or isadmin %}
-                                                    <button class="btn btn-success btn-large" data-submitted-text="Submitted!" data-oops-text="Oops! something went wrong" id ="submitSolutionButton">Submit Solution</button>
-                                                {% else %}
-                                                    <button class="btn btn-success btn-large" id="submitSolutionButton" disabled="disabled" title="Submission credit has reached 0. Please review some submissions first.">Submit Solution</button>
-                                                {% endif %}
-                                                <button class="btn btn-large" id="save_draft_submission_button" data-save-text="Save as Draft" data-error-text="Oops!! Try again!" data-saved-text="Saved!">Save as Draft</button>
-                                            {% else %}
-                                                <button class="btn btn-success btn-large" id ="submitSolutionButton" disabled="disabled">Login to Submit!</button>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                </div>
-                            {% endif %} {# automatic review #}
-                            <br/>
-                        </div>
-                    </div>
-
-                    <div id="console" style="float:left; clear: both; width: 90%;">
-                        <ul class="nav nav-tabs">
-                            <li class="active">
-                                <a href="#">Sandbox</a>
-                            </li>
-                        </ul>
-                        <div style="height:100%;">
-                            <div>
-                                <div class="eight columns">
-                                    <div id="editorContainer" style="position: relative; width: 100%; height: 300px;">
-                                        <div id="editor" style="width: 100%;height:300px; "></div>
-                                    </div>
-                                </div>
-                                <div class="five columns">
-                                    <textarea id="output" readonly="readonly" placeholder="Console" style="width:100%;height:270px;">
-                                    </textarea>
-                                </div>
-                            </div>
-                            <div class="clearfix"></div>
-                            <br/>
-                            <button class="btn" onclick="clearOutput()">Clear Console</button>
-                            <button class="btn" onclick="runProgram()">Run</button>
-
-                            {% if not challenge.automatic_review %}
-                                <button id ="insert_program" class="btn">Use as Solution</button>
-                            {% else %}
-                                <button id="submit_program" data-submitted-text="Queued for review!" data-oops-text="Oops! something went wrong!" class="btn">Submit</button>
-                            {% endif %}
-                        </div>
-
-                        <div id="recent-attempts" class="accordion" style="margin-top: 30px; width: 100%;">
-                            <div class="accordion-group">
-                                <div class="accordion-heading">
-                                    <a class="accordion-toggle" data-toggle="collapse" data-parent="#recent-attempts" href="#recent-attempt-contents" style="text-decoration: none">
-                                        Your Recent Submissions
-                                    </a>
-                                </div>
-                                <div id="recent-attempt-contents" class="recent-jeeqs accordion-body collapse"></div>
-                            </div>
-                        </div>
-                    </div>
                 {% endif %}
             </div>
 
-            <div id="review" style="margin-top: 20px" class="fade tab-pane"></div>
+            <div id="your_submission_in_jeeqs" class="pull-left span12">
+                {% if submission %}
+                <ul class="nav nav-tabs">
+                    <li class="active">
+                        <a href="#"><i class = "icon icon-arrow-down" ></i>Incoming Jeeqs</a>
+                    </li>
+                </ul>
+                <div class="clearfix">
+                    {#<h4>Submission score: {{ submission.vote_average}}/4 based on votes by {{ submission.vote_count }} Jeeqsers</h4>#}
+                    {% include "attempt_score.html"%}
+                </div>
+                <div class="injeeqs_container">
+                    <div class="span12">
+                        {% include "in_jeeqs_list.html" %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            {% if not attempt %}
+            <div id="new_submission" class="row-fluid">
+                <div id="answerForm">
+                    <input type="hidden" name="challenge_key" id="challenge_key" value="{{ challenge_key.urlsafe() }}" />
+
+                    {% if not challenge.automatic_review %}
+                    <div id="solutionContainer" class="">
+                        <ul class="nav nav-tabs">
+                            <li class="active">
+                                <a href="#">Solution</a>
+                            </li>
+                        </ul>
+
+                        <div class="wmd-panel">
+                            <div id="wmd-button-bar"></div>
+                            <textarea class="span12" id="wmd-input"></textarea>
+                            <div class="pull-right"><a href="http://daringfireball.net/projects/markdown/syntax">Markdown</a> and <a href="http://www.mathjax.org/">MathJax</a> are supported.</div>
+                        </div>
+                        <div id="wmd-preview" class="wmd-panel wmd-preview"></div>
+                        <div id="submitButton">
+                            {% if jeeqser %}
+                            {% if jeeqser.reviews_out_num >= jeeqser.submissions_num or challenge.name == 'Factorial' or isadmin %}
+                            <button class="btn btn-success btn-large" data-submitted-text="Submitted!" data-oops-text="Oops! something went wrong" id ="submitSolutionButton">Submit Solution</button>
+                            {% else %}
+                            <button class="btn btn-success btn-large" id="submitSolutionButton" disabled="disabled" title="Submission credit has reached 0. Please review some submissions first.">Submit Solution</button>
+                            {% endif %}
+                            <button class="btn btn-large" id="save_draft_submission_button" data-save-text="Save as Draft" data-error-text="Oops!! Try again!" data-saved-text="Saved!">Save as Draft</button>
+                            {% else %}
+                            <button class="btn btn-success btn-large" id ="submitSolutionButton" disabled="disabled">Login to Submit!</button>
+                            {% endif %}
+                        </div>
+
+                    </div>
+                    {% endif %} {# automatic review #}
+                    <br/>
+                </div>
+            </div>
+
+            <div id="console">
+                <ul class="nav nav-tabs">
+                    <li class="active">
+                        <a href="#">Sandbox</a>
+                    </li>
+                </ul>
+                <div>
+
+
+                    <div id="editorContainer">
+                        <div id="editor" class="span12"></div>
+                    </div>
+
+
+                    <textarea id="output" class="span12" readonly="readonly" placeholder="Console">
+                    </textarea>
+
+
+
+                    <button class="btn" onclick="clearOutput()">Clear Console</button>
+                    <button class="btn" onclick="runProgram()">Run</button>
+
+                    {% if not challenge.automatic_review %}
+                    <button id ="insert_program" class="btn">Use as Solution</button>
+                    {% else %}
+                    <button id="submit_program" data-submitted-text="Queued for review!" data-oops-text="Oops! something went wrong!" class="btn">Submit</button>
+                    {% endif %}
+                </div>
+
+                <div id="recent-attempts" class="accordion span12">
+                    <div class="accordion-group">
+                        <div class="accordion-heading">
+                            <a class="accordion-toggle noline" data-toggle="collapse" data-parent="#recent-attempts" href="#recent-attempt-contents">
+                                Your Recent Submissions
+                            </a>
+                        </div>
+                        <div id="recent-attempt-contents" class="recent-jeeqs accordion-body collapse"></div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
         </div>
+
+        <div id="review" class="fade tab-pane"></div>
     </div>
+</div>
 {% endblock column1 %}
 {% block column2 %}
-    <div class="hero-unit" style="padding-top:20px;padding-left: 20px;padding-bottom:100px;padding-right: 20px;">
-        <ul class="nav">
-            <li><i class="icon-ok-circle shift-right-2"></i> {{ challenge.num_jeeqsers_solved|d('0')}} jeeqser(s) solved. </li>
-            <li><i class="shift-right-2 icon-arrow-up"></i> {{ challenge.num_jeeqsers_submitted|d('0')}} jeeqser(s) submitted for this challenge. </li>
-            <li><i class="shift-right-2 icon-bell"></i> {{ challenge.submissions_without_review|d('0') }} submissions don't have any reviews.</li>
-        </ul>
-        <div id="avatars" class=""></div>
-    </div>
+<div id="challenge_avatars" class="hero-unit">
+    <ul class="nav">
+        <li><i class="icon-ok-circle shift-right-2"></i> {{ challenge.num_jeeqsers_solved|d('0')}} jeeqser(s) solved. </li>
+        <li><i class="shift-right-2 icon-arrow-up"></i> {{ challenge.num_jeeqsers_submitted|d('0')}} jeeqser(s) submitted for this challenge. </li>
+        <li><i class="shift-right-2 icon-bell"></i> {{ challenge.submissions_without_review|d('0') }} submissions don't have reviews.</li>
+    </ul>
+    <div id="avatars" class="clearfix"></div>
+</div>
 {% endblock column2 %}
