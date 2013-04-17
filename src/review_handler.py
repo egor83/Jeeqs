@@ -76,11 +76,6 @@ class ReviewHandler(jeeqs_request_handler.JeeqsRequestHandler):
                 next_cursor = ''
             previous_cursor = cursor
 
-            # TODO: replace this iteration with a data oriented approach
-            submissions[:] = [submission for submission in submissions if
-                              not (submission.author == self.jeeqser.key)]
-            # or self.jeeqser.key() in submission.users_voted)]
-
             for submission in submissions:
                 if self.jeeqser.key in submission.users_voted:
                     review = Feedback.query().\
