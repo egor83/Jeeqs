@@ -218,9 +218,6 @@ $('.submit-vote').live('click', function() {
         return;
     }
 
-    $(this).addClass("disabled");
-    $(this).siblings('.feedback-buttons').children().attr('disabled', 'disabled');
-
     // Get the in_jeeqs
     display_in_jeeqs($submission_id, 'submissionFeedbacks');
 
@@ -245,6 +242,9 @@ $('.submit-vote').live('click', function() {
 
             $('#submissionFeedbacksContainer').show()
             $('#submissionFeedbacksContainer').insertAfter($initiator.parent())
+            $initiator.addClass("disabled");
+            $initiator.siblings('.feedback-buttons').children().attr('disabled', 'disabled');
+            $initiator.attr('disabled', true);
         }
     })
 })
