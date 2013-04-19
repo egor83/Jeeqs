@@ -10,7 +10,7 @@
     });
 </script>
 
-<div id="submissions">
+<div id="submissions_list">
     {% if submissions|length == 0 %}
         {% if not review_qualified and not challenge.public_submissions %}
             <div class="gray">The submissions to this challenge are only visible to users who have solved the challenge.</div>
