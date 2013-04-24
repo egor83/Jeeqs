@@ -191,7 +191,7 @@ class ChallengeHandler(jeeqs_request_handler.JeeqsRequestHandler):
             draft = Draft.query().filter(
                 Draft.author == self.jeeqser.key,
                 Draft.challenge == challenge.key).fetch(1)[0]
-        except IndexError:
+        except:
             draft = None
 
         vars = core.add_common_vars({
