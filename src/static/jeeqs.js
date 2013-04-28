@@ -443,8 +443,10 @@ $(document).on('click', '.like', function(event) {
     } else {
         $(this).addClass('liked');
         score_ctrl.addClass('liked');
+        var curr_score = parseInt(score_ctrl.text());
+        score_ctrl.text(curr_score + 1);
 
-        handle_like(submission_id, 'like');
+        handle_like(submission_id, 'liked');
     }
 });
 
@@ -457,8 +459,10 @@ $(document).on('click', '.dislike', function(event) {
     } else {
         $(this).addClass('disliked');
         score_ctrl.addClass('disliked');
+        var curr_score = parseInt(score_ctrl.text());
+        score_ctrl.text(curr_score - 1);
 
-        handle_like(submission_id, 'dislike');
+        handle_like(submission_id, 'disliked');
     }
 });
 

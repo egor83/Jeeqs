@@ -462,6 +462,10 @@ class Attempt(ndb.Model):
     # above a threshold
     flagged = ndb.BooleanProperty(default=False)
 
+    liked = ndb.KeyProperty(repeated=True)
+    disliked = ndb.KeyProperty(repeated=True)
+    likes_total = ndb.IntegerProperty(default=0)
+
     @property
     def feedbacks(self):
         return Feedback.query()\
