@@ -393,7 +393,6 @@ $(document).on('click', '#feedbacks_older', function(event) {
 
 });
 
-
 $(document).on('click', '#feedbacks_newer', function(event) {
     event.stopPropagation();
     event.preventDefault();
@@ -419,8 +418,6 @@ $(document).on('click', '#feedbacks_newer', function(event) {
     ajax_fetch_feedbacks(cursor, submissionKey);
 });
 
-
-
 function ajax_fetch_feedbacks(cursor, submission) {
     $.ajax({
         url: "/rpc",
@@ -436,6 +433,46 @@ function ajax_fetch_feedbacks(cursor, submission) {
     })
 }
 
+
+$(document).on('click', '.like', function(event) {
+    var submission_id = $(this).attr('id').split('__')[1];
+    var score_ctrl = $("#likes__" + submission_id);
+
+    if(score_ctrl.hasClass('liked') || score_ctrl.hasClass('disliked') ) {
+//        console.log('already dis/liked');
+    } else {
+        $(this).addClass('liked');
+        score_ctrl.addClass('liked');
+
+        handle_like(submission_id, 'like');
+    }
+});
+
+$(document).on('click', '.dislike', function(event) {
+    var submission_id = $(this).attr("id").split("__")[1];
+    var score_ctrl = $("#likes__" + submission_id);
+
+    if(score_ctrl.hasClass('liked') || score_ctrl.hasClass('disliked') ) {
+//        console.log('already dis/liked');
+    } else {
+        $(this).addClass('disliked');
+        score_ctrl.addClass('disliked');
+
+        handle_like(submission_id, 'dislike');
+    }
+});
+
+function handle_like(sub_id, direction) {
+    $.ajax({
+        url: "/rpc",
+        async: true,
+        type: "POST",
+        data: {'method': 'submit_like', 'direction': direction, 'submission': sub_id},
+        error: function(response) {
+            alert('An error occurred while trying to submit data. Please try again later ...');
+        }
+    });
+}
 
 
 $(document).ready(function() {

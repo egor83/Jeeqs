@@ -44,6 +44,8 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
             self.submit_challenge_vertical_scroll()
         elif method == 'took_tour':
             self.took_tour()
+        elif method == 'submit_like':
+            self.submit_like()
         else:
             self.error(status_code.StatusCode.forbidden)
             return
@@ -572,6 +574,12 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
         jeeqser = ndb.Key(urlsafe=jeeqser_key).get()
         jeeqser.took_tour = True
         jeeqser.put()
+
+    def submit_like(self):
+        submission = self.getValueInQuery('submission')
+        direction = self.getValueInQuery('direction')
+
+#        logging.warn('Liked: %s %s' % (submission, direction))
 
     @core.authenticate(False)
     def get_challenge_avatars(self):

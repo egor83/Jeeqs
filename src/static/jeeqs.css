@@ -382,3 +382,15 @@ a.black:hover {
     max-height: 200px;
     overflow-y: auto;
 }
+
+.likes_ctrl {
+    font-size: 28px;
+}
+
+.liked {
+    color: lime;
+}
+
+.disliked {
+    color: red;
+}

@@ -18,6 +18,16 @@
             <div class="gray"> No Submissions</div>
         {% endif %}
     {% else %}
+        <div class="btn-group pull-right" style="margin-bottom: 5px;">
+            <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+                <b>Sort by:</b>
+                <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu">
+                <li><a href="#"><b>Most popular</b></a></li>
+                <li><a href="#"><b>Least popular</b></a></li>
+            </ul>
+        </div>
         {% for submission in submissions %}
             <div class="submission-placeholder" class="pull-left clear-left">
                 <div>
@@ -48,6 +58,12 @@
                             <button value="correct" class="{{ btn_class }}"><i class="icon-ok"></i></button>
                             <button value="incorrect" class="{{ btn_class }}"><i class="icon-remove"></i></button>
                             <button value="flag" class="{{ btn_class }}"><i class="icon-flag"></i></button>
+                        </div>
+
+                        <div>
+                            <i class="icon-chevron-up likes_ctrl like" id="like__{{ submission.key.urlsafe() }}"></i><br/>
+                            <b class="likes_ctrl" id="likes__{{ submission.key.urlsafe() }}"style="text-align: center;">0</b><br/>
+                            <i class="icon-chevron-down likes_ctrl dislike" id="dislike__{{ submission.key.urlsafe() }}"></i><br/>
                         </div>
                         {% if has_own %}
                             <textarea id="response__{{ submission.key.urlsafe() }}" class="span12"
