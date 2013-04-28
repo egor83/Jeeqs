@@ -42,6 +42,20 @@
                     </div>
                 </div>
                 <div style="padding: 10px; overflow: auto; clear:left;">
+                    <div>
+                        {% set is_liked = "" %}
+                        {% set is_disliked = "" %}
+                        {% if jeeqser.key in submission.liked %}
+                            {% set is_liked = "liked" %}
+                        {% elif jeeqser.key in submission.disliked %}
+                            {% set is_disliked = "disliked" %}
+                        {% endif %}
+                        <i class="icon-chevron-up likes_ctrl like {{ is_liked }}" id="like__{{ submission.key.urlsafe() }}"></i><br/>
+                        <b class="likes_ctrl {{ is_liked }}{{ is_disliked }}" id="likes__{{ submission.key.urlsafe() }}"style="text-align: center;">
+                            {{ submission.likes_total }}
+                        </b><br/>
+                        <i class="icon-chevron-down likes_ctrl dislike {{ is_disliked }}" id="dislike__{{ submission.key.urlsafe() }}"></i><br/>
+                    </div>
                     {{ submission.content|safe }}
                 </div>
                 {% if review_qualified and submission.author != jeeqser.key%}
@@ -61,11 +75,6 @@
                             <button value="flag" class="{{ btn_class }}"><i class="icon-flag"></i></button>
                         </div>
 
-                        <div>
-                            <i class="icon-chevron-up likes_ctrl like" id="like__{{ submission.key.urlsafe() }}"></i><br/>
-                            <b class="likes_ctrl" id="likes__{{ submission.key.urlsafe() }}"style="text-align: center;">0</b><br/>
-                            <i class="icon-chevron-down likes_ctrl dislike" id="dislike__{{ submission.key.urlsafe() }}"></i><br/>
-                        </div>
                         {% if has_own %}
                             <textarea id="response__{{ submission.key.urlsafe() }}" class="span12"
                                 disabled="disabled">{{ own_reviews[submission.key.urlsafe()].markdown }}</textarea>
