@@ -462,6 +462,8 @@ class Attempt(ndb.Model):
     # above a threshold
     flagged = ndb.BooleanProperty(default=False)
 
+    IS_LIKED = 'liked'
+    IS_DISLIKED = 'disliked'
     liked = ndb.KeyProperty(repeated=True)
     disliked = ndb.KeyProperty(repeated=True)
     likes_total = ndb.IntegerProperty(default=0)

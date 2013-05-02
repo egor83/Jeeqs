@@ -575,11 +575,10 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
         jeeqser.took_tour = True
         jeeqser.put()
 
-    # TODO make it transactional
+    @ndb.transactional
     def submit_like(self):
         submission_key = self.getValueInQuery('submission')
         direction = self.getValueInQuery('direction')
-
         submission = None
         try:
             submission = ndb.Key(urlsafe=submission_key).get()
@@ -588,18 +587,17 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
                 self.error(status_code.StatusCode.forbidden)
                 return
 
-        if direction == 'liked':
+        if direction == Attempt.IS_LIKED:
             submission.likes_total += 1
             submission.liked.append(self.jeeqser.key)
-        elif direction == 'disliked':
+        elif direction == Attempt.IS_DISLIKED:
             submission.likes_total -= 1
             submission.disliked.append(self.jeeqser.key)
         else:
             logging.warn('Unknown like direction: %s' % direction)
 
         submission.put()
-
-        logging.warn('Liked: %s %s' % (submission_key, direction))
+        logging.debug('Liked: %s %s' % (submission_key, direction)) # TODO remove when done
 
     @core.authenticate(False)
     def get_challenge_avatars(self):
