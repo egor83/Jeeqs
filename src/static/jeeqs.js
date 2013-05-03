@@ -251,7 +251,12 @@ $('.submit-vote').live('click', function() {
 
 $('.selectable_profile_picture').live('click', function() {
     var $initiator = $(this)
-    var $img = $initiator.children('img')
+    var $img = null
+    if ($initiator.attr("id") == "radio_gravatar")
+        $img = $("#img_gravatar")
+    else if ($initiator.attr("id") == "radio_gplus")
+        $img = $("#img_gplus")
+
     var $picture_url = $img.attr('src')
     if (!$img.hasClass('current_profile_picture')) {
         $.ajax({
@@ -260,14 +265,14 @@ $('.selectable_profile_picture').live('click', function() {
             type: "POST",
             data: {'method': 'update_profile_picture', 'profile_picture_url':$picture_url},
             success: function(response) {
-                $('.selectable_profile_picture').children().removeClass('current_profile_picture')
-                $img.addClass('current_profile_picture')
             },
             error: function(response) {
             }
         })
     }
 })
+
+
 
 $(".challenge_avatars a").on('click', function(event) {
     event.stopPropagation()
