@@ -6,7 +6,7 @@
 </script>
 <script>
     $(document).ready(function() {
-        {% if not challenge.markdown and challenge.document_id and challenge.access_key %}
+        {% if not challenge.markdown %}
         $( '#challenge_tabs a[href="#source-pdf"]' ).tab('show');
         {% else %}
         $( '#challenge_tabs a:[href="#tabs-1"]' ).tab('show');
@@ -18,18 +18,18 @@
 
             var challenge = {};
             challenge.pdf_endoffset = parseInt({{ challenge.pdf_endoffset }});
-            challenge.pdf_endpage = parseInt({{ challenge.pdf_endpage }});
-            challenge.pdf_startpage = parseInt({{ challenge.pdf_startpage }});
+        challenge.pdf_endpage = parseInt({{ challenge.pdf_endpage }});
+    challenge.pdf_startpage = parseInt({{ challenge.pdf_startpage }});
 
-            PDFJS.getDocument('{{ challenge.pdf_url }}').then(function(pdf) {
+    PDFJS.getDocument('{{ challenge.pdf_url }}').then(function(pdf) {
 
-                if (isNaN(challenge.pdf_endpage)|| challenge.pdf_endpage==0){
-                    challenge.pdf_endpage = pdf.numPages;
-                }
-                if (isNaN(challenge.pdf_startpage)||challenge.pdf_startpage==0){
-                    challenge.pdf_startpage = 1;
-                }
-                var pages = [parseInt(challenge.pdf_startpage), parseInt(challenge.pdf_endpage)]
+        if (isNaN(challenge.pdf_endpage)|| challenge.pdf_endpage==0){
+            challenge.pdf_endpage = pdf.numPages;
+        }
+        if (isNaN(challenge.pdf_startpage)||challenge.pdf_startpage==0){
+            challenge.pdf_startpage = 1;
+        }
+        var pages = [parseInt(challenge.pdf_startpage), parseInt(challenge.pdf_endpage)]
         for (var page_num = pages[0]; page_num <= pages[1]; page_num ++) {
             // Using promise to fetch the page
             pdf.getPage(page_num).then(function(page) {
@@ -49,27 +49,24 @@
                 }
                 $("#pdf_container").css('top', '-' + {{ challenge.pdf_startoffset }} + 'px')
 
-                // Prepare canvas using PDF page dimensions
-                var canvas = $('<canvas></canvas>');
-                var context = canvas[0].getContext('2d');
-                canvas.attr('id', 'pdf_display');
-                canvas.attr('width', pageDisplayWidth);
-                canvas.attr('height', pageDisplayHeight);
-                pageDivHolder.append(canvas);
+            // Prepare canvas using PDF page dimensions
+            var canvas = $('<canvas></canvas>');
+            var context = canvas[0].getContext('2d');
+            canvas.attr('id', 'pdf_display');
+            canvas.attr('width', pageDisplayWidth);
+            canvas.attr('height', pageDisplayHeight);
+            pageDivHolder.append(canvas);
 
-                // Render PDF page into canvas context
-                var renderContext = {
-                    canvasContext: context,
-                    viewport: viewport
-                };
-                page.render(renderContext);
-            });
-        }
+            // Render PDF page into canvas context
+            var renderContext = {
+                canvasContext: context,
+                viewport: viewport
+            };
+            page.render(renderContext);
+        });
+    }
     })
     {% endif %}
-    })
-
-    $(document).ready(function() {
         $('#submitChallengeSource').bind('click', function(event, ui) {
             $(this).attr("disabled", "disabled");
             var $newSource = $('#challenge-source').val();
