@@ -434,46 +434,101 @@ function ajax_fetch_feedbacks(cursor, submission) {
 }
 
 
+// Handle 'like' arrow click: update GUI, send request to the server
 $(document).on('click', '.like', function(event) {
     var submission_id = $(this).attr('id').split('__')[1];
+    var like_arrow = $(this);
+    var dislike_arrow = $('#dislike__' + submission_id);
     var score_ctrl = $("#likes__" + submission_id);
+    var curr_score = parseInt(score_ctrl.text());
 
-    if(score_ctrl.hasClass('liked') || score_ctrl.hasClass('disliked') ) {
-//        console.log('already dis/liked');
-    } else {
-        $(this).addClass('liked');
+    if(score_ctrl.hasClass('liked')) {
+        // it's already liked, do nothing
+    } else if(score_ctrl.hasClass('disliked') ) {
+        // change dislike to like
+        dislike_arrow.removeClass('disliked');
+        score_ctrl.removeClass('disliked');
+        like_arrow.addClass('liked');
         score_ctrl.addClass('liked');
-        var curr_score = parseInt(score_ctrl.text());
-        score_ctrl.text(curr_score + 1);
 
-        handle_like(submission_id, 'liked');
+        curr_score += 2;
+        handle_like(submission_id, 'liked', 'disliked');
+    } else {
+        // initial liking (wasn't liked or disliked before)
+        like_arrow.addClass('liked');
+        score_ctrl.addClass('liked');
+        curr_score += 1;
+
+        handle_like(submission_id, 'liked', null);
     }
+    score_ctrl.text(curr_score);
 });
 
+// Handle 'dislike' arrow click: update GUI, send request to the server
 $(document).on('click', '.dislike', function(event) {
     var submission_id = $(this).attr("id").split("__")[1];
+    var like_arrow = $('#like__' + submission_id);
+    var dislike_arrow = $(this);
     var score_ctrl = $("#likes__" + submission_id);
+    var curr_score = parseInt(score_ctrl.text());
 
-    if(score_ctrl.hasClass('liked') || score_ctrl.hasClass('disliked') ) {
-//        console.log('already dis/liked');
-    } else {
-        $(this).addClass('disliked');
+    if(score_ctrl.hasClass('liked') ) {
+        // change like to dislike
+        like_arrow.removeClass('liked');
+        score_ctrl.removeClass('liked');
+        dislike_arrow.addClass('disliked');
         score_ctrl.addClass('disliked');
-        var curr_score = parseInt(score_ctrl.text());
-        score_ctrl.text(curr_score - 1);
 
-        handle_like(submission_id, 'disliked');
+        curr_score -= 2;
+        handle_like(submission_id, 'disliked', 'liked');
+    } else if(score_ctrl.hasClass('disliked')) {
+        // it's already disliked, do nothing
+    } else {
+        // initial disliking (wasn't liked or disliked before)
+        dislike_arrow.addClass('disliked');
+        score_ctrl.addClass('disliked');
+        curr_score -= 1;
+
+        handle_like(submission_id, 'disliked', null);
     }
+    score_ctrl.text(curr_score);
 });
 
-function handle_like(sub_id, direction) {
+function handle_like(sub_id, direction, original) {
     $.ajax({
         url: "/rpc",
         async: true,
         type: "POST",
-        data: {'method': 'submit_like', 'direction': direction, 'submission': sub_id},
+        data: {'method': 'submit_like', 'direction': direction, 'submission': sub_id, 'original': original},
         error: function(response) {
             alert('An error occurred while trying to submit data. Please try again later ...');
+
+            // on error, revert changes made to the GUI
+            var score_ctrl = $('#likes__' + sub_id);
+            var like_arrow = $('#like__' + sub_id);
+            var dislike_arrow = $('#dislike__' + sub_id);
+            var curr_score = parseInt(score_ctrl.text());
+
+            if (direction == 'liked') {
+                like_arrow.removeClass('liked');
+                score_ctrl.removeClass('liked');
+                curr_score -= 1;
+            } else if (direction == 'disliked') {
+                dislike_arrow.removeClass('disliked');
+                score_ctrl.removeClass('disliked');
+                curr_score += 1;
+            }
+            // ...and restore the original state, if any
+            if (original == 'liked') {
+                like_arrow.addClass('liked');
+                score_ctrl.addClass('liked');
+                curr_score += 1;
+            } else if (original == 'disliked') {
+                dislike_arrow.addClass('disliked');
+                score_ctrl.addClass('disliked');
+                curr_score -= 1;
+            }
+            score_ctrl.text(curr_score);
         }
     });
 }

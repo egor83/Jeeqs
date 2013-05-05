@@ -579,6 +579,7 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
     def submit_like(self):
         submission_key = self.getValueInQuery('submission')
         direction = self.getValueInQuery('direction')
+        original = self.getValueInQuery('original')
         submission = None
         try:
             submission = ndb.Key(urlsafe=submission_key).get()
@@ -586,6 +587,19 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
             if not submission:
                 self.error(status_code.StatusCode.forbidden)
                 return
+
+        # remove previous state, if any
+        try:
+            if original == Attempt.IS_LIKED:
+                submission.likes_total -= 1
+                submission.liked.remove(self.jeeqser.key)
+            elif original == Attempt.IS_DISLIKED:
+                submission.likes_total += 1
+                submission.disliked.remove(self.jeeqser.key)
+        except ValueError:
+            logging.error('Could not remove the user with key %s from the list '
+                'of liked/disliked, data might be inconsistent' %
+                self.jeeqser.key)
 
         if direction == Attempt.IS_LIKED:
             submission.likes_total += 1
@@ -597,7 +611,8 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
             logging.warn('Unknown like direction: %s' % direction)
 
         submission.put()
-        logging.debug('Liked: %s %s' % (submission_key, direction)) # TODO remove when done
+        logging.debug('Liked: %s %s -> %s' % (
+            submission_key, original, direction)) # TODO remove when done
 
     @core.authenticate(False)
     def get_challenge_avatars(self):
