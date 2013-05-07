@@ -370,7 +370,7 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
         draft = Draft.query(ancestor=self.jeeqser.key).filter(
             Draft.challenge == challenge_key).fetch(1)
         if draft and len(draft) > 0:
-            draft[0].delete()
+            draft[0].key.delete()
 
         if challenge.automatic_review:
             deferred.defer(
