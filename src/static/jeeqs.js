@@ -265,14 +265,22 @@ $('.selectable_profile_picture').live('click', function() {
             type: "POST",
             data: {'method': 'update_profile_picture', 'profile_picture_url':$picture_url},
             success: function(response) {
+                $(".nav_profile_pic").attr("src",$picture_url);
             },
             error: function(response) {
+                alert("Could not change the profile picture. Try again");
+                if ($initiator.attr("id") == "radio_gravatar"){
+                    $("#radio_gplus").prop("checked", true);
+                    $("#radio_gravatar").prop("checked", false);
+                }
+                else if ($initiator.attr("id") == "radio_gplus"){
+                    $("#radio_gravatar").prop("checked", true);
+                    $("#radio_gplus").prop("checked", false);
+                }
             }
         })
     }
 })
-
-
 
 $(".challenge_avatars a").on('click', function(event) {
     event.stopPropagation()
