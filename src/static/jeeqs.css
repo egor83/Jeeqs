@@ -178,7 +178,9 @@ a.noline {
 .challenge_in_list {
     min-height: 81px;
     overflow: auto !important;
-    padding: 9px;
+    padding-top: 9px;
+    padding-left:9px;
+    padding-right:9px;
     border: 1px solid #ffffff;
     cursor: pointer;
 }
