@@ -436,7 +436,9 @@ class Attempt(ndb.Model):
     stderr = ndb.StringProperty()
     # List of users who voted for this submission
     users_voted = ndb.KeyProperty(repeated=True)
+    users_reviewed = ndb.KeyProperty(repeated=True)
     vote_count = ndb.IntegerProperty(default=0)
+    review_count = ndb.IntegerProperty(default=0)
 
     correct_count = ndb.IntegerProperty(default=0)
     incorrect_count = ndb.IntegerProperty(default=0)
@@ -448,7 +450,9 @@ class Attempt(ndb.Model):
 
     # vote quantization TODO: might be removed !?
     vote_sum = ndb.FloatProperty(default=float(0))
+    feedback_score_sum = ndb.FloatProperty(default=float(0))
     vote_average = ndb.FloatProperty(default=float(0))
+    feedback_score_average = ndb.FloatProperty(default=float(0))
 
     # is this the active submission for review ?
     active = ndb.BooleanProperty(default=False)
@@ -479,7 +483,8 @@ class Jeeqser_Challenge(ndb.Model):
     challenge = ndb.KeyProperty(kind=Challenge)
     active_attempt = ndb.KeyProperty(kind=Attempt)
 
-    # vote counts for the active attempt (denormalized from the active attempt)
+    # review counts for the active attempt
+    # (denormalized from the active attempt)
     correct_count = ndb.IntegerProperty(default=0)
     incorrect_count = ndb.IntegerProperty(default=0)
     flag_count = ndb.IntegerProperty(default=0)
@@ -496,6 +501,13 @@ class Vote:
     GENIUS = 'genius'
     FLAG = 'flag'
 
+class Review:
+    CORRECT = 'correct'
+    INCORRECT = 'incorrect'
+    GENIUS = 'genius'
+    FLAG = 'flag'
+
+
 
 class Feedback(ndb.Model):
     """Models feedback for submission
@@ -511,6 +523,8 @@ class Feedback(ndb.Model):
     date = ndb.DateTimeProperty(auto_now_add=True)
     vote = ndb.StringProperty(
         choices=[Vote.CORRECT, Vote.INCORRECT, Vote.GENIUS, Vote.FLAG])
+    review = ndb.StringProperty(
+        choices=[Review.CORRECT, Review.INCORRECT, Review.GENIUS, Review.FLAG])
 
     # Spam ?
     flagged_by = ndb.KeyProperty(repeated=True)
@@ -531,7 +545,8 @@ class Activity(ndb.Model):
     """Models an activity done on Jeeqs
        Parent: Jeeqser who performed this Activity
     """
-    type = ndb.StringProperty(choices=['submission', 'voting', 'flagging'])
+    type = ndb.StringProperty(choices=['submission', 'voting', 'reviewing',
+                                       'flagging'])
     done_by = ndb.KeyProperty(kind=Jeeqser)
     done_by_displayname = ndb.StringProperty()
     done_by_gravatar = ndb.StringProperty()
