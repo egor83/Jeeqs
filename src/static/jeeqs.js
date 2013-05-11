@@ -267,23 +267,25 @@ $('.selectable_profile_picture').live('click', function() {
             }
         })
     }
-})
+});
 
 $(".challenge_avatars a").on('click', function(event) {
-    event.stopPropagation()
+    event.stopPropagation();
     return false;
-})
+});
 
 
 $(document).ready(function() {
     $('a[rel=tooltip]').tooltip()
-})
+});
 
 // handle "next"/"previous" buttons for other users' submissions
 // Stack of cursors - stores cursors to navigate back in the list of submissions
 var challenge_submissions_stack = [];
 
-$(document).on('click', '#challenge_submissions_next, #challenge_submissions_previous', function(event) {
+$(document).on('click',
+        '#challenge_submissions_next, #challenge_submissions_previous',
+        function(event) {
     event.stopPropagation();
     event.preventDefault();
 
@@ -305,9 +307,26 @@ $(document).on('click', '#challenge_submissions_next, #challenge_submissions_pre
         }
     }
 
+    // current sort direction is passed to frontend via sorted_by attribute
+    // of the sort selector
+    fetch_submissions(challenge_key, cursor,
+            $('#sort_selector').attr('sorted_by'));
+});
+
+// Fetch submissions for a given challenge
+function fetch_submissions(challenge_key, cursor, sort_by) {
     $('#review').html('Loading ... ');
+
+    var request_url = '/review/?ch=' + challenge_key;
+    if(typeof cursor != 'undefined' && cursor != null) {
+        request_url += ('&cursor=' + cursor);
+    }
+    if(typeof sort_by != 'undefined' && sort_by != null) {
+        request_url += ('&sort_by=' + sort_by);
+    }
+
     $.ajax({
-        url: "/review/?ch=" + challenge_key + "&cursor=" + cursor,
+        url: request_url,
         async: true,
         type: "GET",
         success: function(response) {
@@ -318,7 +337,7 @@ $(document).on('click', '#challenge_submissions_next, #challenge_submissions_pre
             $('#review').html('An Error occurred while loading this page. Please try again later ...');
         }
     })
-});
+}
 
 // stores cursors to be able to navigate back in a list of recent attempts
 var attempts_cursors_stack = [];
@@ -532,6 +551,19 @@ function handle_like(sub_id, direction, original) {
         }
     });
 }
+
+$(document).on('click', '.sort_submissions', function(event) {
+    event.stopPropagation();
+    event.preventDefault();
+
+    // clear cursors stored for old sorting order
+    challenge_submissions_stack.length = 0;
+
+    var sort_by = $(this).attr('sort_by');
+    var challenge_key = $(this).attr('data-challenge_key');
+
+    fetch_submissions(challenge_key, null, sort_by);
+});
 
 
 $(document).ready(function() {

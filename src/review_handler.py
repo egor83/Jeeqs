@@ -39,6 +39,8 @@ class ReviewHandler(jeeqs_request_handler.JeeqsRequestHandler):
         previous_cursor = None
         cursor = self.request.get('cursor') if self.request.get('cursor') \
             else None
+        
+        sort_by = self.request.get('sort_by')
 
         # determine if the user is qualified to review
         # this challenge's submissions
@@ -59,8 +61,16 @@ class ReviewHandler(jeeqs_request_handler.JeeqsRequestHandler):
             submissions_query = Attempt.query()\
                 .filter(Attempt.challenge == challenge.key)\
                 .filter(Attempt.active == True)\
-                .filter(Attempt.flagged == False)\
-                .order(Attempt.vote_count)
+                .filter(Attempt.flagged == False)
+
+            if sort_by == 'least_feedbacks':
+                submissions_query = submissions_query.order(Attempt.vote_count)
+            elif sort_by == 'most_likes':
+                submissions_query = submissions_query.order(
+                    -Attempt.likes_total)
+            else:
+                # default sorting
+                submissions_query = submissions_query.order(Attempt.vote_count)
 
             if cursor and cursor != "None":
                 qo = ndb.QueryOptions(start_cursor=ndb.Cursor(urlsafe=cursor))
@@ -99,7 +109,8 @@ class ReviewHandler(jeeqs_request_handler.JeeqsRequestHandler):
             'next_cursor': next_cursor,
             'previous_cursor': previous_cursor,
             'more': more,
-            'own_reviews': own_reviews
+            'own_reviews': own_reviews,
+            'sorted_by': sort_by
         })
 
         template = jinja_environment.get_template('review_a_challenge.html')
