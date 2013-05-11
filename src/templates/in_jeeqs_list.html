@@ -48,7 +48,7 @@
     <div class="pull-left clearfix">
         {{ feedback.content|safe }}
     </div>
-    <input type="hidden" name="feedback-id" value="{{ feedback.key }}"/>
+    <input type="hidden" name="feedback-id" value="{{ feedback.key.urlsafe() }}"/>
     {%if jeeqser.key not in feedback.flagged_by  %}
     <div class="pull-right"><a class="feedback-flag-button" href="#"><span class="icon-flag pull-left"></span></a></div>
     {% endif %}
