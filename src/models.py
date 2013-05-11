@@ -51,7 +51,10 @@ s~jeeqsy> for ch in all_ch:
 
 How to access remote api:
 python /Applications/GoogleAppEngineLauncher.app/Contents/Resources/GoogleAppEngine-default.bundle/Contents/Resources/google_appengine/remote_api_shell.py -s jeeqsy.appspot.com
-Then add models.py base directory to sys.path.
+Then add models.py base directory to sys.path
+(actually is you call remote API from <JEEQS_DIR>/src (the directory where
+models.py is located), you will be able to import models and other modules
+directly without altering sys.path)
 
 """
 
@@ -545,8 +548,8 @@ class Activity(ndb.Model):
     """Models an activity done on Jeeqs
        Parent: Jeeqser who performed this Activity
     """
-    type = ndb.StringProperty(choices=['submission', 'voting', 'reviewing',
-                                       'flagging'])
+    type = ndb.StringProperty(choices=[
+        'submission', 'voting', 'reviewing', 'flagging'])
     done_by = ndb.KeyProperty(kind=Jeeqser)
     done_by_displayname = ndb.StringProperty()
     done_by_gravatar = ndb.StringProperty()
