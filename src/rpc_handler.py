@@ -552,8 +552,9 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
                 jeeqser.is_moderator or\
                     users.is_current_user_admin():
                 feedback.flagged = True
-                spam_manager.SpamManager.flag_author(feedback.author)
-                feedback.author.put()
+                author = feedback.author.get()
+                spam_manager.SpamManager.flag_author(author)
+                author.put()
             feedback.put()
 
         return response
