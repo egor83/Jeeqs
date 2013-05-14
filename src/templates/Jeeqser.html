@@ -44,11 +44,11 @@
             </td>
             <td  style="vertical-align:middle">
                 <input id="radio_gravatar" name="gravatar" type="radio" class="selectable_profile_picture" name="profile_pic_options" {{gravatar_checked}}>&nbsp;&nbsp;&nbsp;
-                    <img name="gravatar" class="selectable_profile_picture" id="img_gravatar" src="{{ jeeqser.gravatar_url }}" style="border-radius: 5px;" />
+                    <img name="gravatar" class="selectable_profile_picture" id="img_gravatar" src="{{ jeeqser.gravatar_url }}" />
                 </input>
                 &nbsp;&nbsp;&nbsp;&nbsp;
                 <small>We are using <a href="http://www.gravatar.com">Gravatar</a> for email : {{ jeeqser.user.email() }}</small>
-                <img src="/static/gravatar.jpeg" height="18px" width="18px" style="border-radius: 5px;"/>
+                <img class="profile_src_icon" src="/static/gravatar.jpeg" class="profile_src_icon"/>
             </td>
         </tr>
 
@@ -56,16 +56,17 @@
             <td  style="vertical-align:middle">
                 {% if has_google_plus_credentials %}
                     <input id="radio_gplus" name="gplus" type="radio" class="selectable_profile_picture" name="profile_pic_options" {{gplus_checked}}>&nbsp;&nbsp;&nbsp;
-                        <img name="gplus" class="selectable_profile_picture" id="img_gplus"src="{{ jeeqser.gplus_picture_url }}" width="40px" height="40px" style="border-radius: 5px" />
+                        <img name="gplus" class="selectable_profile_picture" id="img_gplus"src="{{ jeeqser.gplus_picture_url }}" />
                     </input>
                 {% else %}
-                    <input type="radio" name="profile_pic">     <button id="authorize_google_plus" class="btn btn-info" onclick="location.href='{{ google_plus_auth_url }}'">Retrieve Google+ Profile Picture</button>
+                    <input type="radio" name="profile_pic">
+                        <button id="authorize_google_plus" class="btn btn-info" onclick="location.href='{{ google_plus_auth_url }}'">Retrieve Google+ Profile Picture</button>
                     </input>
                 {% endif %}
                     &nbsp;&nbsp;&nbsp;&nbsp;
                 {% if has_google_plus_credentials %}
                     We are using your Google plus profile picture
-                    <img src="/static/new-g-plus-icon-128.png" height="18px" width="18px" style="border-radius: 5px"/>
+                    <img class="profile_src_icon" src="/static/new-g-plus-icon-128.png"/>
                 {% endif %}
             </td>
         </tr>
