@@ -88,6 +88,15 @@ div.submission-feedback .ui-state-active.flag_label {
 
 .selectable_profile_picture {
     cursor: pointer;
+    border-radius: 5px;
+    width:40px;
+    height:40px;
+}
+
+.profile_src_icon {
+    height : 18px;
+    width : 18px;
+    border-radius: 5px;
 }
 
 .badge_links {

@@ -249,9 +249,16 @@ $('.submit-vote').live('click', function() {
     })
 })
 
+
 $('.selectable_profile_picture').live('click', function() {
+
     var $initiator = $(this)
-    var $img = $initiator.children('img')
+    var $img = null
+    if ($initiator.attr("name") == "gravatar")
+        $img = $("#img_gravatar")
+    else if ($initiator.attr("name") == "gplus")
+        $img = $("#img_gplus")
+
     var $picture_url = $img.attr('src')
     if (!$img.hasClass('current_profile_picture')) {
         $.ajax({
@@ -260,10 +267,27 @@ $('.selectable_profile_picture').live('click', function() {
             type: "POST",
             data: {'method': 'update_profile_picture', 'profile_picture_url':$picture_url},
             success: function(response) {
-                $('.selectable_profile_picture').children().removeClass('current_profile_picture')
-                $img.addClass('current_profile_picture')
+                $(".nav_profile_pic").attr("src",$picture_url);
+
+                if ($initiator.attr("name") == "gravatar"){
+                    $("#radio_gplus").prop("checked", false);
+                    $("#radio_gravatar").prop("checked", true);
+                }
+                else if ($initiator.attr("name") == "gplus"){
+                    $("#radio_gravatar").prop("checked", false);
+                    $("#radio_gplus").prop("checked", true);
+                }
             },
             error: function(response) {
+                alert("Could not change the profile picture. Try again");
+                if ($initiator.attr("name") == "gravatar"){
+                    $("#radio_gplus").prop("checked", true);
+                    $("#radio_gravatar").prop("checked", false);
+                }
+                else if ($initiator.attr("name") == "gplus"){
+                    $("#radio_gravatar").prop("checked", true);
+                    $("#radio_gplus").prop("checked", false);
+                }
             }
         })
     }
