@@ -142,9 +142,9 @@
                         <tr>
                             <td><a href="/challenge/?ch={{ jc.challenge.urlsafe() }}"> {{ jc.challenge.get().name }} </a></td>
                             <td style="white-space: nowrap;">
-                                <div style="color: green; float:left; margin-right:5px;" title="correct votes">+{{ jc.correct_count }} </div>
-                                <div style="color: red; float: left; margin-right:10px;" title="incorrect votes">-{{ jc.incorrect_count }} </div>
-                                <div style="color: grey; float:left;" title="flag votes">{{ jc.flag_count }} </div>
+                                <div style="color: green; float:left; margin-right:5px;" title="correct reviews">+{{ jc.correct_count }} </div>
+                                <div style="color: red; float: left; margin-right:10px;" title="incorrect reviews">-{{ jc.incorrect_count }} </div>
+                                <div style="color: grey; float:left;" title="flag reviews">{{ jc.flag_count }} </div>
                             </td>
                             <td>{{ jc.status_changed_on|timesince }} </td>
                         </tr>

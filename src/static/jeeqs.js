@@ -205,7 +205,7 @@ function display_in_jeeqs(sub_id, result_element) {
     })
 }
 
-$('.submit-vote').live('click', function() {
+$('.submit-review').live('click', function() {
 
     var $initiator = $(this)
 

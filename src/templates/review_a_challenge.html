@@ -60,7 +60,7 @@
                         {% if not submission.voted and not has_own %}
                             {% set submitted = 'Submit' %}
                         {% endif %}
-                        <button class="submit-vote btn btn-primary pull-right {% if has_own %} disabled" {% endif %}
+                        <button class="submit-review btn btn-primary pull-right {% if has_own %} disabled" {% endif %}
                                 data-submitted-text="Submitted!" id="submit__{{ submission.key.urlsafe() }}">{{ submitted }}</button>
                         {% if has_own %}
                             <div class="other_reviews_container">
