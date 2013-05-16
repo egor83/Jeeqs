@@ -9,7 +9,7 @@ run the following command:
 These commands are working on Python 2.5.4 as of now. There are known issues with default installations of
 python on MacOS and serialization of floats.
 
-Download from local datastore into a file
+Download from GAE datastore into a local file
 appcfg.py download_data --url=http://jeeqsy.appspot.com/_ah/remote_api --filename=[db_backup_2012_May_19th] --application=s~jeeqsy
 
 Upload from a file into production: (if you increase num_threads, you might run into pipe issues with local dev server)
@@ -52,7 +52,7 @@ s~jeeqsy> for ch in all_ch:
 How to access remote api:
 python /Applications/GoogleAppEngineLauncher.app/Contents/Resources/GoogleAppEngine-default.bundle/Contents/Resources/google_appengine/remote_api_shell.py -s jeeqsy.appspot.com
 Then add models.py base directory to sys.path
-(actually is you call remote API from <JEEQS_DIR>/src (the directory where
+(actually if you call remote API from <JEEQS_DIR>/src (the directory where
 models.py is located), you will be able to import models and other modules
 directly without altering sys.path)
 

@@ -14,9 +14,9 @@ attempts = Attempt.query().fetch()
 
 for att in attempts:
     att.users_reviewed = att.users_voted
-    att.users_voted = att.review_count
-    att.vote_sum = att.feedback_score_sum
-    att.vote_average = att.feedback_score_average
+    att.review_count = att.users_voted
+    att.feedback_score_sum = att.vote_sum
+    att.feedback_score_average = att.vote_average
 
 ndb.put_multi(attempts)
 
