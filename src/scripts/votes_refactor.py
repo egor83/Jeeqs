@@ -14,7 +14,7 @@ attempts = Attempt.query().fetch()
 
 for att in attempts:
     att.users_reviewed = att.users_voted
-    att.review_count = att.users_voted
+    att.review_count = att.vote_count
     att.feedback_score_sum = att.vote_sum
     att.feedback_score_average = att.vote_average
 
@@ -23,6 +23,9 @@ ndb.put_multi(attempts)
 feedbacks = Feedback.query().fetch()
 
 for fb in feedbacks:
-    fb.review = fb.vote
+    if fb.vote == u'':
+        fb.review = Review.CORRECT
+    else:
+        fb.review = fb.vote
 
 ndb.put_multi(feedbacks)
