@@ -90,12 +90,12 @@ def authenticate(required=True):
 # Adds icons and background to feedback objects
 def prettify_injeeqs(injeeqs):
     for jeeq in injeeqs:
-        if jeeq.vote == Vote.CORRECT:
+        if jeeq.review == Review.CORRECT:
             jeeq.icon = 'icon-ok'
             jeeq.background = '#EBFFEB'
-        elif jeeq.vote == Vote.INCORRECT:
+        elif jeeq.review == Review.INCORRECT:
             jeeq.icon = 'icon-remove'
             jeeq.background = '#FFE3E3'
-        elif jeeq.vote == Vote.FLAG:
+        elif jeeq.review == Review.FLAG:
             jeeq.icon = 'icon-flag'
             jeeq.background = 'lightgrey'

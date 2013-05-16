@@ -11,7 +11,7 @@ import webtest
 from google.appengine.ext import deferred
 from models import *
 
-VOTER_EMAIL = 'voter@wrong_domain.com'
+REVIEWER_EMAIL = 'reviewer@wrong_domain.com'
 SUBMITTER_EMAIL = "submitter@nonexistent_domain.com"
 USER_A_EMAIL = 'user_a@wrong_domain.com'
 
@@ -37,73 +37,78 @@ class RPCHandlerTestCase(test_jeeqs.JeeqsTestCase):
     return challenge, submission, submitter, submitter_challenge
 
   def test_vote_qualification(self):
-    """Vote as a non-qualified voter and verify that we don't persist the vote"""
+    """Review as a non-qualified reviewer
+
+    and verify that we don't persist the review.
+
+    """
     pass
 
   def test_submit_first_correct_vote(self):
-    """Tests submitting a first correct vote to a submission."""
+    """Tests submitting a first correct review to a submission."""
     (
         challenge, submission, submitter, submitter_challenge) = \
         self.create_submitter_challenge()
-    # Qualify the voter
-    voter = self.CreateJeeqser(email=VOTER_EMAIL)
-    voter_challenge = Jeeqser_Challenge(parent=voter.key,
+    # Qualify the reviewer
+    reviewer = self.CreateJeeqser(email=REVIEWER_EMAIL)
+    reviewer_challenge = Jeeqser_Challenge(parent=reviewer.key,
                                         challenge=challenge.key,
-                                        jeeqser=voter.key,
+                                        jeeqser=reviewer.key,
                                         status=AttemptStatus.SUCCESS)
-    voter_challenge.put()
-    self.loginUser(VOTER_EMAIL, 'voter')
+    reviewer_challenge.put()
+    self.loginUser(REVIEWER_EMAIL, 'reviewer')
     params = {
         'method': 'submit_vote',
         'submission_key': submission.key.urlsafe(),
-        'vote': Vote.CORRECT}
+        'review': Review.CORRECT}
     try:
       self.testapp.post('/rpc', params)
     except Exception as ex:
       self.fail(traceback.print_exc())
 
-    submission, challenge, submitter_challenge, submitter, voter = ndb.get_multi(
+    submission, challenge, submitter_challenge, submitter, reviewer = ndb.get_multi(
         [submission.key,
         challenge.key,
         submitter_challenge.key,
         submitter.key,
-        voter.key])
+        reviewer.key])
 
     self.assertEquals(submitter_challenge.status, AttemptStatus.SUCCESS)
     self.assertEquals(submission.status, AttemptStatus.SUCCESS)
     self.assertEquals(submission.correct_count, 1)
     self.assertEquals(submission.incorrect_count, 0)
     self.assertEquals(submitter.correct_submissions_count, 1)
-    self.assertEquals(voter.reviews_out_num, 1)
+    self.assertEquals(reviewer.reviews_out_num, 1)
     self.assertEquals(submitter.reviews_in_num, 1)
     self.assertEquals(challenge.num_jeeqsers_solved, 1)
     self.assertEquals(challenge.last_solver, submitter.key)
     self.assertTrue(len(Feedback.query(ancestor=submission.key).fetch(1)) > 0)
-    self.assertTrue(len(Activity.query(ancestor=voter.key).fetch(1)) > 0)
+    self.assertTrue(len(Activity.query(ancestor=reviewer.key).fetch(1)) > 0)
 
   def test_flag_attempt(self):
-    """Tests voter voting a flag for a submission"""
+    """Tests reviewer adding a flag for a submission"""
     (
       challenge, submission, submitter, submitter_challenge) =\
     self.create_submitter_challenge()
-    # Qualify a number of voters
-    voters = []
-    for voter_index in range(spam_manager.SpamManager.SUBMISSION_FLAG_THRESHOLD):
-      voter = self.CreateJeeqser(email=VOTER_EMAIL + str(voter_index))
-      voter_challenge = Jeeqser_Challenge(parent=voter.key,
+    # Qualify a number of reviewers
+    reviewers = []
+    for reviewer_index in range(spam_manager.SpamManager.SUBMISSION_FLAG_THRESHOLD):
+      reviewer = self.CreateJeeqser(email=REVIEWER_EMAIL + str(reviewer_index))
+      reviewer_challenge = Jeeqser_Challenge(parent=reviewer.key,
                                           challenge=challenge.key,
-                                          jeeqser=voter.key,
+                                          jeeqser=reviewer.key,
                                           status=AttemptStatus.SUCCESS)
-      voter_challenge.put()
-      voters.append(voter)
+      reviewer_challenge.put()
+      reviewers.append(reviewer)
 
-    self.loginUser(VOTER_EMAIL, 'voter')
+    self.loginUser(REVIEWER_EMAIL, 'reviewer')
     params = {
       'method': 'submit_vote',
       'submission_key': submission.key.urlsafe(),
-      'vote': Vote.FLAG}
-    for voter in voters:
-      self.loginUser(VOTER_EMAIL + str(voter_index), 'voter' + str(voter_index))
+      'review': Review.FLAG}
+    for reviewer in reviewers:
+      self.loginUser(REVIEWER_EMAIL + str(reviewer_index),
+                     'reviewer' + str(reviewer_index))
       try:
         self.testapp.post('/rpc', params)
       except Exception as ex:
@@ -211,8 +216,8 @@ class RPCHandlerTestCase(test_jeeqs.JeeqsTestCase):
       self.fail()
 
   def test_update_displayname(self):
-      voter = self.CreateJeeqser(email=VOTER_EMAIL)
-      self.loginUser(VOTER_EMAIL, 'voter')
+      reviewer = self.CreateJeeqser(email=REVIEWER_EMAIL)
+      self.loginUser(REVIEWER_EMAIL, 'reviewer')
       try:
           #update to an available display name
           params = {
@@ -227,7 +232,7 @@ class RPCHandlerTestCase(test_jeeqs.JeeqsTestCase):
           response = self.testapp.post('/rpc', params)
           self.assertEquals('no_operation', response.body, 'no operation failed')
           #update to already taken display name
-          #display name 'noob' has already been taken by user 'voter' above
+          #display name 'noob' has already been taken by user 'reviewer' above
           userA = self.CreateJeeqser(email=USER_A_EMAIL)
           self.loginUser(USER_A_EMAIL, 'userA')
           params = {

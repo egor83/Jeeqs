@@ -60,7 +60,7 @@ class ReviewHandler(jeeqs_request_handler.JeeqsRequestHandler):
                 .filter(Attempt.challenge == challenge.key)\
                 .filter(Attempt.active == True)\
                 .filter(Attempt.flagged == False)\
-                .order(Attempt.vote_count)
+                .order(Attempt.review_count)
 
             if cursor and cursor != "None":
                 qo = ndb.QueryOptions(start_cursor=ndb.Cursor(urlsafe=cursor))
@@ -77,7 +77,7 @@ class ReviewHandler(jeeqs_request_handler.JeeqsRequestHandler):
             previous_cursor = cursor
 
             for submission in submissions:
-                if self.jeeqser.key in submission.users_voted:
+                if self.jeeqser.key in submission.users_reviewed:
                     review = Feedback.query().\
                         filter(Feedback.attempt == submission.key).\
                         filter(Feedback.author == self.jeeqser.key).\

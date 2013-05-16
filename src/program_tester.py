@@ -79,14 +79,14 @@ def run_testcases(program, challenge):
 
   :param program: program to test
   :param challenge: challenge for which the program was submitted
-  :return: A vote of correct/incorrect and the output of the test executions.
+  :return: A review value of correct/incorrect and the output of the test executions.
   """
   success = True
-  vote = Vote.CORRECT
+  review = Review.CORRECT
   output, program_module = compile_and_run(program)
   if not program_module:
     success = False
-    vote = Vote.INCORRECT
+    review = Review.INCORRECT
   else:
     test_num = 0
     for test in challenge.testcases:
@@ -107,6 +107,6 @@ def run_testcases(program, challenge):
       output = 'Success! All tests ran successfully!' + output
     else:
       output = 'At least one of the test cases failed: ' + output
-      vote = Vote.INCORRECT
-  return vote, output
+      review = Review.INCORRECT
+  return review, output
 

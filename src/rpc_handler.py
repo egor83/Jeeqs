@@ -69,10 +69,10 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
             return
 
     @staticmethod
-    def get_vote_numeric_value(vote):
-        if vote == Vote.CORRECT:
+    def get_vote_numeric_value(review):
+        if review == Review.CORRECT:
             return 2
-        elif vote == Vote.INCORRECT:
+        elif review == Review.INCORRECT:
             return 0
         else:
             return 0  # flag
@@ -99,41 +99,41 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
                     submission.challenge.get().update_last_solver(None)
 
     @staticmethod
-    def update_graph_for_vote(submission, jeeqser_challenge, vote, voter):
+    def update_graph_for_vote(submission, jeeqser_challenge, review, reviewer):
         """
-        Updates the object graph based on the vote given by the voter
-        :param submission: The submission for which the vote is given
+        Updates the object graph based on the review given by the reviewer
+        :param submission: The submission for which the review is given
         :param jeeqser_challenge:  The corresponding jeeqser_challenge entity
-        :param vote: the vote given
-        :param voter: the voter
+        :param review: the review given
+        :param reviewer: the reviewer
         """
-        submission.users_voted.append(voter.key)
-        submission.vote_count += 1
-        submission.vote_sum += float(RPCHandler.get_vote_numeric_value(vote))
-        submission.vote_average = float(
-            submission.vote_sum / submission.vote_count)
-        if submission.vote_count == 1:
+        submission.users_reviewed.append(reviewer.key)
+        submission.review_count += 1
+        submission.feedback_score_sum += float(RPCHandler.get_vote_numeric_value(review))
+        submission.feedback_score_average = float(
+            submission.feedback_score_sum / submission.review_count)
+        if submission.review_count == 1:
             submission.challenge.get().submissions_without_review -= 1
-        voter.reviews_out_num += 1
+        reviewer.reviews_out_num += 1
         submission.author.get().reviews_in_num += 1
 
-        if vote == Vote.CORRECT:
+        if review == Review.CORRECT:
             submission.correct_count += 1
             jeeqser_challenge.correct_count = submission.correct_count
-        elif vote == Vote.INCORRECT:
+        elif review == Review.INCORRECT:
             submission.incorrect_count += 1
             jeeqser_challenge.incorrect_count = submission.incorrect_count
-        elif vote == Vote.FLAG:
+        elif review == Review.FLAG:
             submission.flag_count += 1
             jeeqser_challenge.flag_count = submission.flag_count
             if (
                 submission.flag_count >=
                 spam_manager.SpamManager.SUBMISSION_FLAG_THRESHOLD) or\
-                voter.is_moderator or\
+                reviewer.is_moderator or\
                     users.is_current_user_admin():
                 submission.flagged = True
                 spam_manager.SpamManager.flag_author(submission.author.get())
-            submission.flagged_by.append(voter.key)
+            submission.flagged_by.append(reviewer.key)
 
         previous_status = jeeqser_challenge.status
         if submission.correct_count > (
@@ -450,7 +450,7 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
         RPCHandler.update_graph_for_vote(
             submission,
             jeeqser_challenge,
-            feedback.vote,
+            feedback.review,
             jeeqser)
 
         ndb.put_multi([
@@ -465,7 +465,7 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
         # needs feedback.key!
         Activity(
             parent=jeeqser_key,
-            type='voting',
+            type='voting', # TODO need to migrate existing Activity entities
             done_by=jeeqser_key,
             done_by_displayname=jeeqser_key.get().displayname,
             done_by_gravatar=jeeqser_key.get().profile_url,
@@ -480,15 +480,15 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
 
     def verifyReviewerQualified(self, submission):
         """
-        Ensure non-admin user is qualified to vote
+        Ensure non-admin user is qualified to review
         :param submission: The submission under review.
         """
         if not users.is_current_user_admin():
-            voter_challenge = get_jeeqser_challenge(
+            reviewer_challenge = get_jeeqser_challenge(
                 self.jeeqser.key,
                 submission.challenge)
-            qualified = voter_challenge and\
-                voter_challenge.status == AttemptStatus.SUCCESS
+            qualified = reviewer_challenge and\
+                reviewer_challenge.status == AttemptStatus.SUCCESS
 
             if not qualified:
                 raise jeeqs_exceptions.ReviewerNotQualified()
@@ -496,7 +496,7 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
     def submit_vote(self):
 
         submission_key = self.getValueInQuery('submission_key')
-        vote = self.getValueInQuery('vote')
+        review = self.getValueInQuery('review')
         submission = ndb.Key(urlsafe=submission_key).get()
         self.verifyReviewerQualified(submission)
 
@@ -514,10 +514,10 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
             markdown=self.request.get('response'),
             content=markdown.markdown(
                 self.request.get('response'), ['codehilite', 'mathjax']),
-            vote=vote)
+            review=review)
 
         # check flagging limit
-        if feedback.vote == 'flag':
+        if feedback.review == Review.FLAG:
             flags_left = spam_manager.SpamManager.check_and_update_flag_limit(
                 self.jeeqser)
             response = {'flags_left_today': flags_left}
@@ -606,7 +606,7 @@ def handle_automatic_review(
         [ndb.Key(urlsafe=attempt_key),
          ndb.Key(urlsafe=challenge_key),
          ndb.Key(urlsafe=jeeqser_challenge_key)])
-    vote, output = program_tester.run_testcases(
+    review, output = program_tester.run_testcases(
         program,
         challenge)
     robot = core.get_jeeqs_robot()
@@ -617,27 +617,27 @@ def handle_automatic_review(
         attempt_author=attempt.author,
         markdown=output,
         content=markdown.markdown(output, ['codehilite', 'mathjax']),
-        vote=vote)
+        review=review)
     persist_testcase_results(
         attempt.key, jeeqser_challenge.key, feedback, robot.key)
 
 
 @ndb.transactional(xg=True)
 def persist_testcase_results(
-        attempt_key, jeeqser_challenge_key, feedback, voter_key):
-    attempt, jeeqser_challenge, voter = ndb.get_multi(
-        [attempt_key, jeeqser_challenge_key, voter_key])
+        attempt_key, jeeqser_challenge_key, feedback, reviewer_key):
+    attempt, jeeqser_challenge, reviewer = ndb.get_multi(
+        [attempt_key, jeeqser_challenge_key, reviewer_key])
     RPCHandler.update_graph_for_vote(
         attempt,
         jeeqser_challenge,
-        feedback.vote,
-        voter)
+        feedback.review,
+        reviewer)
 
     feedback.put()
     jeeqser_challenge.put()
     attempt.put()
     attempt.challenge.get().put()
     attempt.author.get().put()
-    voter.put()
+    reviewer.put()
     # attempt.author doesn't need to be persisted,
     # since it will only change when an attempt is flagged.

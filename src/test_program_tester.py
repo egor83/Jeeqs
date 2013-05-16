@@ -49,5 +49,5 @@ def factorial(n):
         expected="6").put()
     challenge = Challenge.query().filter(
         Challenge.name_persistent == 'Factorial').fetch(1)[0]
-    vote, output = program_tester.run_testcases(program, challenge)
-    self.assertEquals(vote, Vote.CORRECT)
+    review, output = program_tester.run_testcases(program, challenge)
+    self.assertEquals(review, Review.CORRECT)

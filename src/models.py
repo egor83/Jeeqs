@@ -30,7 +30,7 @@ for ch in all_challenges:
    unreviewed = 0
    atts = Attempt.all().filter('challenge = ', ch).filter('active = ', True).fetch(1000)
    for att in atts:
-     if att.vote_count == 0:
+     if att.review_count == 0:
        unreviewed += 1
    ch.submissions_without_review = unreviewed
    ch.put()
@@ -43,7 +43,7 @@ s~jeeqsy> all_ch = Challenge.all().fetch(1000)
 s~jeeqsy> for ch in all_ch:
 ...   unreviewed = 0
 ...   for att in ch.attempt_set:
-...     if att.active and att.vote_count == 0:
+...     if att.active and att.review_count == 0:
 ...        unreviewed +=1
 ...   ch.submissions_without_review = unreviewed
 ...   ch.put()
@@ -411,7 +411,7 @@ class Challenge(ndb.Model):
         return Attempt.query().\
             filter(Attempt.challenge == self.key).\
             filter(Attempt.active == True).\
-            filter(Attempt.vote_count == 0).\
+            filter(Attempt.review_count == 0).\
             count()
 
 
@@ -437,7 +437,7 @@ class Attempt(ndb.Model):
     date = ndb.DateTimeProperty(auto_now_add=True)
     stdout = ndb.StringProperty()
     stderr = ndb.StringProperty()
-    # List of users who voted for this submission
+    # List of users who reviewed this submission
     users_voted = ndb.KeyProperty(repeated=True)
     users_reviewed = ndb.KeyProperty(repeated=True)
     vote_count = ndb.IntegerProperty(default=0)
@@ -451,7 +451,7 @@ class Attempt(ndb.Model):
     status = ndb.StringProperty(
         choices=[AttemptStatus.SUCCESS, AttemptStatus.FAIL])
 
-    # vote quantization TODO: might be removed !?
+    # feedback score quantization TODO: might be removed !?
     vote_sum = ndb.FloatProperty(default=float(0))
     feedback_score_sum = ndb.FloatProperty(default=float(0))
     vote_average = ndb.FloatProperty(default=float(0))
