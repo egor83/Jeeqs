@@ -188,9 +188,10 @@ class ChallengeHandler(jeeqs_request_handler.JeeqsRequestHandler):
 
         # Fetch saved draft
         try:
-            draft = Draft.query().filter(
-                Draft.author == self.jeeqser.key,
-                Draft.challenge == challenge.key).fetch(1)[0]
+            if self.jeeqser:
+                draft = Draft.query().filter(
+                    Draft.author == self.jeeqser.key,
+                    Draft.challenge == challenge.key).fetch(1)[0]
         except IndexError:
             draft = None
 

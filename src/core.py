@@ -3,7 +3,7 @@ import os
 from google.appengine.api import users
 from models import *
 from template_filters import escapejs, timesince
-import datetime
+from datetime import datetime
 import status_code
 
 

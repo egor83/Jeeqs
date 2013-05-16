@@ -374,7 +374,7 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
         draft = Draft.query(ancestor=self.jeeqser.key).filter(
             Draft.challenge == challenge_key).fetch(1)
         if draft and len(draft) > 0:
-            draft[0].delete()
+            draft[0].key.delete()
 
         if challenge.automatic_review:
             deferred.defer(
@@ -556,8 +556,9 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
                 jeeqser.is_moderator or\
                     users.is_current_user_admin():
                 feedback.flagged = True
-                spam_manager.SpamManager.flag_author(feedback.author)
-                feedback.author.put()
+                author = feedback.author.get()
+                spam_manager.SpamManager.flag_author(author)
+                author.put()
             feedback.put()
 
         return response

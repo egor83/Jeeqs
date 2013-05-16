@@ -88,6 +88,15 @@ div.submission-feedback .ui-state-active.flag_label {
 
 .selectable_profile_picture {
     cursor: pointer;
+    border-radius: 5px;
+    width:40px;
+    height:40px;
+}
+
+.profile_src_icon {
+    height : 18px;
+    width : 18px;
+    border-radius: 5px;
 }
 
 .badge_links {
@@ -178,7 +187,9 @@ a.noline {
 .challenge_in_list {
     min-height: 81px;
     overflow: auto !important;
-    padding: 9px;
+    padding-top: 9px;
+    padding-left:9px;
+    padding-right:9px;
     border: 1px solid #ffffff;
     cursor: pointer;
 }

@@ -1,15 +1,5 @@
 {% from 'avatars.html' import avatar %}
-<script>
-    {# Need to run tooltip since this page is dynamically loaded into browser.  #}
-    $(document).ready(function() {
-        $('a[rel=tooltip]').tooltip();
-
-        $('.auto_injeeqs_display').each(function() {
-            display_in_jeeqs($(this).attr('sub_id'), $(this).attr('id'));
-        });
-    });
-</script>
-
+        
 <div id="submissions_list">
     {% if submissions|length == 0 %}
         {% if not review_qualified and not challenge.public_submissions %}
