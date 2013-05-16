@@ -109,7 +109,8 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
         """
         submission.users_reviewed.append(reviewer.key)
         submission.review_count += 1
-        submission.feedback_score_sum += float(RPCHandler.get_vote_numeric_value(review))
+        submission.feedback_score_sum += float(
+            RPCHandler.get_vote_numeric_value(review))
         submission.feedback_score_average = float(
             submission.feedback_score_sum / submission.review_count)
         if submission.review_count == 1:
@@ -153,11 +154,14 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
 
         if cursor == '':
             activities_for_page, cursor, more = all_activities.fetch_page(10)
-            qo = ndb.QueryOptions(start_cursor=ndb.Cursor(urlsafe=cursor.to_websafe_string()))
-            activities_for_page, cursor, more = all_activities.fetch_page(10, options=qo)
+            qo = ndb.QueryOptions(
+                start_cursor=ndb.Cursor(urlsafe=cursor.to_websafe_string()))
+            activities_for_page, cursor, more = \
+                all_activities.fetch_page(10, options=qo)
         else:
             qo = ndb.QueryOptions(start_cursor=ndb.Cursor(urlsafe=cursor))
-            activities_for_page, cursor, more = all_activities.fetch_page(10, options=qo)
+            activities_for_page, cursor, more = \
+                all_activities.fetch_page(10, options=qo)
 
         vars = core.add_common_vars({'activities': activities_for_page})
         template = core.jinja_environment.get_template('activities_list.html')
@@ -465,7 +469,7 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
         # needs feedback.key!
         Activity(
             parent=jeeqser_key,
-            type='voting', # TODO need to migrate existing Activity entities
+            type='voting',  # TODO need to migrate existing Activity entities
             done_by=jeeqser_key,
             done_by_displayname=jeeqser_key.get().displayname,
             done_by_gravatar=jeeqser_key.get().profile_url,

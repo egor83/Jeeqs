@@ -15,6 +15,7 @@ REVIEWER_EMAIL = 'reviewer@wrong_domain.com'
 SUBMITTER_EMAIL = "submitter@nonexistent_domain.com"
 USER_A_EMAIL = 'user_a@wrong_domain.com'
 
+
 class RPCHandlerTestCase(test_jeeqs.JeeqsTestCase):
 
   def setUp(self):
@@ -52,9 +53,9 @@ class RPCHandlerTestCase(test_jeeqs.JeeqsTestCase):
     # Qualify the reviewer
     reviewer = self.CreateJeeqser(email=REVIEWER_EMAIL)
     reviewer_challenge = Jeeqser_Challenge(parent=reviewer.key,
-                                        challenge=challenge.key,
-                                        jeeqser=reviewer.key,
-                                        status=AttemptStatus.SUCCESS)
+                                           challenge=challenge.key,
+                                           jeeqser=reviewer.key,
+                                           status=AttemptStatus.SUCCESS)
     reviewer_challenge.put()
     self.loginUser(REVIEWER_EMAIL, 'reviewer')
     params = {
@@ -66,12 +67,13 @@ class RPCHandlerTestCase(test_jeeqs.JeeqsTestCase):
     except Exception as ex:
       self.fail(traceback.print_exc())
 
-    submission, challenge, submitter_challenge, submitter, reviewer = ndb.get_multi(
-        [submission.key,
-        challenge.key,
-        submitter_challenge.key,
-        submitter.key,
-        reviewer.key])
+    submission, challenge, submitter_challenge, submitter, reviewer = \
+        ndb.get_multi([
+            submission.key,
+            challenge.key,
+            submitter_challenge.key,
+            submitter.key,
+            reviewer.key])
 
     self.assertEquals(submitter_challenge.status, AttemptStatus.SUCCESS)
     self.assertEquals(submission.status, AttemptStatus.SUCCESS)
@@ -87,17 +89,17 @@ class RPCHandlerTestCase(test_jeeqs.JeeqsTestCase):
 
   def test_flag_attempt(self):
     """Tests reviewer adding a flag for a submission"""
-    (
-      challenge, submission, submitter, submitter_challenge) =\
-    self.create_submitter_challenge()
+    (challenge, submission, submitter, submitter_challenge) = \
+        self.create_submitter_challenge()
     # Qualify a number of reviewers
     reviewers = []
-    for reviewer_index in range(spam_manager.SpamManager.SUBMISSION_FLAG_THRESHOLD):
+    for reviewer_index in range(
+            spam_manager.SpamManager.SUBMISSION_FLAG_THRESHOLD):
       reviewer = self.CreateJeeqser(email=REVIEWER_EMAIL + str(reviewer_index))
       reviewer_challenge = Jeeqser_Challenge(parent=reviewer.key,
-                                          challenge=challenge.key,
-                                          jeeqser=reviewer.key,
-                                          status=AttemptStatus.SUCCESS)
+                                             challenge=challenge.key,
+                                             jeeqser=reviewer.key,
+                                             status=AttemptStatus.SUCCESS)
       reviewer_challenge.put()
       reviewers.append(reviewer)
 
@@ -137,8 +139,9 @@ class RPCHandlerTestCase(test_jeeqs.JeeqsTestCase):
        submitter.key])
     self.assertEquals(challenge.num_jeeqsers_submitted, 1)
     self.assertEquals(submitter.submissions_num, 1)
-    submitter_challenge_list = Jeeqser_Challenge.query(ancestor=submitter.key).filter(
-      Jeeqser_Challenge.challenge==challenge.key).fetch(1)
+    submitter_challenge_list = Jeeqser_Challenge.query(
+        ancestor=submitter.key).filter(
+            Jeeqser_Challenge.challenge == challenge.key).fetch(1)
     self.assertEquals(len(submitter_challenge_list), 1)
     self.assertEquals(submitter_challenge_list[0].jeeqser, submitter.key)
     self.assertIsNone(submitter_challenge_list[0].status)
@@ -174,9 +177,9 @@ class RPCHandlerTestCase(test_jeeqs.JeeqsTestCase):
     submitter = self.CreateJeeqser(email=SUBMITTER_EMAIL)
     self.loginUser(SUBMITTER_EMAIL, 'submitter')
     params = {
-        'method' : 'save_draft_solution',
+        'method': 'save_draft_solution',
         'solution': draft,
-        'challenge_key' : challenge.key.urlsafe()
+        'challenge_key': challenge.key.urlsafe()
     }
     try:
       self.testapp.post('/rpc', params)
@@ -184,8 +187,8 @@ class RPCHandlerTestCase(test_jeeqs.JeeqsTestCase):
       traceback.print_exc()
       self.fail()
     drafts = Draft.query().filter(
-      Draft.challenge==challenge.key,
-      Draft.author==submitter.key
+      Draft.challenge == challenge.key,
+      Draft.author == submitter.key
     ).fetch()
     self.assertEquals(len(drafts), 1)
     self.assertEquals(drafts[0].markdown, draft)
@@ -197,11 +200,12 @@ class RPCHandlerTestCase(test_jeeqs.JeeqsTestCase):
     challenge = self.CreateChallenge()
     attempt = Attempt(author=submitter.key, challenge=challenge.key)
     attempt.put()
-    feedback = Feedback(parent=attempt.key, attempt=attempt.key, author=flagger.key)
+    feedback = Feedback(parent=attempt.key, attempt=attempt.key,
+                        author=flagger.key)
     feedback.put()
     params = {
-        'method' : 'flag_feedback',
-        'feedback_key' : feedback.key.urlsafe()
+        'method': 'flag_feedback',
+        'feedback_key': feedback.key.urlsafe()
     }
     try:
       response = self.testapp.post('/rpc', params)
@@ -224,13 +228,15 @@ class RPCHandlerTestCase(test_jeeqs.JeeqsTestCase):
               'method': 'update_displayname',
               'displayname': 'noob'}
           response = self.testapp.post('/rpc', params)
-          self.assertEquals('success', response.body, 'display name not getting updated')
+          self.assertEquals('success', response.body,
+                            'display name not getting updated')
           #update to own display name
           params = {
               'method': 'update_displayname',
               'displayname': 'noob'}
           response = self.testapp.post('/rpc', params)
-          self.assertEquals('no_operation', response.body, 'no operation failed')
+          self.assertEquals('no_operation', response.body,
+                            'no operation failed')
           #update to already taken display name
           #display name 'noob' has already been taken by user 'reviewer' above
           userA = self.CreateJeeqser(email=USER_A_EMAIL)

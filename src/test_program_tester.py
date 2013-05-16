@@ -6,6 +6,7 @@ from models import *
 
 __author__ = 'nomadali'
 
+
 class ProgramTesterTestCase(test_jeeqs.JeeqsTestCase):
   def setUp(self):
     test_jeeqs.JeeqsTestCase.setUp(self)

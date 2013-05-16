@@ -15,6 +15,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), 'lib'))
 
 from models import *
 
+
 def compile_and_run(program):
   """
   Compiles and runs the given program.
@@ -67,11 +68,13 @@ def compile_and_run(program):
   finally:
       sys.modules['__main__'] = old_main
 
+
 def format_exc():
   etype, value, tb = sys.exc_info()
   #ignore the first frame which is this frame!
   t = ''.join(traceback.format_exception(etype, value, tb)[2:])
-  return t #.replace('\n', '  \n').replace(' ', '&nbsp;')
+  return t  # .replace('\n', '  \n').replace(' ', '&nbsp;')
+
 
 def run_testcases(program, challenge):
   """
@@ -79,7 +82,8 @@ def run_testcases(program, challenge):
 
   :param program: program to test
   :param challenge: challenge for which the program was submitted
-  :return: A review value of correct/incorrect and the output of the test executions.
+  :return: A review value of correct/incorrect and the output of the test
+  executions.
   """
   success = True
   review = Review.CORRECT
@@ -95,12 +99,12 @@ def run_testcases(program, challenge):
         if not str(result) == test.expected:
             success = False
             output += " Failed with the statement:  \n *****  \n" \
-                                + test.statement \
-                                + '  \n Expected result:  \n' \
-                                + test.expected \
-                                + '  \n Actual result:  \n' \
-                                + str(result) \
-                                + '   \n'
+                + test.statement \
+                + '  \n Expected result:  \n' \
+                + test.expected \
+                + '  \n Actual result:  \n' \
+                + str(result) \
+                + '   \n'
     if test_num == 0:
       output += 'No test cases to run!'
     elif success:
@@ -109,4 +113,3 @@ def run_testcases(program, challenge):
       output = 'At least one of the test cases failed: ' + output
       review = Review.INCORRECT
   return review, output
-
