@@ -5,10 +5,10 @@ change all vote-related entites to review-related ones.
 """
 
 
+############### Copy new fields' values from existing ones ###############
+
 from google.appengine.ext import ndb
 from models import *
-
-# TODO bulk requests/updates
 
 attempts = Attempt.query().fetch()
 
@@ -29,3 +29,15 @@ for fb in feedbacks:
         fb.review = fb.vote
 
 ndb.put_multi(feedbacks)
+
+############### Migrate existing Activity entities ###############
+
+from google.appengine.ext import ndb
+from models import *
+
+acts = Activity.query().filter(Activity.type=='voting').fetch()
+
+for act in acts:
+    act.type = 'reviewing'
+
+ndb.put_multi(acts)
