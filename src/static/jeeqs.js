@@ -228,7 +228,7 @@ $('.submit-vote').live('click', function() {
         url: "/rpc",
         async: true,
         type: "POST",
-        data: {'method': 'submit_vote', 'submission_key':$submission_id, 'review':$review, 'response':$response},
+        data: {'method': 'submit_review', 'submission_key':$submission_id, 'review':$review, 'response':$response},
         success: function(response){
             var parsed = jQuery.parseJSON(response)
             if (parsed != null && parsed.flags_left_today == -1) {

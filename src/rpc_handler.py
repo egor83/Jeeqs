@@ -26,8 +26,8 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
             self.error(status_code.StatusCode.forbidden)
             return
 
-        if method == 'submit_vote':
-            self.submit_vote()
+        if method == 'submit_review':
+            self.submit_review()
         elif method == 'update_displayname':
             self.update_displayname()
         elif method == 'update_profile_picture':
@@ -69,7 +69,7 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
             return
 
     @staticmethod
-    def get_vote_numeric_value(review):
+    def get_review_numeric_value(review):
         if review == Review.CORRECT:
             return 2
         elif review == Review.INCORRECT:
@@ -99,7 +99,7 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
                     submission.challenge.get().update_last_solver(None)
 
     @staticmethod
-    def update_graph_for_vote(submission, jeeqser_challenge, review, reviewer):
+    def update_graph_for_review(submission, jeeqser_challenge, review, reviewer):
         """
         Updates the object graph based on the review given by the reviewer
         :param submission: The submission for which the review is given
@@ -110,7 +110,7 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
         submission.users_reviewed.append(reviewer.key)
         submission.review_count += 1
         submission.feedback_score_sum += float(
-            RPCHandler.get_vote_numeric_value(review))
+            RPCHandler.get_review_numeric_value(review))
         submission.feedback_score_average = float(
             submission.feedback_score_sum / submission.review_count)
         if submission.review_count == 1:
@@ -441,7 +441,7 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
             return
 
     @ndb.transactional(xg=True)
-    def persist_vote(self, feedback,
+    def persist_review(self, feedback,
                      submission_key,
                      jeeqser_challenge_key,
                      jeeqser_key):
@@ -451,7 +451,7 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
                                    jeeqser_challenge_key,
                                    jeeqser_key, ])
 
-        RPCHandler.update_graph_for_vote(
+        RPCHandler.update_graph_for_review(
             submission,
             jeeqser_challenge,
             feedback.review,
@@ -497,7 +497,7 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
             if not qualified:
                 raise jeeqs_exceptions.ReviewerNotQualified()
 
-    def submit_vote(self):
+    def submit_review(self):
 
         submission_key = self.getValueInQuery('submission_key')
         review = self.getValueInQuery('review')
@@ -531,7 +531,7 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
             if flags_left == -1:
                 return
 
-        self.persist_vote(
+        self.persist_review(
             feedback,
             submission.key,
             jeeqser_challenge.key,
@@ -631,7 +631,7 @@ def persist_testcase_results(
         attempt_key, jeeqser_challenge_key, feedback, reviewer_key):
     attempt, jeeqser_challenge, reviewer = ndb.get_multi(
         [attempt_key, jeeqser_challenge_key, reviewer_key])
-    RPCHandler.update_graph_for_vote(
+    RPCHandler.update_graph_for_review(
         attempt,
         jeeqser_challenge,
         feedback.review,

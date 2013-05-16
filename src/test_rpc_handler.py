@@ -37,7 +37,7 @@ class RPCHandlerTestCase(test_jeeqs.JeeqsTestCase):
     submission.put()
     return challenge, submission, submitter, submitter_challenge
 
-  def test_vote_qualification(self):
+  def test_review_qualification(self):
     """Review as a non-qualified reviewer
 
     and verify that we don't persist the review.
@@ -45,7 +45,7 @@ class RPCHandlerTestCase(test_jeeqs.JeeqsTestCase):
     """
     pass
 
-  def test_submit_first_correct_vote(self):
+  def test_submit_first_correct_review(self):
     """Tests submitting a first correct review to a submission."""
     (
         challenge, submission, submitter, submitter_challenge) = \
@@ -59,7 +59,7 @@ class RPCHandlerTestCase(test_jeeqs.JeeqsTestCase):
     reviewer_challenge.put()
     self.loginUser(REVIEWER_EMAIL, 'reviewer')
     params = {
-        'method': 'submit_vote',
+        'method': 'submit_review',
         'submission_key': submission.key.urlsafe(),
         'review': Review.CORRECT}
     try:
@@ -105,7 +105,7 @@ class RPCHandlerTestCase(test_jeeqs.JeeqsTestCase):
 
     self.loginUser(REVIEWER_EMAIL, 'reviewer')
     params = {
-      'method': 'submit_vote',
+      'method': 'submit_review',
       'submission_key': submission.key.urlsafe(),
       'review': Review.FLAG}
     for reviewer in reviewers:
