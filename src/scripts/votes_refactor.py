@@ -35,7 +35,7 @@ ndb.put_multi(feedbacks)
 from google.appengine.ext import ndb
 from models import *
 
-acts = Activity.query().filter(Activity.type=='voting').fetch()
+acts = Activity.query().filter(Activity.type == 'voting').fetch()
 
 for act in acts:
     act.type = 'reviewing'

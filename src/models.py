@@ -537,8 +537,9 @@ class Activity(ndb.Model):
     """Models an activity done on Jeeqs
        Parent: Jeeqser who performed this Activity
     """
+    # TODO remove voting after migration
     type = ndb.StringProperty(choices=[
-        'submission', 'voting', 'reviewing', 'flagging']) # TODO remove voting after migration
+        'submission', 'voting', 'reviewing', 'flagging'])
     done_by = ndb.KeyProperty(kind=Jeeqser)
     done_by_displayname = ndb.StringProperty()
     done_by_gravatar = ndb.StringProperty()

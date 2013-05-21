@@ -99,7 +99,8 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
                     submission.challenge.get().update_last_solver(None)
 
     @staticmethod
-    def update_graph_for_review(submission, jeeqser_challenge, review, reviewer):
+    def update_graph_for_review(
+            submission, jeeqser_challenge, review, reviewer):
         """
         Updates the object graph based on the review given by the reviewer
         :param submission: The submission for which the review is given
@@ -442,9 +443,9 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
 
     @ndb.transactional(xg=True)
     def persist_review(self, feedback,
-                     submission_key,
-                     jeeqser_challenge_key,
-                     jeeqser_key):
+                       submission_key,
+                       jeeqser_challenge_key,
+                       jeeqser_key):
         (submission,
          jeeqser_challenge,
          jeeqser) = ndb.get_multi([submission_key,
