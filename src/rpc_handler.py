@@ -469,7 +469,7 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
         # needs feedback.key!
         Activity(
             parent=jeeqser_key,
-            type='voting',  # TODO need to migrate existing Activity entities
+            type='reviewing',
             done_by=jeeqser_key,
             done_by_displayname=jeeqser_key.get().displayname,
             done_by_gravatar=jeeqser_key.get().profile_url,

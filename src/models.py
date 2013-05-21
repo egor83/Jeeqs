@@ -440,9 +440,7 @@ class Attempt(ndb.Model):
     stdout = ndb.StringProperty()
     stderr = ndb.StringProperty()
     # List of users who reviewed this submission
-    users_voted = ndb.KeyProperty(repeated=True)
     users_reviewed = ndb.KeyProperty(repeated=True)
-    vote_count = ndb.IntegerProperty(default=0)
     review_count = ndb.IntegerProperty(default=0)
 
     correct_count = ndb.IntegerProperty(default=0)
@@ -454,9 +452,7 @@ class Attempt(ndb.Model):
         choices=[AttemptStatus.SUCCESS, AttemptStatus.FAIL])
 
     # feedback score quantization TODO: might be removed !?
-    vote_sum = ndb.FloatProperty(default=float(0))
     feedback_score_sum = ndb.FloatProperty(default=float(0))
-    vote_average = ndb.FloatProperty(default=float(0))
     feedback_score_average = ndb.FloatProperty(default=float(0))
 
     # is this the active submission for review ?
@@ -500,13 +496,6 @@ class Jeeqser_Challenge(ndb.Model):
     status_changed_on = ndb.DateTimeProperty()
 
 
-class Vote:
-    CORRECT = 'correct'
-    INCORRECT = 'incorrect'
-    GENIUS = 'genius'
-    FLAG = 'flag'
-
-
 class Review:
     CORRECT = 'correct'
     INCORRECT = 'incorrect'
@@ -526,8 +515,6 @@ class Feedback(ndb.Model):
     markdown = ndb.TextProperty()
     content = ndb.TextProperty()
     date = ndb.DateTimeProperty(auto_now_add=True)
-    vote = ndb.StringProperty(
-        choices=[Vote.CORRECT, Vote.INCORRECT, Vote.GENIUS, Vote.FLAG])
     review = ndb.StringProperty(
         choices=[Review.CORRECT, Review.INCORRECT, Review.GENIUS, Review.FLAG])
 
@@ -551,7 +538,7 @@ class Activity(ndb.Model):
        Parent: Jeeqser who performed this Activity
     """
     type = ndb.StringProperty(choices=[
-        'submission', 'voting', 'reviewing', 'flagging'])
+        'submission', 'voting', 'reviewing', 'flagging']) # TODO remove voting after migration
     done_by = ndb.KeyProperty(kind=Jeeqser)
     done_by_displayname = ndb.StringProperty()
     done_by_gravatar = ndb.StringProperty()
