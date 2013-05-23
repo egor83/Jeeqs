@@ -1,5 +1,5 @@
 application: jeeqsy
-version: votes-refactoring
+version: master
 runtime: python27
 api_version: 1
 threadsafe: false
