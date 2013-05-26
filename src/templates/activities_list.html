@@ -17,7 +17,7 @@
                 <br><span class="activity_time">{{ activity.date|timesince }} </span>
             </div>
         {% endif %}
-        {% if activity.type == 'voting' %} {# TODO need to migrate existing Activity entities #}
+        {% if activity.type == 'reviewing' %}
             <div class="activity_avatar">
                 <div class="pull-left">
                     {{  avatar(jeeqser_key=activity.done_by, avatar_url=activity.done_by_gravatar) }}
@@ -45,3 +45,4 @@
         {% endif %}
     </div>
 {% endfor %}
+
