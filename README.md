@@ -42,6 +42,8 @@ Do not access the website locally after clearing the datastore, otherwise your l
 1.4) Use the following command to upload data from snapshot to local DB:
 > python &lt;PATH_TO_GAE's_appcfg.py&gt; upload_data --url=http://localhost:8080/_ah/remote_api --filename=&lt;SNAPSHOT_FILENAME&gt; --num_threads=1 &lt;PATH_TO_JEEQS_src_DIRECTORY&gt;
 
+Please note that accessing the site for the first time after data upload may take a long time (up to 1 minute), interrupting the process and reloading the page may lead to problems with the local datastore.
+
 1.5) If PyCharm gives you the following error:
 > google.appengine.api.datastore_errors.InternalError: unable to open database file
 
