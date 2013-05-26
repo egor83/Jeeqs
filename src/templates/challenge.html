@@ -6,16 +6,15 @@
 </script>
 <script>
     $(document).ready(function() {
-        {% if not challenge.markdown and challenge.document_id and challenge.access_key %}
-        $( '#challenge_tabs a[href="#source-pdf"]' ).tab('show');
+        {% if not challenge.markdown %}
+            $( '#challenge_tabs a[href="#source-pdf"]' ).tab('show');
         {% else %}
-        $( '#challenge_tabs a:[href="#tabs-1"]' ).tab('show');
+            $( '#challenge_tabs a:[href="#tabs-1"]' ).tab('show');
         {% endif %}
 
         {% if challenge.pdf_url %}
             var viewer = $('#viewer');
             var pdf_container = $('#pdf_container');
-
             var challenge = {};
             challenge.pdf_endoffset = parseInt({{ challenge.pdf_endoffset }});
             challenge.pdf_endpage = parseInt({{ challenge.pdf_endpage }});
@@ -30,46 +29,43 @@
                     challenge.pdf_startpage = 1;
                 }
                 var pages = [parseInt(challenge.pdf_startpage), parseInt(challenge.pdf_endpage)]
-        for (var page_num = pages[0]; page_num <= pages[1]; page_num ++) {
-            // Using promise to fetch the page
-            pdf.getPage(page_num).then(function(page) {
-                var scale = 1.5;
-                var viewport = page.getViewport(scale);
+                for (var page_num = pages[0]; page_num <= pages[1]; page_num ++) {
+                    // Using promise to fetch the page
+                    pdf.getPage(page_num).then(function(page) {
+                        var scale = 1.5;
+                        var viewport = page.getViewport(scale);
 
-                var pageDisplayWidth = viewport.width;
-                var pageDisplayHeight = viewport.height;
+                        var pageDisplayWidth = viewport.width;
+                        var pageDisplayHeight = viewport.height;
 
-                var pageDivHolder = $('<div></div>')
-                pageDivHolder.addClass('pdfpage')
-                pageDivHolder.css('width', pageDisplayWidth + 'px');
-                pageDivHolder.css('height', pageDisplayHeight + 'px');
-                pdf_container.append(pageDivHolder);
-                if (challenge.pdf_endoffset!='' || challenge.pdf_endoffset!=0){
-                    $("#viewer").css('height', challenge.pdf_endoffset + 'px');
+                        var pageDivHolder = $('<div></div>')
+                        pageDivHolder.addClass('pdfpage')
+                        pageDivHolder.css('width', pageDisplayWidth + 'px');
+                        pageDivHolder.css('height', pageDisplayHeight + 'px');
+                        pdf_container.append(pageDivHolder);
+                        if (challenge.pdf_endoffset!='' || challenge.pdf_endoffset!=0){
+                            $("#viewer").css('height', challenge.pdf_endoffset + 'px');
+                        }
+                        $("#pdf_container").css('top', '-' + {{ challenge.pdf_startoffset }} + 'px')
+
+                        // Prepare canvas using PDF page dimensions
+                        var canvas = $('<canvas></canvas>');
+                        var context = canvas[0].getContext('2d');
+                        canvas.attr('id', 'pdf_display');
+                        canvas.attr('width', pageDisplayWidth);
+                        canvas.attr('height', pageDisplayHeight);
+                        pageDivHolder.append(canvas);
+
+                        // Render PDF page into canvas context
+                        var renderContext = {
+                            canvasContext: context,
+                            viewport: viewport
+                        };
+                        page.render(renderContext);
+                    });
                 }
-                $("#pdf_container").css('top', '-' + {{ challenge.pdf_startoffset }} + 'px')
-
-                // Prepare canvas using PDF page dimensions
-                var canvas = $('<canvas></canvas>');
-                var context = canvas[0].getContext('2d');
-                canvas.attr('id', 'pdf_display');
-                canvas.attr('width', pageDisplayWidth);
-                canvas.attr('height', pageDisplayHeight);
-                pageDivHolder.append(canvas);
-
-                // Render PDF page into canvas context
-                var renderContext = {
-                    canvasContext: context,
-                    viewport: viewport
-                };
-                page.render(renderContext);
-            });
-        }
-    })
-    {% endif %}
-    })
-
-    $(document).ready(function() {
+            })
+        {% endif %}
         $('#submitChallengeSource').bind('click', function(event, ui) {
             $(this).attr("disabled", "disabled");
             var $newSource = $('#challenge-source').val();

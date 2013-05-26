@@ -205,16 +205,16 @@ function display_in_jeeqs(sub_id, result_element) {
     })
 }
 
-$('.submit-vote').live('click', function() {
+$('.submit-review').live('click', function() {
 
     var $initiator = $(this)
 
     $submission_id = $(this).attr("id").split("__")[1];
     $response = $('#response__'+$submission_id).val();
-    $vote = $(this).siblings('.feedback-buttons').children('.active').val();
+    $review = $(this).siblings('.feedback-buttons').children('.active').val();
 
-    if (!$vote || $response.length < 10) {
-        alert('Please enter your vote and a 10 character minimum response!');
+    if (!$review || $response.length < 10) {
+        alert('Please enter your review and a 10 character minimum response!');
         return;
     }
 
@@ -225,14 +225,14 @@ $('.submit-vote').live('click', function() {
         url: "/rpc",
         async: true,
         type: "POST",
-        data: {'method': 'submit_vote', 'submission_key':$submission_id, 'vote':$vote, 'response':$response},
+        data: {'method': 'submit_review', 'submission_key':$submission_id, 'review':$review, 'response':$response},
         success: function(response){
             var parsed = jQuery.parseJSON(response)
             if (parsed != null && parsed.flags_left_today == -1) {
                 alert("You don't have any more flags left.")
                 return;
             }
-            if ($vote == "flag") {
+            if ($review == "flag") {
                 alert("You have " + parsed.flags_left_today + " flags left")
             }
 
@@ -249,9 +249,16 @@ $('.submit-vote').live('click', function() {
     })
 })
 
+
 $('.selectable_profile_picture').live('click', function() {
+
     var $initiator = $(this)
-    var $img = $initiator.children('img')
+    var $img = null
+    if ($initiator.attr("name") == "gravatar")
+        $img = $("#img_gravatar")
+    else if ($initiator.attr("name") == "gplus")
+        $img = $("#img_gplus")
+
     var $picture_url = $img.attr('src')
     if (!$img.hasClass('current_profile_picture')) {
         $.ajax({
@@ -260,10 +267,27 @@ $('.selectable_profile_picture').live('click', function() {
             type: "POST",
             data: {'method': 'update_profile_picture', 'profile_picture_url':$picture_url},
             success: function(response) {
-                $('.selectable_profile_picture').children().removeClass('current_profile_picture')
-                $img.addClass('current_profile_picture')
+                $(".nav_profile_pic").attr("src",$picture_url);
+
+                if ($initiator.attr("name") == "gravatar"){
+                    $("#radio_gplus").prop("checked", false);
+                    $("#radio_gravatar").prop("checked", true);
+                }
+                else if ($initiator.attr("name") == "gplus"){
+                    $("#radio_gravatar").prop("checked", false);
+                    $("#radio_gplus").prop("checked", true);
+                }
             },
             error: function(response) {
+                alert("Could not change the profile picture. Try again");
+                if ($initiator.attr("name") == "gravatar"){
+                    $("#radio_gplus").prop("checked", true);
+                    $("#radio_gravatar").prop("checked", false);
+                }
+                else if ($initiator.attr("name") == "gplus"){
+                    $("#radio_gravatar").prop("checked", true);
+                    $("#radio_gplus").prop("checked", false);
+                }
             }
         })
     }

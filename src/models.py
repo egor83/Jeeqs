@@ -3,16 +3,17 @@
 """
 Model for challenges and solutions.
 
-In order to backup the local data store, first create DataStore stats using the local Admin console and then
-run the following command:
+In order to backup the local data store, first create DataStore stats using
+the local Admin console and then run the following command:
 
-These commands are working on Python 2.5.4 as of now. There are known issues with default installations of
-python on MacOS and serialization of floats.
+These commands are working on Python 2.5.4 as of now. There are known issues
+with default installations of python on MacOS and serialization of floats.
 
-Download from local datastore into a file
+Download from GAE datastore into a local file
 appcfg.py download_data --url=http://jeeqsy.appspot.com/_ah/remote_api --filename=[db_backup_2012_May_19th] --application=s~jeeqsy
 
-Upload from a file into production: (if you increase num_threads, you might run into pipe issues with local dev server)
+Upload from a file into production: (if you increase num_threads, you might
+run into pipe issues with local dev server)
 appcfg.py upload_data --url=http://localhost:8080/_ah/remote_api --filename=[db_backup_2012_May_19th] --num_threads=1
 
 In order to use the remote api use the following statement:
@@ -30,7 +31,7 @@ for ch in all_challenges:
    unreviewed = 0
    atts = Attempt.all().filter('challenge = ', ch).filter('active = ', True).fetch(1000)
    for att in atts:
-     if att.vote_count == 0:
+     if att.review_count == 0:
        unreviewed += 1
    ch.submissions_without_review = unreviewed
    ch.put()
@@ -43,7 +44,7 @@ s~jeeqsy> all_ch = Challenge.all().fetch(1000)
 s~jeeqsy> for ch in all_ch:
 ...   unreviewed = 0
 ...   for att in ch.attempt_set:
-...     if att.active and att.vote_count == 0:
+...     if att.active and att.review_count == 0:
 ...        unreviewed +=1
 ...   ch.submissions_without_review = unreviewed
 ...   ch.put()
@@ -51,7 +52,10 @@ s~jeeqsy> for ch in all_ch:
 
 How to access remote api:
 python /Applications/GoogleAppEngineLauncher.app/Contents/Resources/GoogleAppEngine-default.bundle/Contents/Resources/google_appengine/remote_api_shell.py -s jeeqsy.appspot.com
-Then add models.py base directory to sys.path.
+Then add models.py base directory to sys.path
+(actually if you call remote API from <JEEQS_DIR>/src (the directory where
+models.py is located), you will be able to import models and other modules
+directly without altering sys.path)
 
 """
 
@@ -349,7 +353,8 @@ class Challenge(ndb.Model):
         if self.last_solver_picture_url_persisted:
             return self.last_solver_picture_url_persisted
         elif self.last_solver:
-            self.last_solver_picture_url_persisted = self.last_solver.profile_url
+            self.last_solver_picture_url_persisted = \
+                self.last_solver.profile_url
             self.put()
             return self.last_solver_picture_url_persisted
         else:
@@ -408,7 +413,7 @@ class Challenge(ndb.Model):
         return Attempt.query().\
             filter(Attempt.challenge == self.key).\
             filter(Attempt.active == True).\
-            filter(Attempt.vote_count == 0).\
+            filter(Attempt.review_count == 0).\
             count()
 
 
@@ -434,9 +439,9 @@ class Attempt(ndb.Model):
     date = ndb.DateTimeProperty(auto_now_add=True)
     stdout = ndb.StringProperty()
     stderr = ndb.StringProperty()
-    # List of users who voted for this submission
-    users_voted = ndb.KeyProperty(repeated=True)
-    vote_count = ndb.IntegerProperty(default=0)
+    # List of users who reviewed this submission
+    users_reviewed = ndb.KeyProperty(repeated=True)
+    review_count = ndb.IntegerProperty(default=0)
 
     correct_count = ndb.IntegerProperty(default=0)
     incorrect_count = ndb.IntegerProperty(default=0)
@@ -446,9 +451,9 @@ class Attempt(ndb.Model):
     status = ndb.StringProperty(
         choices=[AttemptStatus.SUCCESS, AttemptStatus.FAIL])
 
-    # vote quantization TODO: might be removed !?
-    vote_sum = ndb.FloatProperty(default=float(0))
-    vote_average = ndb.FloatProperty(default=float(0))
+    # feedback score quantization TODO: might be removed !?
+    feedback_score_sum = ndb.FloatProperty(default=float(0))
+    feedback_score_average = ndb.FloatProperty(default=float(0))
 
     # is this the active submission for review ?
     active = ndb.BooleanProperty(default=False)
@@ -485,7 +490,8 @@ class Jeeqser_Challenge(ndb.Model):
     challenge = ndb.KeyProperty(kind=Challenge)
     active_attempt = ndb.KeyProperty(kind=Attempt)
 
-    # vote counts for the active attempt (denormalized from the active attempt)
+    # review counts for the active attempt
+    # (denormalized from the active attempt)
     correct_count = ndb.IntegerProperty(default=0)
     incorrect_count = ndb.IntegerProperty(default=0)
     flag_count = ndb.IntegerProperty(default=0)
@@ -496,7 +502,7 @@ class Jeeqser_Challenge(ndb.Model):
     status_changed_on = ndb.DateTimeProperty()
 
 
-class Vote:
+class Review:
     CORRECT = 'correct'
     INCORRECT = 'incorrect'
     GENIUS = 'genius'
@@ -515,8 +521,8 @@ class Feedback(ndb.Model):
     markdown = ndb.TextProperty()
     content = ndb.TextProperty()
     date = ndb.DateTimeProperty(auto_now_add=True)
-    vote = ndb.StringProperty(
-        choices=[Vote.CORRECT, Vote.INCORRECT, Vote.GENIUS, Vote.FLAG])
+    review = ndb.StringProperty(
+        choices=[Review.CORRECT, Review.INCORRECT, Review.GENIUS, Review.FLAG])
 
     # Spam ?
     flagged_by = ndb.KeyProperty(repeated=True)
@@ -537,7 +543,9 @@ class Activity(ndb.Model):
     """Models an activity done on Jeeqs
        Parent: Jeeqser who performed this Activity
     """
-    type = ndb.StringProperty(choices=['submission', 'voting', 'flagging'])
+    # TODO remove voting after migration
+    type = ndb.StringProperty(choices=[
+        'submission', 'voting', 'reviewing', 'flagging'])
     done_by = ndb.KeyProperty(kind=Jeeqser)
     done_by_displayname = ndb.StringProperty()
     done_by_gravatar = ndb.StringProperty()
