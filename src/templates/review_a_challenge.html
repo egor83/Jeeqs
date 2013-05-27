@@ -22,8 +22,8 @@
                 </a></li>
                 <li><a href="#" class="sort_submissions"
                        data-challenge_key="{{ challenge.key.urlsafe() }}"
-                       sort_by="most_likes">
-                    <b>Most popular</b>
+                       sort_by="most_votes">
+                    <b>Most total votes</b>
                 </a></li>
             </ul>
         </div>
@@ -43,18 +43,18 @@
                 </div>
                 <div style="padding: 10px; overflow: auto; clear:left;">
                     <div>
-                        {% set is_liked = "" %}
-                        {% set is_disliked = "" %}
-                        {% if jeeqser.key in submission.liked %}
-                            {% set is_liked = "liked" %}
-                        {% elif jeeqser.key in submission.disliked %}
-                            {% set is_disliked = "disliked" %}
+                        {% set is_upvoted = "" %}
+                        {% set is_downvoted = "" %}
+                        {% if jeeqser.key in submission.upvoted %}
+                            {% set is_upvoted = "is_upvoted" %}
+                        {% elif jeeqser.key in submission.downvoted %}
+                            {% set is_downvoted = "is_downvoted" %}
                         {% endif %}
-                        <i class="icon-chevron-up likes_ctrl like {{ is_liked }}" id="like__{{ submission.key.urlsafe() }}"></i><br/>
-                        <b class="likes_ctrl {{ is_liked }}{{ is_disliked }}" id="likes__{{ submission.key.urlsafe() }}"style="text-align: center;">
-                            {{ submission.likes_total }}
+                        <i class="icon-chevron-up votes_ctrl upvote {{ is_upvoted }}" id="upvote__{{ submission.key.urlsafe() }}"></i><br/>
+                        <b class="votes_ctrl {{ is_upvoted }}{{ is_downvoted }}" id="votes__{{ submission.key.urlsafe() }}"style="text-align: center;">
+                            {{ submission.votes_total }}
                         </b><br/>
-                        <i class="icon-chevron-down likes_ctrl dislike {{ is_disliked }}" id="dislike__{{ submission.key.urlsafe() }}"></i><br/>
+                        <i class="icon-chevron-down votes_ctrl downvote {{ is_downvoted }}" id="downvote__{{ submission.key.urlsafe() }}"></i><br/>
                     </div>
                     {{ submission.content|safe }}
                 </div>

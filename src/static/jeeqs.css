@@ -394,14 +394,14 @@ a.black:hover {
     overflow-y: auto;
 }
 
-.likes_ctrl {
-    font-size: 28px;
+.votes_ctrl {
+    font-size: 21px;
 }
 
-.liked {
+.is_upvoted {
     color: lime;
 }
 
-.disliked {
+.is_downvoted {
     color: red;
 }

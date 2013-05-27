@@ -467,11 +467,17 @@ class Attempt(ndb.Model):
     # above a threshold
     flagged = ndb.BooleanProperty(default=False)
 
-    IS_LIKED = 'liked'
-    IS_DISLIKED = 'disliked'
-    liked = ndb.KeyProperty(repeated=True)
-    disliked = ndb.KeyProperty(repeated=True)
-    likes_total = ndb.IntegerProperty(default=0)
+    # Please note that reviews and related data model attributes used
+    # to be called 'votes' earlier, so these old names might still come up
+    # in indexes and as attributes in existing data entities.
+    # Creating Attempt attributes users_voted, vote_count, vote_sum and
+    # vote_average might result in unexpected behaviour.
+
+    IS_UPVOTED = 'is_upvoted'
+    IS_DOWNVOTED = 'is_downvoted'
+    upvoted = ndb.KeyProperty(repeated=True)
+    downvoted = ndb.KeyProperty(repeated=True)
+    votes_total = ndb.IntegerProperty(default=0)
 
     @property
     def feedbacks(self):

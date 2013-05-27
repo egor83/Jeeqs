@@ -65,9 +65,9 @@ class ReviewHandler(jeeqs_request_handler.JeeqsRequestHandler):
 
             if sort_by == 'least_feedbacks':
                 submissions_query = submissions_query.order(Attempt.review_count)
-            elif sort_by == 'most_likes':
+            elif sort_by == 'most_votes':
                 submissions_query = submissions_query.order(
-                    -Attempt.likes_total)
+                    -Attempt.votes_total)
             else:
                 # default sorting
                 submissions_query = submissions_query.order(Attempt.review_count)
@@ -79,9 +79,6 @@ class ReviewHandler(jeeqs_request_handler.JeeqsRequestHandler):
 
             submissions, next_cursor, more = submissions_query.fetch_page(
                 SUBMISSIONS_PER_PAGE, options=qo)
-
-            import logging
-            logging.warn('!!! ch_key %s or %s, got subs %s' % (challenge.key, ch_key, submissions))
 
             if next_cursor and more:
                 next_cursor = next_cursor.urlsafe()

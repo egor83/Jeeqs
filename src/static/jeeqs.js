@@ -477,98 +477,98 @@ function ajax_fetch_feedbacks(cursor, submission) {
 }
 
 
-// Handle 'like' arrow click: update GUI, send request to the server
-$(document).on('click', '.like', function(event) {
+// Handle 'upvote' arrow click: update GUI, send request to the server
+$(document).on('click', '.upvote', function(event) {
     var submission_id = $(this).attr('id').split('__')[1];
-    var like_arrow = $(this);
-    var dislike_arrow = $('#dislike__' + submission_id);
-    var score_ctrl = $("#likes__" + submission_id);
+    var upvote_arrow = $(this);
+    var downvote_arrow = $('#downvote__' + submission_id);
+    var score_ctrl = $("#votes__" + submission_id);
     var curr_score = parseInt(score_ctrl.text());
 
-    if(score_ctrl.hasClass('liked')) {
-        // it's already liked, do nothing
-    } else if(score_ctrl.hasClass('disliked') ) {
-        // change dislike to like
-        dislike_arrow.removeClass('disliked');
-        score_ctrl.removeClass('disliked');
-        like_arrow.addClass('liked');
-        score_ctrl.addClass('liked');
+    if(score_ctrl.hasClass('is_upvoted')) {
+        // it's already upvoted, do nothing
+    } else if(score_ctrl.hasClass('is_downvoted') ) {
+        // change downvote to upvote
+        downvote_arrow.removeClass('is_downvoted');
+        score_ctrl.removeClass('is_downvoted');
+        upvote_arrow.addClass('is_upvoted');
+        score_ctrl.addClass('is_upvoted');
 
         curr_score += 2;
-        handle_like(submission_id, 'liked', 'disliked');
+        handle_vote(submission_id, 'is_upvoted', 'is_downvoted');
     } else {
-        // initial liking (wasn't liked or disliked before)
-        like_arrow.addClass('liked');
-        score_ctrl.addClass('liked');
+        // initial upvote (wasn't upvoted or downvoted before)
+        upvote_arrow.addClass('is_upvoted');
+        score_ctrl.addClass('is_upvoted');
         curr_score += 1;
 
-        handle_like(submission_id, 'liked', null);
+        handle_vote(submission_id, 'is_upvoted', null);
     }
     score_ctrl.text(curr_score);
 });
 
-// Handle 'dislike' arrow click: update GUI, send request to the server
-$(document).on('click', '.dislike', function(event) {
+// Handle 'downvote' arrow click: update GUI, send request to the server
+$(document).on('click', '.downvote', function(event) {
     var submission_id = $(this).attr("id").split("__")[1];
-    var like_arrow = $('#like__' + submission_id);
-    var dislike_arrow = $(this);
-    var score_ctrl = $("#likes__" + submission_id);
+    var upvote_arrow = $('#upvote__' + submission_id);
+    var downvote_arrow = $(this);
+    var score_ctrl = $("#votes__" + submission_id);
     var curr_score = parseInt(score_ctrl.text());
 
-    if(score_ctrl.hasClass('liked') ) {
-        // change like to dislike
-        like_arrow.removeClass('liked');
-        score_ctrl.removeClass('liked');
-        dislike_arrow.addClass('disliked');
-        score_ctrl.addClass('disliked');
+    if(score_ctrl.hasClass('is_upvoted') ) {
+        // change upvote to downvote
+        upvote_arrow.removeClass('is_upvoted');
+        score_ctrl.removeClass('is_upvoted');
+        downvote_arrow.addClass('is_downvoted');
+        score_ctrl.addClass('is_downvoted');
 
         curr_score -= 2;
-        handle_like(submission_id, 'disliked', 'liked');
-    } else if(score_ctrl.hasClass('disliked')) {
-        // it's already disliked, do nothing
+        handle_vote(submission_id, 'is_downvoted', 'is_upvoted');
+    } else if(score_ctrl.hasClass('is_downvoted')) {
+        // it's already downvoted, do nothing
     } else {
-        // initial disliking (wasn't liked or disliked before)
-        dislike_arrow.addClass('disliked');
-        score_ctrl.addClass('disliked');
+        // initial downvoting (wasn't upvoted or downvoted before)
+        downvote_arrow.addClass('is_downvoted');
+        score_ctrl.addClass('is_downvoted');
         curr_score -= 1;
 
-        handle_like(submission_id, 'disliked', null);
+        handle_vote(submission_id, 'is_downvoted', null);
     }
     score_ctrl.text(curr_score);
 });
 
-function handle_like(sub_id, direction, original) {
+function handle_vote(sub_id, direction, original) {
     $.ajax({
         url: "/rpc",
         async: true,
         type: "POST",
-        data: {'method': 'submit_like', 'direction': direction, 'submission': sub_id, 'original': original},
+        data: {'method': 'submit_vote', 'direction': direction, 'submission': sub_id, 'original': original},
         error: function(response) {
             alert('An error occurred while trying to submit data. Please try again later ...');
 
             // on error, revert changes made to the GUI
-            var score_ctrl = $('#likes__' + sub_id);
-            var like_arrow = $('#like__' + sub_id);
-            var dislike_arrow = $('#dislike__' + sub_id);
+            var score_ctrl = $('#votes__' + sub_id);
+            var upvote_arrow = $('#upvote__' + sub_id);
+            var downvote_arrow = $('#downvote__' + sub_id);
             var curr_score = parseInt(score_ctrl.text());
 
-            if (direction == 'liked') {
-                like_arrow.removeClass('liked');
-                score_ctrl.removeClass('liked');
+            if (direction == 'is_upvoted') {
+                upvote_arrow.removeClass('is_upvoted');
+                score_ctrl.removeClass('is_upvoted');
                 curr_score -= 1;
-            } else if (direction == 'disliked') {
-                dislike_arrow.removeClass('disliked');
-                score_ctrl.removeClass('disliked');
+            } else if (direction == 'is_downvoted') {
+                downvote_arrow.removeClass('is_downvoted');
+                score_ctrl.removeClass('is_downvoted');
                 curr_score += 1;
             }
             // ...and restore the original state, if any
-            if (original == 'liked') {
-                like_arrow.addClass('liked');
-                score_ctrl.addClass('liked');
+            if (original == 'is_upvoted') {
+                upvote_arrow.addClass('is_upvoted');
+                score_ctrl.addClass('is_upvoted');
                 curr_score += 1;
-            } else if (original == 'disliked') {
-                dislike_arrow.addClass('disliked');
-                score_ctrl.addClass('disliked');
+            } else if (original == 'is_downvoted') {
+                downvote_arrow.addClass('is_downvoted');
+                score_ctrl.addClass('is_downvoted');
                 curr_score -= 1;
             }
             score_ctrl.text(curr_score);

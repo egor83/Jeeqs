@@ -35,14 +35,6 @@ indexes:
   - name: active
   - name: challenge
   - name: flagged
-  - name: likes_total
-    direction: desc
-
-- kind: Attempt
-  properties:
-  - name: active
-  - name: challenge
-  - name: flagged
   - name: review_count
 
 - kind: Attempt
@@ -66,6 +58,14 @@ indexes:
   - name: challenge
   - name: flagged
   - name: vote_count
+    direction: desc
+
+- kind: Attempt
+  properties:
+  - name: active
+  - name: challenge
+  - name: flagged
+  - name: votes_total
     direction: desc
 
 - kind: Attempt

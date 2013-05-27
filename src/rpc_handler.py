@@ -44,8 +44,8 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
             self.submit_challenge_vertical_scroll()
         elif method == 'took_tour':
             self.took_tour()
-        elif method == 'submit_like':
-            self.submit_like()
+        elif method == 'submit_vote':
+            self.submit_vote()
         else:
             self.error(status_code.StatusCode.forbidden)
             return
@@ -582,7 +582,7 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
         jeeqser.put()
 
     @ndb.transactional
-    def submit_like(self):
+    def submit_vote(self):
         submission_key = self.getValueInQuery('submission')
         direction = self.getValueInQuery('direction')
         original = self.getValueInQuery('original')
@@ -596,29 +596,26 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
 
         # remove previous state, if any
         try:
-            if original == Attempt.IS_LIKED:
-                submission.likes_total -= 1
-                submission.liked.remove(self.jeeqser.key)
-            elif original == Attempt.IS_DISLIKED:
-                submission.likes_total += 1
-                submission.disliked.remove(self.jeeqser.key)
+            if original == Attempt.IS_UPVOTED:
+                submission.votes_total -= 1
+                submission.upvoted.remove(self.jeeqser.key)
+            elif original == Attempt.IS_DOWNVOTED:
+                submission.votes_total += 1
+                submission.downvoted.remove(self.jeeqser.key)
         except ValueError:
             logging.error('Could not remove the user with key %s from the list '
-                'of liked/disliked, data might be inconsistent' %
-                self.jeeqser.key)
+                'of voters, data might be inconsistent' % self.jeeqser.key)
 
-        if direction == Attempt.IS_LIKED:
-            submission.likes_total += 1
-            submission.liked.append(self.jeeqser.key)
-        elif direction == Attempt.IS_DISLIKED:
-            submission.likes_total -= 1
-            submission.disliked.append(self.jeeqser.key)
+        if direction == Attempt.IS_UPVOTED:
+            submission.votes_total += 1
+            submission.upvoted.append(self.jeeqser.key)
+        elif direction == Attempt.IS_DOWNVOTED:
+            submission.votes_total -= 1
+            submission.downvoted.append(self.jeeqser.key)
         else:
-            logging.warn('Unknown like direction: %s' % direction)
+            logging.warn('Unknown vote direction: %s' % direction)
 
         submission.put()
-        logging.debug('Liked: %s %s -> %s' % (
-            submission_key, original, direction)) # TODO remove when done
 
     @core.authenticate(False)
     def get_challenge_avatars(self):
