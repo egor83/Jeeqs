@@ -29,12 +29,19 @@ class EditChallengePage(webapp.RequestHandler):
 
     def post(self):
         challenge = None
+        old_number = None
+        old_name = None
         challenge_key = self.request.get('ch')
+        number = self.request.get('number')
+        name = self.request.get('name')
+        course = challenge_key.get().course
         if challenge_key:
             challenge = ndb.Key(urlsafe=challenge_key).get()
+            old_number = challenge.Exercise.get().number
+            old_name = challenge.Exercise.get().name
         if challenge:
-            challenge.exercise_number_persisted = self.request.get('number')
-            challenge.name_persistent = self.request.get('name')
+            challenge.exercise_number_persisted = number
+            challenge.name_persistent = name
             challenge.markdown = self.request.get('markdown')
             challenge.template_code = self.request.get('template_code')
             challenge.pdf_url = self.request.get('pdf_url')
@@ -43,6 +50,10 @@ class EditChallengePage(webapp.RequestHandler):
             challenge.pdf_startoffset = self.request.get('pdf_startoffset')
             challenge.pdf_endoffset = self.request.get('pdf_endoffset')
             challenge.put()
+            exercise = Exercise.query().filter(Exercise.number==old_number).filter(Exercise.name==old_name).filter(Exercise.course==course).get()
+            exercise.name = name
+            exercise.number = number
+            exercise_key = exercise.put()
             self.redirect('/challenge/?ch=' + challenge_key)
         else:
             self.response.out.write('something went wrong!')
