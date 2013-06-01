@@ -41,3 +41,18 @@ for act in acts:
     act.type = 'reviewing'
 
 ndb.put_multi(acts)
+
+############### Initialize votes in existing Attempt entities ###############
+
+from models import *
+from google.appengine.ext import ndb
+
+atts = Attempt.query().fetch()
+changed_attempts = []
+
+for att in atts:
+  if att.votes_total == 0:
+    att.votes_total = 0
+    changed_attempts.append(att)
+
+ndb.put_multi(atts)
