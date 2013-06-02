@@ -36,11 +36,12 @@ class EditChallengePage(webapp.RequestHandler):
         challenge_key = self.request.get('ch')
         number = self.request.get('number')
         name = self.request.get('name')
-        course = challenge_key.get().course
+        course = ndb.Key(urlsafe=challenge_key).get().\
+            exercise.get().course
         if challenge_key:
             challenge = ndb.Key(urlsafe=challenge_key).get()
-            old_number = challenge.Exercise.get().number
-            old_name = challenge.Exercise.get().name
+            old_number = challenge.exercise.get().number
+            old_name = challenge.exercise.get().name
         if challenge:
             challenge.exercise_number_persisted = number
             challenge.name_persistent = name
