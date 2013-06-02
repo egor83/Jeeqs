@@ -27,6 +27,8 @@ class EditChallengePage(webapp.RequestHandler):
         rendered = template.render(vars)
         self.response.out.write(rendered)
 
+    @core.authenticate(required=True)
+    @ndb.transactional(xg=True)
     def post(self):
         challenge = None
         old_number = None
@@ -50,10 +52,12 @@ class EditChallengePage(webapp.RequestHandler):
             challenge.pdf_startoffset = self.request.get('pdf_startoffset')
             challenge.pdf_endoffset = self.request.get('pdf_endoffset')
             challenge.put()
-            exercise = Exercise.query().filter(Exercise.number==old_number).filter(Exercise.name==old_name).filter(Exercise.course==course).get()
-            exercise.name = name
-            exercise.number = number
-            exercise_key = exercise.put()
+            if old_name!=name or old_number!=number:
+                exercise = Exercise.query().filter(Exercise.number==old_number).filter(Exercise.name==old_name).filter(Exercise.course==course).get()
+                exercise.name = name
+                exercise.number = number
+                exercise.put()
+
             self.redirect('/challenge/?ch=' + challenge_key)
         else:
             self.response.out.write('something went wrong!')
