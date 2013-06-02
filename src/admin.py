@@ -52,8 +52,11 @@ class EditChallengePage(webapp.RequestHandler):
             challenge.pdf_startoffset = self.request.get('pdf_startoffset')
             challenge.pdf_endoffset = self.request.get('pdf_endoffset')
             challenge.put()
-            if old_name!=name or old_number!=number:
-                exercise = Exercise.query().filter(Exercise.number==old_number).filter(Exercise.name==old_name).filter(Exercise.course==course).get()
+            if old_name != name or old_number != number:
+                exercise = Exercise.query().\
+                    filter(Exercise.number == old_number).\
+                    filter(Exercise.name == old_name).\
+                    filter(Exercise.course == course).get()
                 exercise.name = name
                 exercise.number = number
                 exercise.put()
