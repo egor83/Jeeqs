@@ -252,6 +252,87 @@ class RPCHandlerTestCase(test_jeeqs.JeeqsTestCase):
         except Exception as ex:
             self.fail(traceback.print_exc())
 
+    def test_submit_vote(self):
+        challenge, submission, submitter, submitter_challenge = \
+            self.create_submitter_challenge()
+
+        UPVOTER_EMAIL = 'upvoter@wrong_domain.com'
+        DOWNVOTER_EMAIL = 'downvoter@wrong_domain.com'
+
+        # upvote: check total score, check if voter is in the list of upvoters
+        # and not in the list of downvoters
+        upvoter = self.CreateJeeqser(UPVOTER_EMAIL)
+        self.loginUser(UPVOTER_EMAIL, 'upvoter')
+
+        upvote_params = {
+            'method': 'submit_vote',
+            'submission': submission.key.urlsafe(),
+            'direction': Attempt.IS_UPVOTED,
+            'original': 'null'
+        }
+        try:
+            self.testapp.post('/rpc', upvote_params)
+        except Exception as ex:
+            traceback.print_exc()
+            self.fail()
+
+        # refresh the submission to get a vote
+        submission = submission.key.get()
+        self.assertEqual(submission.votes_total, 1)
+        self.assertTrue(upvoter.key in submission.upvoted)
+        self.assertEqual(len(submission.upvoted), 1)
+        self.assertFalse(upvoter.key in submission.downvoted)
+        self.assertEqual(len(submission.downvoted), 0)
+
+        # downvote: check total score, check if voter is in the list
+        # of downvoters and not in the list of upvoters
+
+        downvoter = self.CreateJeeqser(DOWNVOTER_EMAIL)
+        self.loginUser(DOWNVOTER_EMAIL, 'downvoter')
+
+        downvote_params = {
+            'method': 'submit_vote',
+            'submission': submission.key.urlsafe(),
+            'direction': Attempt.IS_DOWNVOTED,
+            'original': 'null'
+        }
+        try:
+            self.testapp.post('/rpc', downvote_params)
+        except Exception as ex:
+            traceback.print_exc()
+            self.fail()
+
+        # refresh the submission to get a vote
+        submission = submission.key.get()
+        self.assertEqual(submission.votes_total, 0)
+        self.assertFalse(downvoter.key in submission.upvoted)
+        self.assertEqual(len(submission.upvoted), 1)
+        self.assertTrue(downvoter.key in submission.downvoted)
+        self.assertEqual(len(submission.downvoted), 1)
+
+        # changing downvote to upvote - score, presence in up/downvoters' list
+
+        new_upvote_params = {
+            'method': 'submit_vote',
+            'submission': submission.key.urlsafe(),
+            'direction': Attempt.IS_UPVOTED,
+            'original': Attempt.IS_DOWNVOTED
+        }
+
+        try:
+            self.testapp.post('/rpc', new_upvote_params)
+        except Exception as ex:
+            traceback.print_exc()
+            self.fail()
+
+        # refresh the submission to get a vote
+        submission = submission.key.get()
+        self.assertEqual(submission.votes_total, 2)
+        self.assertTrue(downvoter.key in submission.upvoted)
+        self.assertEqual(len(submission.upvoted), 2)
+        self.assertFalse(downvoter.key in submission.downvoted)
+        self.assertEqual(len(submission.downvoted), 0)
+
 
 if __name__ == '__main__':
     unittest.main()
