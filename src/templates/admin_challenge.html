@@ -21,11 +21,11 @@
         {% endfor %}
     </select>
     {% else %}
-    <input type="hidden" name="ch" value="{{ challenge.key.urlsafe() }}">
-    <input type="hidden" name="course" value="{{ challenge.exercise.get().course.urlsafe() }}">
+        <input type="hidden" name="ch" value="{{ challenge.key.urlsafe() }}">
+        <input type="hidden" name="course" {% if challenge.exercise %} value="{{challenge.exercise.get().course.urlsafe()}}" {% endif %} ">
     {% endif %}
     <label>Exercise Number</label>
-    <input type="text" id="number" name="number" size="40" style="width: 100px" placeholder="1.6.1" {% if challenge is defined %}value="{{ challenge.exercise_number}}" {% endif %}>
+    <input type="text" id="number" name="number" size="40" style="width: 100px" placeholder="1.6.1" {% if challenge and challenge.exercise %}value="{{ challenge.exercise_number}}" {% endif %}>
     <label>Name</label>
     <input type="text" id="name" name="name" size="40" placeholder="Challenge name" {% if challenge is defined %} value="{{ challenge.name }}" {% endif %}>
     <label>Markdown</label>
