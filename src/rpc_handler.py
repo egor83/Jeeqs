@@ -1,6 +1,5 @@
 from models import *
 import core
-import jeeqs
 import status_code
 import logging
 import json
