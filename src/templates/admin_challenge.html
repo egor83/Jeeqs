@@ -36,7 +36,7 @@
     <div class="well">
         <legend>PDF controls</legend>
         <label>PDF URL</label>
-        <input type="text" id="pdf_url" class="pdf_control" name="pdf_url" size="80" style="width: 700px" placeholder="/static/MIT6_189IAP11_hw1.pdf" {% if challenge is defined %} value="{{ challenge.pdf_url }}" {% else %} value="/static/MIT6_189IAP11_hw1.pdf" {% endif %}>
+        <input type="text" id="pdf_url" class="pdf_control" name="pdf_url" size="80" style="width: 700px" placeholder="/static/MIT6_189IAP11_hw1.pdf" {% if challenge is defined %} value="{{ challenge.pdf_url }}" {% else %} value="" {% endif %}>
         <label>Start page number</label>
         <input type="text" id="pdf_startpage" class="pdf_control" name="pdf_startpage" size="80" style="width: 150px" placeholder="1" {% if challenge is defined %} value="{{ challenge.pdf_startpage }}" {% else %} value="1" {% endif %}>
         <label>End page number</label>
