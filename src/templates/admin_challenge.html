@@ -13,13 +13,13 @@
 </div>
 <form method="POST">
     {% if challenge is not defined %}
-    <label>Course</label>
-    <select name="course" id="course">
-        <option value="" selected="selected">---------</option>
-        {% for course in courses %}
-        <option value="{{course.key.urlsafe()}}">{{ course.name}} </option>
-        {% endfor %}
-    </select>
+        <label>Course</label>
+        <select name="course" id="course">
+            <option value="" selected="selected">---------</option>
+            {% for course in courses %}
+                <option value="{{course.key.urlsafe()}}">{{ course.name}} </option>
+            {% endfor %}
+        </select>
     {% else %}
         <input type="hidden" name="ch" value="{{ challenge.key.urlsafe() }}">
         <input type="hidden" name="course" {% if challenge.exercise %} value="{{challenge.exercise.get().course.urlsafe()}}" {% endif %} ">
