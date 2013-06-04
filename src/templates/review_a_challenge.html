@@ -1,5 +1,5 @@
 {% from 'avatars.html' import avatar %}
-        
+
 <div id="submissions_list">
     {% if submissions|length == 0 %}
         {% if not review_qualified and not challenge.public_submissions %}
@@ -41,8 +41,8 @@
                         {{ submission.review_count }} reviews submitted
                     </div>
                 </div>
-                <div style="padding: 10px; overflow: auto; clear:left;">
-                    <div>
+                <div style="padding: 10px; overflow: auto; clear:left; width:95%;" class="row-fluid">
+                    <div class="span1" style="text-align: center; ">
                         {% set is_upvoted = "" %}
                         {% set is_downvoted = "" %}
                         {% if jeeqser.key in submission.upvoted %}
@@ -50,13 +50,17 @@
                         {% elif jeeqser.key in submission.downvoted %}
                             {% set is_downvoted = "is_downvoted" %}
                         {% endif %}
-                        <i class="icon-chevron-up votes_ctrl upvote {{ is_upvoted }}" id="upvote__{{ submission.key.urlsafe() }}"></i><br/>
-                        <b class="votes_ctrl {{ is_upvoted }}{{ is_downvoted }}" id="votes__{{ submission.key.urlsafe() }}"style="text-align: center;">
+                        <i class="icon-chevron-up votes_ctrl upvote {{ is_upvoted }}"
+                           id="upvote__{{ submission.key.urlsafe() }}"></i>
+                        <div class="votes_ctrl {{ is_upvoted }}{{ is_downvoted }}" id="votes__{{ submission.key.urlsafe() }}" style="text-align: center; font-weight: bold; ">
                             {{ submission.votes_total }}
-                        </b><br/>
-                        <i class="icon-chevron-down votes_ctrl downvote {{ is_downvoted }}" id="downvote__{{ submission.key.urlsafe() }}"></i><br/>
+                        </div>
+                        <i class="icon-chevron-down votes_ctrl downvote {{ is_downvoted }}"
+                           id="downvote__{{ submission.key.urlsafe() }}"></i>
                     </div>
-                    {{ submission.content|safe }}
+                    <div class="span11">
+                        {{ submission.content|safe }}
+                    </div>
                 </div>
                 {% if review_qualified and submission.author != jeeqser.key%}
                     {# If this submission already has a review from current user,
