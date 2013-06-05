@@ -14,6 +14,8 @@ from models import *
 REVIEWER_EMAIL = 'reviewer@wrong_domain.com'
 SUBMITTER_EMAIL = "submitter@nonexistent_domain.com"
 USER_A_EMAIL = 'user_a@wrong_domain.com'
+UPVOTER_EMAIL = 'upvoter@wrong_domain.com'
+DOWNVOTER_EMAIL = 'downvoter@wrong_domain.com'
 
 
 class RPCHandlerTestCase(test_jeeqs.JeeqsTestCase):
@@ -252,15 +254,17 @@ class RPCHandlerTestCase(test_jeeqs.JeeqsTestCase):
         except Exception as ex:
             self.fail(traceback.print_exc())
 
-    def test_submit_vote(self):
+    def test_submit_upvote(self):
+        """Test upvoting.
+
+        Check total score, check that voter is in the list of upvoters
+        and not in the list of downvoters.
+
+        """
+
         challenge, submission, submitter, submitter_challenge = \
             self.create_submitter_challenge()
 
-        UPVOTER_EMAIL = 'upvoter@wrong_domain.com'
-        DOWNVOTER_EMAIL = 'downvoter@wrong_domain.com'
-
-        # upvote: check total score, check if voter is in the list of upvoters
-        # and not in the list of downvoters
         upvoter = self.CreateJeeqser(UPVOTER_EMAIL)
         self.loginUser(UPVOTER_EMAIL, 'upvoter')
 
@@ -284,8 +288,16 @@ class RPCHandlerTestCase(test_jeeqs.JeeqsTestCase):
         self.assertFalse(upvoter.key in submission.downvoted)
         self.assertEqual(len(submission.downvoted), 0)
 
-        # downvote: check total score, check if voter is in the list
-        # of downvoters and not in the list of upvoters
+    def test_submit_downvote(self):
+        """Test downvoting.
+
+        Check total score, check that voter is in the list of downvoters
+        and not in the list of upvoters.
+
+        """
+
+        challenge, submission, submitter, submitter_challenge = \
+            self.create_submitter_challenge()
 
         downvoter = self.CreateJeeqser(DOWNVOTER_EMAIL)
         self.loginUser(DOWNVOTER_EMAIL, 'downvoter')
@@ -304,13 +316,36 @@ class RPCHandlerTestCase(test_jeeqs.JeeqsTestCase):
 
         # refresh the submission to get a vote
         submission = submission.key.get()
-        self.assertEqual(submission.votes_total, 0)
+        self.assertEqual(submission.votes_total, -1)
         self.assertFalse(downvoter.key in submission.upvoted)
-        self.assertEqual(len(submission.upvoted), 1)
+        self.assertEqual(len(submission.upvoted), 0)
         self.assertTrue(downvoter.key in submission.downvoted)
         self.assertEqual(len(submission.downvoted), 1)
 
-        # changing downvote to upvote - score, presence in up/downvoters' list
+    def change_vote(self):
+        """Test changing downvote to upvote.
+
+        Check score, presence in up/downvoters' list.
+
+        """
+
+        challenge, submission, submitter, submitter_challenge = \
+            self.create_submitter_challenge()
+
+        downvoter = self.CreateJeeqser(DOWNVOTER_EMAIL)
+        self.loginUser(DOWNVOTER_EMAIL, 'downvoter')
+
+        downvote_params = {
+            'method': 'submit_vote',
+            'submission': submission.key.urlsafe(),
+            'direction': Attempt.IS_DOWNVOTED,
+            'original': 'null'
+        }
+        try:
+            self.testapp.post('/rpc', downvote_params)
+        except Exception as ex:
+            traceback.print_exc()
+            self.fail()
 
         new_upvote_params = {
             'method': 'submit_vote',
@@ -327,9 +362,9 @@ class RPCHandlerTestCase(test_jeeqs.JeeqsTestCase):
 
         # refresh the submission to get a vote
         submission = submission.key.get()
-        self.assertEqual(submission.votes_total, 2)
+        self.assertEqual(submission.votes_total, 1)
         self.assertTrue(downvoter.key in submission.upvoted)
-        self.assertEqual(len(submission.upvoted), 2)
+        self.assertEqual(len(submission.upvoted), 1)
         self.assertFalse(downvoter.key in submission.downvoted)
         self.assertEqual(len(submission.downvoted), 0)
 

@@ -396,6 +396,8 @@ a.black:hover {
 
 .votes_ctrl {
     font-size: 21px;
+    text-align: center;
+    font-weight: bold;
 }
 
 .is_upvoted {
@@ -404,4 +406,19 @@ a.black:hover {
 
 .is_downvoted {
     color: red;
+}
+
+.row-fluid.solution_row {
+    padding: 10px;
+    overflow: auto;
+    clear:left;
+    width:95%;
+}
+
+.voting_div {
+    text-align: center;
+}
+
+.own_submission_feedback {
+    background: bisque;
 }

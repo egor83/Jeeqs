@@ -41,8 +41,8 @@
                         {{ submission.review_count }} reviews submitted
                     </div>
                 </div>
-                <div style="padding: 10px; overflow: auto; clear:left; width:95%;" class="row-fluid">
-                    <div class="span1" style="text-align: center; ">
+                <div class="row-fluid solution_row">
+                    <div class="span1 voting_div">
                         {% set is_upvoted = "" %}
                         {% set is_downvoted = "" %}
                         {% if jeeqser.key in submission.upvoted %}
@@ -52,7 +52,7 @@
                         {% endif %}
                         <i class="icon-chevron-up votes_ctrl upvote {{ is_upvoted }}"
                            id="upvote__{{ submission.key.urlsafe() }}"></i>
-                        <div class="votes_ctrl {{ is_upvoted }}{{ is_downvoted }}" id="votes__{{ submission.key.urlsafe() }}" style="text-align: center; font-weight: bold; ">
+                        <div class="votes_ctrl {{ is_upvoted }}{{ is_downvoted }}" id="votes__{{ submission.key.urlsafe() }}">
                             {{ submission.votes_total }}
                         </div>
                         <i class="icon-chevron-down votes_ctrl downvote {{ is_downvoted }}"
@@ -67,7 +67,7 @@
                        display review's content in a form and disable that form;
                        if no review found, display a form to submit a new one #}
                     {% set has_own = (submission.key.urlsafe() in own_reviews) %}
-                    <div class="submission-feedback" {% if has_own %}style="background: bisque; "{% endif %}>
+                    <div class="submission-feedback {% if has_own %}own_submission_feedback{% endif %}">
                         <div class="feedback-buttons btn-group" data-toggle="buttons-radio">
                             {% if has_own %}
                                 {% set btn_class = "btn disabled" %}
