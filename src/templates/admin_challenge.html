@@ -36,15 +36,15 @@
     <div class="well">
         <legend>PDF controls</legend>
         <label>PDF URL</label>
-        <input type="text" id="pdf_url" class="pdf_control" name="pdf_url" size="80" style="width: 700px"  placeholder="/static/course_assets/coursename/file.pdf" value="{{ challenge.pdf_url }}">
+        <input type="text" id="pdf_url" class="pdf_control" name="pdf_url" size="80" style="width: 700px"  placeholder="/static/course_assets/coursename/file.pdf" {% if challenge %} value="{{ challenge.pdf_url }}" {% else %} value="" {% endif %}>
         <label>Start page number</label>
-        <input type="text" id="pdf_startpage" class="pdf_control" name="pdf_startpage" size="80" style="width: 150px" placeholder="1" {% if challenge.pdf_startpage %} value="{{ challenge.pdf_startpage }}" {% else %} value="1" {% endif %}>
+        <input type="text" id="pdf_startpage" class="pdf_control" name="pdf_startpage" size="80" style="width: 150px" placeholder="1" {% if challenge %} value="{{ challenge.pdf_startpage }}" {% else %} value="1" {% endif %}>
         <label>End page number</label>
-        <input type="text" id="pdf_endpage" class="pdf_control" name="pdf_endpage" size="80" style="width: 150px" placeholder="0" {% if challenge.pdf_endpage %} value="{{ challenge.pdf_endpage }}"{% endif %}>
+        <input type="text" id="pdf_endpage" class="pdf_control" name="pdf_endpage" size="80" style="width: 150px" placeholder="0" {% if challenge %} value="{{ challenge.pdf_endpage }}"{% endif %}>
         <label>Offset from top(pixels)</label>
-        <input type="text" id="pdf_startoffset" class="pdf_control" name="pdf_startoffset" size="80" style="width: 150px" placeholder="0" {% if challenge.pdf_startoffset %} value="{{ challenge.pdf_startoffset }}" {% else %} value="0" {% endif %}>
+        <input type="text" id="pdf_startoffset" class="pdf_control" name="pdf_startoffset" size="80" style="width: 150px" placeholder="0" {% if challenge %} value="{{ challenge.pdf_startoffset }}" {% else %} value="0" {% endif %}>
         <label>Length of PDF to display(pixels)</label>
-        <input type="text" id="pdf_endoffset" class="pdf_control" name="pdf_endoffset" size="80" style="width: 150px" placeholder="0" {% if challenge.pdf_endoffset %} value="{{ challenge.pdf_endoffset }}" {% else %} value="0" {% endif %}>
+        <input type="text" id="pdf_endoffset" class="pdf_control" name="pdf_endoffset" size="80" style="width: 150px" placeholder="0" {% if challenge %} value="{{ challenge.pdf_endoffset }}" {% else %} value="0" {% endif %}>
         <span class="alert alert-info pull-right" id="preloader">Please wait..generating PDF preview...</span>
     </div>
     <button type="submit" id="submit" class="btn-large btn-primary">Submit</button>

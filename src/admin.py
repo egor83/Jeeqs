@@ -28,18 +28,19 @@ class EditChallengePage(webapp.RequestHandler):
         self.response.out.write(rendered)
 
     @core.authenticate(required=True)
-    @ndb.transactional(xg=True)
+    @ndb.transactional
     def post(self):
         challenge = None
+        course = None
         old_number = None
         old_name = None
         challenge_key = self.request.get('ch')
         number = self.request.get('number')
         name = self.request.get('name')
-        course = ndb.Key(urlsafe=challenge_key).get().\
-            exercise.get().course
-        if challenge_key:
-            challenge = ndb.Key(urlsafe=challenge_key).get()
+        challenge = ndb.Key(urlsafe=challenge_key).get()
+        if challenge.exercise:
+            course = challenge.exercise.get().course
+        if challenge.exercise:
             old_number = challenge.exercise.get().number
             old_name = challenge.exercise.get().name
         if challenge:
@@ -53,7 +54,7 @@ class EditChallengePage(webapp.RequestHandler):
             challenge.pdf_startoffset = self.request.get('pdf_startoffset')
             challenge.pdf_endoffset = self.request.get('pdf_endoffset')
             challenge.put()
-            if old_name != name or old_number != number:
+            if (old_name != name or old_number != number) and challenge.exercise:
                 exercise = Exercise.query().\
                     filter(Exercise.number == old_number).\
                     filter(Exercise.name == old_name).\
@@ -61,7 +62,6 @@ class EditChallengePage(webapp.RequestHandler):
                 exercise.name = name
                 exercise.number = number
                 exercise.put()
-
             self.redirect('/challenge/?ch=' + challenge_key)
         else:
             self.response.out.write('something went wrong!')
@@ -131,8 +131,8 @@ Create a new challenge
                 pdf_endoffset=pdf_endoffset,
                 template_code=template_code)
 
-        challenge.put()
-        self.redirect('/admin/challenges/new')
+        challenge_key = challenge.put()
+        self.redirect(('/challenge/?ch=' + challenge_key.urlsafe()))
 
 
 class ChallengeListPage(webapp.RequestHandler):
