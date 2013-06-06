@@ -10,26 +10,76 @@ import core
 from models import *
 
 
-class ChallengePage(webapp.RequestHandler):
-    """
-    Create a new challenge
-    """
+class EditChallengePage(webapp.RequestHandler):
     @core.authenticate(required=True)
     def get(self):
         challenge = None
+        page_vars = {}
         challenge_key = self.request.get('ch')
         if challenge_key:
             challenge = ndb.Key(urlsafe=challenge_key).get()
+        if challenge:
+            page_vars['challenge'] = challenge
 
-        all_courses = Course.query().fetch(1000)
+        vars = core.add_common_vars(page_vars)
+
+        template = core.jinja_environment.get_template('admin_challenge.html')
+        rendered = template.render(vars)
+        self.response.out.write(rendered)
+
+    @core.authenticate(required=True)
+    @ndb.transactional
+    def post(self):
+        challenge = None
+        course = None
+        old_number = None
+        old_name = None
+        challenge_key = self.request.get('ch')
+        number = self.request.get('number')
+        name = self.request.get('name')
+        challenge = ndb.Key(urlsafe=challenge_key).get()
+        if challenge.exercise:
+            course = challenge.exercise.get().course
+        if challenge.exercise:
+            old_number = challenge.exercise.get().number
+            old_name = challenge.exercise.get().name
+        if challenge:
+            challenge.exercise_number_persisted = number
+            challenge.name_persistent = name
+            challenge.markdown = self.request.get('markdown')
+            challenge.template_code = self.request.get('template_code')
+            challenge.pdf_url = self.request.get('pdf_url')
+            challenge.pdf_startpage = self.request.get('pdf_startpage')
+            challenge.pdf_endpage = self.request.get('pdf_endpage')
+            challenge.pdf_startoffset = self.request.get('pdf_startoffset')
+            challenge.pdf_endoffset = self.request.get('pdf_endoffset')
+            challenge.put()
+            if (old_name != name or old_number != number) and challenge.exercise:
+                exercise = Exercise.query().\
+                    filter(Exercise.number == old_number).\
+                    filter(Exercise.name == old_name).\
+                    filter(Exercise.course == course).get()
+                exercise.name = name
+                exercise.number = number
+                exercise.put()
+            self.redirect('/challenge/?ch=' + challenge_key)
+        else:
+            self.response.out.write('something went wrong!')
+
+
+class AddChallengePage(webapp.RequestHandler):
+    """
+Create a new challenge
+"""
+    @core.authenticate(required=True)
+    def get(self):
+        all_courses = Course.query().fetch()
         page_vars = {
             'courses': all_courses,
             'jeeqser': self.jeeqser,
             'login_url': users.create_login_url(self.request.url),
             'logout_url': users.create_logout_url(self.request.url)
         }
-        if challenge:
-          page_vars['challenge'] = challenge
 
         vars = core.add_common_vars(page_vars)
 
@@ -39,8 +89,11 @@ class ChallengePage(webapp.RequestHandler):
 
     @core.authenticate(required=True)
     def post(self):
-        course = ndb.Key(urlsafe=self.request.get('course'))
-        number = self.request.get('number')
+        course = None
+        number = None
+        if self.request.get('course') != '':
+            course = ndb.Key(urlsafe=self.request.get('course'))
+            number = self.request.get('number')
         name = string.capwords(self.request.get('name'))
 
         #pdf controls
@@ -52,24 +105,34 @@ class ChallengePage(webapp.RequestHandler):
 
         markdown = self.request.get('markdown')
         template_code = self.request.get('template_code')
+        exercise_key=None
+        if number and course:
+            exercise = Exercise(number=number, name=name, course=course)
+            exercise_key = exercise.put()
+            challenge = Challenge(
+                name_persistent=name,
+                markdown=markdown,
+                pdf_url=pdf_url,
+                pdf_startpage=pdf_startpage,
+                pdf_endpage=pdf_endpage,
+                pdf_startoffset=pdf_startoffset,
+                pdf_endoffset=pdf_endoffset,
+                template_code=template_code,
+                exercise=exercise_key,
+                course=course)
+        else:
+            challenge = Challenge(
+                name_persistent=name,
+                markdown=markdown,
+                pdf_url=pdf_url,
+                pdf_startpage=pdf_startpage,
+                pdf_endpage=pdf_endpage,
+                pdf_startoffset=pdf_startoffset,
+                pdf_endoffset=pdf_endoffset,
+                template_code=template_code)
 
-        exercise = Exercise(number=number, name=name, course=course)
-        exercise_key = exercise.put()
-
-        challenge = Challenge(
-            name_persistent=name,
-            markdown=markdown,
-            pdf_url=pdf_url,
-            pdf_startpage=pdf_startpage,
-            pdf_endpage=pdf_endpage,
-            pdf_startoffset=pdf_startoffset,
-            pdf_endoffset=pdf_endoffset,
-            template_code=template_code,
-            exercise=exercise_key)
-
-        challenge.put()
-
-        self.redirect('/admin/challenges/new')
+        challenge_key = challenge.put()
+        self.redirect(('/challenge/?ch=' + challenge_key.urlsafe()))
 
 
 class ChallengeListPage(webapp.RequestHandler):
@@ -89,11 +152,11 @@ class ChallengeListPage(webapp.RequestHandler):
 def main():
     application = webapp.WSGIApplication(
         [
-            ('/admin/challenges/new', ChallengePage),
-            ('/admin/challenges/edit', ChallengePage),
+            ('/admin/challenges/new', AddChallengePage),
+            ('/admin/challenges/edit', EditChallengePage),
             ('/admin/challenges', ChallengeListPage),
             ('/admin/challenges/', ChallengeListPage),
-         ],
+            ],
         debug=True)
     run_wsgi_app(application)
 
