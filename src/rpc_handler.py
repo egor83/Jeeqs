@@ -314,10 +314,14 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
             if jeeqser_challenge.status == AttemptStatus.SUCCESS:
                 challenge.num_jeeqsers_solved -= 1
         else:
+            course_code = None
+            if challenge_key.get().exercise:
+                course_code = challenge_key.get().exercise.get().course.get().code
             jeeqser_challenge = Jeeqser_Challenge(
                 parent=self.jeeqser.key,
                 jeeqser=self.jeeqser.key,
-                challenge=challenge_key
+                challenge=challenge_key,
+                course_code=course_code
             )
             challenge.num_jeeqsers_submitted += 1
         challenge.submissions_without_review += 1
