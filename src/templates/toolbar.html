@@ -4,7 +4,38 @@
     <div class="navbar-inner">
         <div class="container">
             <ul class="nav pull-left">
-                <li><a class="brand" href="/">Jeeqs <img src="/static/favicon.ico"/></a></li>
+                <li>
+                    <a class="brand"
+                    {% if course %}
+                        href="/?course_code={{ course.code }}
+                    {% elif challenge %}
+                        href="/?course_code={{ challenge.exercise_course_code }}"
+                    {% else %}
+                        href="/"
+                    {% endif %}
+                    ">Jeeqs <img src="/static/favicon.ico"/></a></li>
+                {% if course and courses %}
+                    <li class="divider-vertical"></li>
+                    <ul role="navigation" class="nav">
+                        <li>
+                            <div class="dropdown">
+                                <a data-toggle="dropdown" class="btn btn-success dropdown-toggle" role="button" href="#" id="drop1">
+                                    {{ course.code }} - {{ course.name }}
+                                    <i class="icon icon-caret-down"></i>
+                                </a>
+                                <ul aria-labelledby="drop1" role="menu" class="dropdown-menu">
+                                    {% for course in courses %}
+                                        <li role="presentation">
+                                            <a href="/?course_code={{ course.code }}" tabindex="-1" role="menuitem">
+                                                {{ course.code }} - {{ course.name }}
+                                            </a>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </li>
+                    </ul>
+                {% endif %}
             </ul>
             <ul class="nav pull-right">
                 {# class="active" will highlight the navigation item! #}
@@ -16,7 +47,7 @@
                         {% if jeeqser.suspended_until %}
                             title="Your account is suspended until {{ jeeqser.suspended_until }}"
                         {% endif %}
-                        >{{ jeeqser.displayname }}
+                            >{{ jeeqser.displayname }}
                         {% if jeeqser.suspended_until %}
                             <i class="icon-exclamation-sign"></i>
                         {% endif %}

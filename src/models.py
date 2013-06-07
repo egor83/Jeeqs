@@ -166,6 +166,7 @@ class Course(ndb.Model):
     name = ndb.StringProperty()
     code = ndb.StringProperty()
     description = ndb.TextProperty()
+    url = ndb.StringProperty()
     level = ndb.StringProperty(choices=['undergraduate', 'graduate'])
     program = ndb.KeyProperty(kind=Program)
     yearOffered = ndb.IntegerProperty()
@@ -490,6 +491,7 @@ class Jeeqser_Challenge(ndb.Model):
 
     jeeqser = ndb.KeyProperty(kind=Jeeqser)
     challenge = ndb.KeyProperty(kind=Challenge)
+    course_code = ndb.StringProperty()
     active_attempt = ndb.KeyProperty(kind=Attempt)
 
     # review counts for the active attempt
@@ -584,10 +586,15 @@ def get_jeeqser_challenge(
                       + jeeqser_key.get().user.email()
                       + " and challenge : "
                       + challenge_key.get().name)
+        course_code=None
+        if challenge_key.get().exercise:
+            course_code = challenge_key.get().exercise.get().course.get().code
+
         jc = Jeeqser_Challenge(
             parent=jeeqser_key,
             jeeqser=jeeqser_key,
             challenge=challenge_key,
+            course_code=course_code,
             active_attempt=submission_key)
         jc.put()
         return jc
