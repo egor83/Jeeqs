@@ -590,7 +590,9 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
             submission = ndb.Key(urlsafe=submission_key).get()
         finally:
             if not submission:
-                self.error(status_code.StatusCode.forbidden)
+                logging.error('Submission with key %s not found' %
+                              submission_key)
+                self.error(status_code.StatusCode.internal_error)
                 return
 
         # remove previous state, if any
@@ -604,6 +606,8 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
         except ValueError:
             logging.error('Could not remove the user with key %s from the list '
                 'of voters, data might be inconsistent' % self.jeeqser.key)
+            self.error(status_code.StatusCode.internal_error)
+            return
 
         if direction == Attempt.IS_UPVOTED:
             submission.votes_total += 1
@@ -612,7 +616,9 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
             submission.votes_total -= 1
             submission.downvoted.append(self.jeeqser.key)
         else:
-            logging.warn('Unknown vote direction: %s' % direction)
+            logging.error('Unknown vote direction: %s' % direction)
+            self.error(status_code.StatusCode.internal_error)
+            return
 
         submission.put()
 
