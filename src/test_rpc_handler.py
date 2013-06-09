@@ -272,7 +272,7 @@ class RPCHandlerTestCase(test_jeeqs.JeeqsTestCase):
             'method': 'submit_vote',
             'submission': submission.key.urlsafe(),
             'direction': Attempt.IS_UPVOTED,
-            'original': 'null'
+            'original_vote': 'null'
         }
         try:
             self.testapp.post('/rpc', upvote_params)
@@ -306,7 +306,7 @@ class RPCHandlerTestCase(test_jeeqs.JeeqsTestCase):
             'method': 'submit_vote',
             'submission': submission.key.urlsafe(),
             'direction': Attempt.IS_DOWNVOTED,
-            'original': 'null'
+            'original_vote': 'null'
         }
         try:
             self.testapp.post('/rpc', downvote_params)
@@ -339,7 +339,7 @@ class RPCHandlerTestCase(test_jeeqs.JeeqsTestCase):
             'method': 'submit_vote',
             'submission': submission.key.urlsafe(),
             'direction': Attempt.IS_DOWNVOTED,
-            'original': 'null'
+            'original_vote': 'null'
         }
         try:
             self.testapp.post('/rpc', downvote_params)
@@ -351,7 +351,7 @@ class RPCHandlerTestCase(test_jeeqs.JeeqsTestCase):
             'method': 'submit_vote',
             'submission': submission.key.urlsafe(),
             'direction': Attempt.IS_UPVOTED,
-            'original': Attempt.IS_DOWNVOTED
+            'original_vote': Attempt.IS_DOWNVOTED
         }
 
         try:
@@ -367,6 +367,19 @@ class RPCHandlerTestCase(test_jeeqs.JeeqsTestCase):
         self.assertEqual(len(submission.upvoted), 1)
         self.assertFalse(downvoter.key in submission.downvoted)
         self.assertEqual(len(submission.downvoted), 0)
+
+    def test_anonymous_voting(self):
+        upvote_params = {
+            'method': 'submit_vote',
+            'submission': '',
+            'direction': Attempt.IS_UPVOTED,
+            'original_vote': 'null'
+        }
+        try:
+            self.assertRaises(webtest.AppError, self.testapp.post, ('/rpc'), {'params': upvote_params})
+        except Exception as ex:
+            traceback.print_exc()
+            self.fail()
 
 
 if __name__ == '__main__':
