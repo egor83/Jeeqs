@@ -13,8 +13,9 @@ from models import *
 class EditChallengePage(webapp.RequestHandler):
     @core.authenticate(required=True)
     def get(self):
+        redirect_to = self.request.referer
         challenge = None
-        page_vars = {}
+        page_vars = {'redirect_to':redirect_to}
         challenge_key = self.request.get('ch')
         if challenge_key:
             challenge = ndb.Key(urlsafe=challenge_key).get()
@@ -30,6 +31,7 @@ class EditChallengePage(webapp.RequestHandler):
     @core.authenticate(required=True)
     @ndb.transactional
     def post(self):
+        redirect_to = self.request.get('redirect_to')
         challenge = None
         course = None
         old_number = None
@@ -62,7 +64,7 @@ class EditChallengePage(webapp.RequestHandler):
                 exercise.name = name
                 exercise.number = number
                 exercise.put()
-            self.redirect('/challenge/?ch=' + challenge_key)
+            self.redirect(redirect_to)
         else:
             self.response.out.write('something went wrong!')
 
@@ -73,8 +75,10 @@ Create a new challenge
 """
     @core.authenticate(required=True)
     def get(self):
+        redirect_to = self.request.referer
         all_courses = Course.query().fetch()
         page_vars = {
+            'redirect_to':redirect_to,
             'courses': all_courses,
             'jeeqser': self.jeeqser,
             'login_url': users.create_login_url(self.request.url),
@@ -91,6 +95,7 @@ Create a new challenge
     def post(self):
         course = None
         number = None
+        redirect_to = self.request.get('redirect_to')
         if self.request.get('course') != '':
             course = ndb.Key(urlsafe=self.request.get('course'))
             number = self.request.get('number')
@@ -132,12 +137,14 @@ Create a new challenge
                 template_code=template_code)
 
         challenge_key = challenge.put()
-        self.redirect(('/challenge/?ch=' + challenge_key.urlsafe()))
+        self.redirect(redirect_to)
 
 
 class ChallengeListPage(webapp.RequestHandler):
     def get(self):
         query = Challenge.query().fetch(1000)
+        self.response.out.write(
+            '<br/><a href="/admin/challenges/new">New Challenge</a><br><br><br>')
         for item in query:
             self.response.out.write(
                 '<a href="/admin/challenges/edit?ch=%s">Edit</a> '
@@ -145,8 +152,7 @@ class ChallengeListPage(webapp.RequestHandler):
             number = item.exercise.get().number if item.exercise else '--'
             self.response.out.write("%s %s <br>" % (number, item.name))
 
-        self.response.out.write(
-            '<br/><a href="/admin/challenges/new">New Challenge</a>')
+
 
 
 def main():
