@@ -56,19 +56,35 @@ class FrontPageHandler(jeeqs_request_handler.JeeqsRequestHandler):
 
     @core.authenticate(False)
     def get(self):
-        # get available challenges
+        # get available courses
+        selected_course = None
+        course_query = Course.query()
+        courses = course_query.fetch(10)
+        course_code = self.request.get('course_code', '6.189')
+        course = course_query.filter(Course.code == course_code).get()
+        courses[:] = [x for x in courses if x != course]
 
-        all_challenges = Challenge.query().fetch(100)
+        # get available challenges
+        all_challenges_future = Challenge.query() \
+            .filter(Challenge.exercise_course_code_persisted == course_code) \
+            .fetch_async(100)
+
+        jeeqser_challenges_future = None
+        if self.jeeqser:
+            jeeqser_challenges_future = Jeeqser_Challenge \
+                .query() \
+                .filter(Jeeqser_Challenge.jeeqser == self.jeeqser.key) \
+                .filter(Jeeqser_Challenge.course_code == course_code) \
+                .fetch_async(100)
+
+        all_challenges = all_challenges_future.get_result()
         all_challenges.sort(
             cmp=exercise_cmp,
             key=lambda challenge: challenge.exercise_number_persisted)
 
         jeeqser_challenges = []
         if self.jeeqser:
-            jeeqser_challenges = Jeeqser_Challenge\
-                .query()\
-                .filter(Jeeqser_Challenge.jeeqser == self.jeeqser.key)\
-                .fetch(100)
+            jeeqser_challenges = jeeqser_challenges_future.get_result()
 
         active_submissions = {}
         for jc in jeeqser_challenges:
@@ -95,6 +111,8 @@ class FrontPageHandler(jeeqs_request_handler.JeeqsRequestHandler):
         all_activities = Activity.query().order(-Activity.date).fetch(10)
 
         vars = core.add_common_vars({
+            'courses': courses,
+            'course': course,
             'challenges': all_challenges,
             'injeeqs': feedbacks,
             'feedbacks_cursor': feedbacks_cursor,

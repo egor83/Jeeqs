@@ -166,6 +166,7 @@ class Course(ndb.Model):
     name = ndb.StringProperty()
     code = ndb.StringProperty()
     description = ndb.TextProperty()
+    url = ndb.StringProperty()
     level = ndb.StringProperty(choices=['undergraduate', 'graduate'])
     program = ndb.KeyProperty(kind=Program)
     yearOffered = ndb.IntegerProperty()
@@ -204,8 +205,8 @@ class Challenge(ndb.Model):
     def get_name(self):
         if self.name_persistent:
             return self.name_persistent
-        elif self.exercise and self.exercise.name:
-            self.name_persistent = self.exercise.name
+        elif self.exercise and self.exercise.get().name:
+            self.name_persistent = self.exercise.get().name
             self.put()
             return self.name_persistent
 
@@ -253,13 +254,18 @@ class Challenge(ndb.Model):
     def get_breadcrumb(self):
         if self.breadcrumb_persisted:
             return self.breadcrumb_persisted
-        else:
+        elif self.exercise and self.course:
             self.breadcrumb_persisted = self.exercise.number\
                 + ' > ' + self.exercise.course.name\
                 + ' > ' + self.exercise.course.program.name\
                 + ' > ' + self.exercise.course.program.university.name
             self.put()
             return self.breadcrumb_persisted
+        else:
+            return None
+
+
+
 
     breadcrumb = property(fget=get_breadcrumb, doc="Course Breadcrumb")
 
@@ -275,56 +281,55 @@ class Challenge(ndb.Model):
         """Exercise Number"""
         if self.exercise_number_persisted:
             return self.exercise_number_persisted
+        elif self.exercise:
+            self.exercise_number_persisted = self.exercise.get().number
+            self.put()
+            return self.exercise_number_persisted
         else:
-            if self.exercise:
-                self.exercise_number_persisted = self.exercise.number
-                self.put()
-                return self.exercise_number_persisted
-            else:
-                return None
+            return None
 
     @property
     def exercise_program(self):
         """Exercise Program"""
         if self.exercise_program_persisted:
             return self.exercise_program_persisted
+        elif self.exercise:
+            self.exercise_program_persisted = self.exercise.get().\
+                course.get().\
+                program.get().\
+                name
+            self.put()
+            return self.exercise_program_persisted
         else:
-            if self.exercise:
-                self.exercise_program_persisted = self.exercise.\
-                    course.\
-                    program.\
-                    name
-                self.put()
-                return self.exercise_program_persisted
-            else:
-                return None
+            return None
 
     @property
     def exercise_university(self):
         """ Exercise University """
         if self.exercise_university_persisted:
             return self.exercise_university_persisted
+        elif self.exercise:
+            self.exercise_university_persisted = self.exercise.get().\
+                course.get().\
+                program.get().\
+                university.get().\
+                name
+            self.put()
+            return self.exercise_university_persisted
         else:
-            if self.exercise:
-                self.exercise_university_persisted = self.exercise.\
-                    course.\
-                    program.\
-                    university.\
-                    name
-                self.put()
-                return self.exercise_university_persisted
-            else:
-                return None
+            return None
 
     @property
     def attribution(self):
         """Attribution"""
         if self.attribution_persistent:
             return self.attribution_persistent
-        elif self.exercise and self.exercise.course.attribution:
-            self.attribution_persistent = self.exercise.course.attribution
+        elif self.exercise and self.exercise.get().course.get().attribution:
+            self.attribution_persistent = self.exercise.get().course.get().attribution
             self.put()
             return self.attribution_persistent
+        else:
+            return None
 
     @attribution.setter
     def set_attribution(self, value):
@@ -334,19 +339,23 @@ class Challenge(ndb.Model):
     def exercise_course_code(self):
         if self.exercise_course_code_persisted:
             return self.exercise_course_code_persisted
-        elif self.exercise and self.exercise.course:
-            self.exercise_course_code_persisted = self.exercise.course.code
+        elif self.exercise and self.exercise.get().course:
+            self.exercise_course_code_persisted = self.exercise.get().course.get().code
             self.put()
             return self.exercise_course_code_persisted
+        else:
+            return None
 
     @property
     def exercise_course_name(self):
         if self.exercise_course_name_persisted:
             return self.exercise_course_name_persisted
-        elif self.exercise and self.exercise.name:
-            self.exercise_course_name_persisted = self.exercise.course.name
+        elif self.exercise:
+            self.exercise_course_name_persisted = self.exercise.get().course.get().name
             self.put()
             return self.exercise_course_name_persisted
+        else:
+            return None
 
     @property
     def last_solver_picture_url(self):
@@ -354,7 +363,7 @@ class Challenge(ndb.Model):
             return self.last_solver_picture_url_persisted
         elif self.last_solver:
             self.last_solver_picture_url_persisted = \
-                self.last_solver.profile_url
+                self.last_solver.get().profile_url
             self.put()
             return self.last_solver_picture_url_persisted
         else:
@@ -494,6 +503,7 @@ class Jeeqser_Challenge(ndb.Model):
 
     jeeqser = ndb.KeyProperty(kind=Jeeqser)
     challenge = ndb.KeyProperty(kind=Challenge)
+    course_code = ndb.StringProperty()
     active_attempt = ndb.KeyProperty(kind=Attempt)
 
     # review counts for the active attempt
@@ -588,10 +598,15 @@ def get_jeeqser_challenge(
                       + jeeqser_key.get().user.email()
                       + " and challenge : "
                       + challenge_key.get().name)
+        course_code=None
+        if challenge_key.get().exercise:
+            course_code = challenge_key.get().exercise.get().course.get().code
+
         jc = Jeeqser_Challenge(
             parent=jeeqser_key,
             jeeqser=jeeqser_key,
             challenge=challenge_key,
+            course_code=course_code,
             active_attempt=submission_key)
         jc.put()
         return jc
