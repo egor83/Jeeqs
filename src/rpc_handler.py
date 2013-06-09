@@ -584,7 +584,7 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
     def submit_vote(self):
         submission_key = self.getValueInQuery('submission')
         direction = self.getValueInQuery('direction')
-        original = self.getValueInQuery('original')
+        original_vote = self.getValueInQuery('original_vote')
         submission = None
         try:
             submission = ndb.Key(urlsafe=submission_key).get()
@@ -595,10 +595,10 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
 
         # remove previous state, if any
         try:
-            if original == Attempt.IS_UPVOTED:
+            if original_vote == Attempt.IS_UPVOTED:
                 submission.votes_total -= 1
                 submission.upvoted.remove(self.jeeqser.key)
-            elif original == Attempt.IS_DOWNVOTED:
+            elif original_vote == Attempt.IS_DOWNVOTED:
                 submission.votes_total += 1
                 submission.downvoted.remove(self.jeeqser.key)
         except ValueError:

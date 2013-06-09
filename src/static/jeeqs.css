@@ -422,3 +422,7 @@ a.black:hover {
 .own_submission_feedback {
     background: bisque;
 }
+
+.sorting_selector {
+    margin-bottom: 5px;
+}

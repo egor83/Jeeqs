@@ -63,7 +63,7 @@ class ReviewHandler(jeeqs_request_handler.JeeqsRequestHandler):
                 .filter(Attempt.active == True)\
                 .filter(Attempt.flagged == False)
 
-            if sort_by == 'least_feedbacks':
+            if sort_by == 'least_reviews':
                 submissions_query = submissions_query.order(Attempt.review_count)
             elif sort_by == 'most_votes':
                 submissions_query = submissions_query.order(

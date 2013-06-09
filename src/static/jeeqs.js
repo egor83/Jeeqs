@@ -485,21 +485,18 @@ $(document).on('click', '.upvote', function(event) {
     var score_ctrl = $("#votes__" + submission_id);
     var curr_score = parseInt(score_ctrl.text());
 
-    if(score_ctrl.hasClass('is_upvoted')) {
+    if(upvote_arrow.hasClass('is_upvoted')) {
         // it's already upvoted, do nothing
-    } else if(score_ctrl.hasClass('is_downvoted') ) {
+    } else if(downvote_arrow.hasClass('is_downvoted') ) {
         // change downvote to upvote
         downvote_arrow.removeClass('is_downvoted');
-        score_ctrl.removeClass('is_downvoted');
         upvote_arrow.addClass('is_upvoted');
-        score_ctrl.addClass('is_upvoted');
 
         curr_score += 2;
         handle_vote(submission_id, 'is_upvoted', 'is_downvoted');
     } else {
         // initial upvote (wasn't upvoted or downvoted before)
         upvote_arrow.addClass('is_upvoted');
-        score_ctrl.addClass('is_upvoted');
         curr_score += 1;
 
         handle_vote(submission_id, 'is_upvoted', null);
@@ -515,21 +512,18 @@ $(document).on('click', '.downvote', function(event) {
     var score_ctrl = $("#votes__" + submission_id);
     var curr_score = parseInt(score_ctrl.text());
 
-    if(score_ctrl.hasClass('is_upvoted') ) {
+    if(upvote_arrow.hasClass('is_upvoted') ) {
         // change upvote to downvote
         upvote_arrow.removeClass('is_upvoted');
-        score_ctrl.removeClass('is_upvoted');
         downvote_arrow.addClass('is_downvoted');
-        score_ctrl.addClass('is_downvoted');
 
         curr_score -= 2;
         handle_vote(submission_id, 'is_downvoted', 'is_upvoted');
-    } else if(score_ctrl.hasClass('is_downvoted')) {
+    } else if(downvote_arrow.hasClass('is_downvoted')) {
         // it's already downvoted, do nothing
     } else {
         // initial downvoting (wasn't upvoted or downvoted before)
         downvote_arrow.addClass('is_downvoted');
-        score_ctrl.addClass('is_downvoted');
         curr_score -= 1;
 
         handle_vote(submission_id, 'is_downvoted', null);
@@ -537,38 +531,34 @@ $(document).on('click', '.downvote', function(event) {
     score_ctrl.text(curr_score);
 });
 
-function handle_vote(sub_id, direction, original) {
+function handle_vote(submission_id, direction, original_vote) {
     $.ajax({
         url: "/rpc",
         async: true,
         type: "POST",
-        data: {'method': 'submit_vote', 'direction': direction, 'submission': sub_id, 'original': original},
+        data: {'method': 'submit_vote', 'direction': direction, 'submission': submission_id, 'original_vote': original_vote},
         error: function(response) {
             alert('An error occurred while trying to submit data. Please try again later ...');
 
             // on error, revert changes made to the GUI
-            var score_ctrl = $('#votes__' + sub_id);
-            var upvote_arrow = $('#upvote__' + sub_id);
-            var downvote_arrow = $('#downvote__' + sub_id);
+            var score_ctrl = $('#votes__' + submission_id);
+            var upvote_arrow = $('#upvote__' + submission_id);
+            var downvote_arrow = $('#downvote__' + submission_id);
             var curr_score = parseInt(score_ctrl.text());
 
             if (direction == 'is_upvoted') {
                 upvote_arrow.removeClass('is_upvoted');
-                score_ctrl.removeClass('is_upvoted');
                 curr_score -= 1;
             } else if (direction == 'is_downvoted') {
                 downvote_arrow.removeClass('is_downvoted');
-                score_ctrl.removeClass('is_downvoted');
                 curr_score += 1;
             }
             // ...and restore the original state, if any
-            if (original == 'is_upvoted') {
+            if (original_vote == 'is_upvoted') {
                 upvote_arrow.addClass('is_upvoted');
-                score_ctrl.addClass('is_upvoted');
                 curr_score += 1;
-            } else if (original == 'is_downvoted') {
+            } else if (original_vote == 'is_downvoted') {
                 downvote_arrow.addClass('is_downvoted');
-                score_ctrl.addClass('is_downvoted');
                 curr_score -= 1;
             }
             score_ctrl.text(curr_score);

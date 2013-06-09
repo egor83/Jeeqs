@@ -8,7 +8,7 @@
             <div class="gray"> No Submissions</div>
         {% endif %}
     {% else %}
-        <div class="btn-group pull-right" style="margin-bottom: 5px;">
+        <div class="btn-group pull-right sorting_selector">
             <a class="btn dropdown-toggle" data-toggle="dropdown" href="#"
                 id="sort_selector" sorted_by="{{ sorted_by }}">
                 <b>Order by:</b>
@@ -17,13 +17,13 @@
             <ul class="dropdown-menu">
                 <li><a href="#" class="sort_submissions"
                        data-challenge_key="{{ challenge.key.urlsafe() }}"
-                       sort_by="least_feedbacks">
-                    <b>Least number of feedbacks</b>
+                       sort_by="least_reviews">
+                    <b>Least reviewed</b>
                 </a></li>
                 <li><a href="#" class="sort_submissions"
                        data-challenge_key="{{ challenge.key.urlsafe() }}"
                        sort_by="most_votes">
-                    <b>Most total votes</b>
+                    <b>Highest vote</b>
                 </a></li>
             </ul>
         </div>
@@ -43,20 +43,15 @@
                 </div>
                 <div class="row-fluid solution_row">
                     <div class="span1 voting_div">
-                        {% set is_upvoted = "" %}
-                        {% set is_downvoted = "" %}
-                        {% if jeeqser.key in submission.upvoted %}
-                            {% set is_upvoted = "is_upvoted" %}
-                        {% elif jeeqser.key in submission.downvoted %}
-                            {% set is_downvoted = "is_downvoted" %}
-                        {% endif %}
-                        <i class="icon-chevron-up votes_ctrl upvote {{ is_upvoted }}"
-                           id="upvote__{{ submission.key.urlsafe() }}"></i>
-                        <div class="votes_ctrl {{ is_upvoted }}{{ is_downvoted }}" id="votes__{{ submission.key.urlsafe() }}">
+                        <i class="icon-chevron-up votes_ctrl upvote
+                            {% if jeeqser.key in submission.upvoted %}is_upvoted{% endif %}"
+                            id="upvote__{{ submission.key.urlsafe() }}"></i>
+                        <div class="votes_ctrl" id="votes__{{ submission.key.urlsafe() }}">
                             {{ submission.votes_total }}
                         </div>
-                        <i class="icon-chevron-down votes_ctrl downvote {{ is_downvoted }}"
-                           id="downvote__{{ submission.key.urlsafe() }}"></i>
+                        <i class="icon-chevron-down votes_ctrl downvote
+                            {% if jeeqser.key in submission.downvoted %}is_downvoted{% endif %}"
+                            id="downvote__{{ submission.key.urlsafe() }}"></i>
                     </div>
                     <div class="span11">
                         {{ submission.content|safe }}
