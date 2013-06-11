@@ -9,6 +9,7 @@ import datetime
 import lib.markdown as markdown
 from google.appengine.api import users
 from google.appengine.ext import deferred
+from google.appengine.ext import ndb
 import jeeqs_request_handler
 import jeeqs_exceptions
 import paging_handler
@@ -597,7 +598,7 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
                 logging.error('Submission with key %s not found' %
                               submission_key)
                 self.error(status_code.StatusCode.internal_error)
-                return
+                raise ndb.Rollback
 
         # remove previous state, if any
         try:
@@ -611,7 +612,7 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
             logging.error('Could not remove the user with key %s from the list '
                 'of voters, data might be inconsistent' % self.jeeqser.key)
             self.error(status_code.StatusCode.internal_error)
-            return
+            raise ndb.Rollback
 
         if direction == Attempt.IS_UPVOTED:
             submission.votes_total += 1
@@ -622,7 +623,7 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
         else:
             logging.error('Unknown vote direction: %s' % direction)
             self.error(status_code.StatusCode.internal_error)
-            return
+            raise ndb.Rollback
 
         submission.put()
 
