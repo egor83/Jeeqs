@@ -12,6 +12,9 @@
     {% endif %}
 </div>
 <form method="POST">
+    {% if redirect_to %}
+        <input type="hidden" name="redirect_to" value="{{redirect_to}}">
+    {% endif %}
     {% if challenge is not defined %}
         <label>Course</label>
         <select name="course" id="course">
