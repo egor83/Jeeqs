@@ -29,7 +29,7 @@ class EditChallengePage(webapp.RequestHandler):
         self.response.out.write(rendered)
 
     @core.authenticate(required=True)
-    @ndb.transactional
+    #@ndb.transactional(xg=True)
     def post(self):
         redirect_to = self.request.get('redirect_to')
         challenge = None
@@ -55,7 +55,7 @@ class EditChallengePage(webapp.RequestHandler):
             challenge.pdf_endpage = self.request.get('pdf_endpage')
             challenge.pdf_startoffset = self.request.get('pdf_startoffset')
             challenge.pdf_endoffset = self.request.get('pdf_endoffset')
-            challenge.put()
+            challenge_key = challenge.put()
             if (old_name != name or old_number != number) and challenge.exercise:
                 exercise = Exercise.query().\
                     filter(Exercise.number == old_number).\
