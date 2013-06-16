@@ -2,6 +2,7 @@ import logging
 import webapp2
 
 from datetime import datetime
+from google.appengine.api import mail
 from google.appengine.ext.webapp.util import run_wsgi_app
 
 import jeeqs_request_handler
@@ -25,6 +26,9 @@ class SanityCheck(jeeqs_request_handler.JeeqsRequestHandler):
 
         logging.info('Starting sanity check cron job on %s' %
                      datetime.now().strftime('%y/%m/%d %H:%M %z'))
+        error_msg = 'A discrepancy in challenge parameters has been found, ' \
+                    'the number obtained from direct DB query and the number ' \
+                    'stored as a DB record attribute are not the same.'
         res = []
 
         all_challenges = Challenge.query().fetch()
@@ -45,10 +49,7 @@ class SanityCheck(jeeqs_request_handler.JeeqsRequestHandler):
                     ch.num_jeeqsers_solved, num_without_review,
                     ch.submissions_without_review)
 
-                logging.error('A discrepancy in challenge parameters has been '
-                              'found, the number obtained from direct DB query'
-                              ' and the number stored as a DB record attribute'
-                              ' are not the same:')
+                logging.error(error_msg)
                 logging.error(ch_data)
                 res.append(ch_data)
 
@@ -57,6 +58,15 @@ class SanityCheck(jeeqs_request_handler.JeeqsRequestHandler):
                 ch.submissions_without_review = num_without_review
                 ch.put()
 
+        if len(res) > 0:
+            # an error has been found, send out an email
+            res.insert(0, error_msg)
+            message = mail.EmailMessage(sender="noreply@jeeqsy.appspotmail.com",
+                                        subject="Cron job found a discrepancy")
+            message.body = '\n'.join(res)
+            message.to = "a.akhavan.b@gmail.com, egor.ryabkov@gmail.com, " \
+                         "email@anubhavsinha.com"
+            message.send()
         self.response.write('<br />'.join(res))
 
 
