@@ -164,6 +164,7 @@ class Program(ndb.Model):
 
 class Course(ndb.Model):
     name = ndb.StringProperty()
+    university_persisted = ndb.StringProperty()
     code = ndb.StringProperty()
     description = ndb.TextProperty()
     url = ndb.StringProperty()
@@ -184,6 +185,16 @@ class Course(ndb.Model):
                                                'December'])
     # Attribution for this course
     attribution = ndb.TextProperty()
+    @property
+    def university(self):
+        if self.university_persisted:
+            return self.university_persisted
+        elif self.program:
+            self.university_persisted = self.program.get().university.get().name
+            self.put()
+            return self.university_persisted
+        else:
+            return None
 
 
 class Exercise(ndb.Model):
