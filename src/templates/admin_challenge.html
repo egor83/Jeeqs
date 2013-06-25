@@ -31,9 +31,10 @@
     <input type="text" id="number" name="number" size="40" style="width: 100px" placeholder="1.6.1" {% if challenge and challenge.exercise %}value="{{ challenge.exercise_number}}" {% endif %}>
     <label>Name</label>
     <input type="text" id="name" name="name" size="40" placeholder="Challenge name" {% if challenge is defined %} value="{{ challenge.name }}" {% endif %}>
-    <label>Needs Python sandbox?</label>
+    <label>
     <input type="checkbox" id="python" name="has_python"  value="True" {% if challenge is defined and challenge.has_python %} checked {% endif %}>
-
+    Needs Python sandbox?
+    </label>
     <label>Markdown</label>
     <textarea id="markdown" name="markdown" rows="10" cols="40" style="width: 400px">{% if challenge is defined %}{{ challenge.markdown }}{% endif %}</textarea>
     <label>Template Code</label>
