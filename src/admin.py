@@ -39,6 +39,12 @@ class EditChallengePage(webapp.RequestHandler):
         challenge_key = self.request.get('ch')
         number = self.request.get('number')
         name = self.request.get('name')
+        has_python = str(self.request.get('has_python'))
+        if has_python!='True':
+            has_python=False
+        else:
+            has_python=True
+
         challenge = ndb.Key(urlsafe=challenge_key).get()
         if challenge.exercise:
             course = challenge.exercise.get().course
@@ -48,6 +54,7 @@ class EditChallengePage(webapp.RequestHandler):
         if challenge:
             challenge.exercise_number_persisted = number
             challenge.name_persistent = name
+            challenge.has_python=has_python
             challenge.markdown = self.request.get('markdown')
             challenge.template_code = self.request.get('template_code')
             challenge.pdf_url = self.request.get('pdf_url')
@@ -100,7 +107,11 @@ Create a new challenge
             course = ndb.Key(urlsafe=self.request.get('course'))
             number = self.request.get('number')
         name = string.capwords(self.request.get('name'))
-
+        has_python = str(self.request.get('has_python'))
+        if has_python!='True':
+            has_python=False
+        else:
+            has_python=True
         #pdf controls
         pdf_url = self.request.get('pdf_url')
         pdf_startpage = self.request.get('pdf_startpage')
@@ -116,6 +127,7 @@ Create a new challenge
             exercise_key = exercise.put()
             challenge = Challenge(
                 name_persistent=name,
+                has_python=has_python,
                 markdown=markdown,
                 pdf_url=pdf_url,
                 pdf_startpage=pdf_startpage,
@@ -129,6 +141,7 @@ Create a new challenge
             challenge = Challenge(
                 name_persistent=name,
                 markdown=markdown,
+                has_python=has_python,
                 pdf_url=pdf_url,
                 pdf_startpage=pdf_startpage,
                 pdf_endpage=pdf_endpage,

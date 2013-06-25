@@ -11,6 +11,9 @@
         {% else %}
             $( '#challenge_tabs a:[href="#tabs-1"]' ).tab('show');
         {% endif %}
+        {% if not challenge.has_python %}
+            $('#console').hide();
+        {% endif %}
 
         {% if challenge.pdf_url %}
             var viewer = $('#viewer');
