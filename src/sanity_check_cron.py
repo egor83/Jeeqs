@@ -10,6 +10,15 @@ import jeeqs_request_handler
 from models import *
 from status_code import exercise_cmp
 
+ERROR_EMAIL_SENDER = 'noreply@jeeqsy.appspotmail.com'
+ERROR_EMAIL_RECIPIENTS = \
+    'a.akhavan.b@gmail.com, egor.ryabkov@gmail.com, email@anubhavsinha.com'
+
+DISCREPANCY_EMAIL_SUBJ = 'Cron job found a discrepancy'
+DISCREPANCY_ERROR_MSG = 'A discrepancy in challenge parameters has been' \
+    'found, the number obtained from direct DB query and the number stored ' \
+    'as a DB record attribute are not the same.'
+
 
 class SanityCheck(jeeqs_request_handler.JeeqsRequestHandler):
     def get(self):
@@ -26,9 +35,6 @@ class SanityCheck(jeeqs_request_handler.JeeqsRequestHandler):
 
         logging.info('Starting sanity check cron job on %s' %
                      datetime.now().strftime('%y/%m/%d %H:%M %z'))
-        error_msg = 'A discrepancy in challenge parameters has been found, ' \
-                    'the number obtained from direct DB query and the number ' \
-                    'stored as a DB record attribute are not the same.'
         res = []
 
         all_challenges = Challenge.query().fetch()
@@ -49,8 +55,7 @@ class SanityCheck(jeeqs_request_handler.JeeqsRequestHandler):
                     ch.num_jeeqsers_solved, num_without_review,
                     ch.submissions_without_review)
 
-                logging.error(error_msg)
-                logging.error(ch_data)
+                logging.error(DISCREPANCY_ERROR_MSG + ch_data)
                 res.append(ch_data)
 
                 ch.num_jeeqsers_submitted = num_submitted
@@ -60,12 +65,11 @@ class SanityCheck(jeeqs_request_handler.JeeqsRequestHandler):
 
         if len(res) > 0:
             # an error has been found, send out an email
-            res.insert(0, error_msg)
-            message = mail.EmailMessage(sender="noreply@jeeqsy.appspotmail.com",
-                                        subject="Cron job found a discrepancy")
+            res.insert(0, DISCREPANCY_ERROR_MSG)
+            message = mail.EmailMessage(sender=ERROR_EMAIL_SENDER,
+                                        subject=DISCREPANCY_EMAIL_SUBJ)
             message.body = '\n'.join(res)
-            message.to = "a.akhavan.b@gmail.com, egor.ryabkov@gmail.com, " \
-                         "email@anubhavsinha.com"
+            message.to = ERROR_EMAIL_RECIPIENTS
             message.send()
         self.response.write('<br />'.join(res))
 
