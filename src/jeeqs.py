@@ -226,7 +226,8 @@ class ChallengeHandler(jeeqs_request_handler.JeeqsRequestHandler):
             'feedbacks': feedbacks,
             'feedbacks_cursor': feedbacks_cursor,
             'draft': draft,
-            'attempt': attempt
+            'attempt': attempt,
+            'user_is_admin':users.is_current_user_admin(),
         })
 
         template = core.jinja_environment.get_template(
