@@ -337,6 +337,11 @@ $(document).on('click', '#challenge_submissions_next, #challenge_submissions_pre
         success: function(response) {
             $('#review').html(response);
             review_page_loaded = true;
+            //tooltip for mathjax and markdown supported
+            $('a[rel=tooltip]').tooltip();
+            $("[class~='auto_injeeqs_display']").each(function(index, value) {
+                display_in_jeeqs($(this).attr('sub_id'), $(this).attr('id'));
+            });
         },
         error: function(response) {
             $('#review').html('An Error occurred while loading this page. Please try again later ...');

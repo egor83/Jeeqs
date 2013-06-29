@@ -160,7 +160,7 @@
                 });
 
                 review_page_loaded = false;
-                $('#submissions a[href="#review"]').on('click shown', function(e){
+                $('#submissions a[href="#review"]').on('shown', function(e){
                     // Load the review page using ajax
                     if (review_page_loaded)
                         return;
@@ -172,10 +172,9 @@
                         type: "GET",
                         success: function(response) {
                             $('#review').html(response);
-                            review_page_loaded = true
-
-                            $('a[rel=tooltip]').tooltip()
-                            $("[class~='auto_injeeqs_display']").each(function() {
+                            review_page_loaded = true;
+                            $('a[rel=tooltip]').tooltip();
+                            $("[class~='auto_injeeqs_display']").each(function(index, value) {
                                 display_in_jeeqs($(this).attr('sub_id'), $(this).attr('id'));
                             });
                         },
