@@ -91,7 +91,11 @@
 </script>
 
 <div class="challenge pull-left span12">
-    <h2>{{ challenge.name }} <a href="/admin/challenges/edit?ch={{challenge_key.urlsafe()}}" class="btn btn-primary">Edit</a> </h2>
+    <h2>{{ challenge.name }}
+        {% if user_is_admin %}
+            <a href="/admin/challenges/edit?ch={{challenge_key.urlsafe()}}" class="btn btn-primary">Edit</a>
+        {% endif %}
+    </h2>
     <h3> {% include "exercise_breadcrumbs.html" %} </h3>
 
     <div id="challenge span12">
