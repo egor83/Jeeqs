@@ -20,14 +20,14 @@
                         <li>
                             <div class="dropdown">
                                 <a data-toggle="dropdown" class="btn btn-success dropdown-toggle" role="button" href="#" id="drop1">
-                                    {{ course.code }} - {{ course.name }}
+                                    {{ course.code }} - {{ course.name }} - <span class="label label-success">{{ course.university }}</span>
                                     <i class="icon icon-caret-down"></i>
                                 </a>
                                 <ul aria-labelledby="drop1" role="menu" class="dropdown-menu">
                                     {% for course in courses %}
                                         <li role="presentation">
                                             <a href="/?course_code={{ course.code }}" tabindex="-1" role="menuitem">
-                                                {{ course.code }} - {{ course.name }}
+                                                {{ course.code }} - {{ course.name }} - <span class="label label-success">{{ course.university }}</span>
                                             </a>
                                         </li>
                                     {% endfor %}
