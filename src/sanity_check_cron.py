@@ -35,7 +35,7 @@ class SanityCheck(jeeqs_request_handler.JeeqsRequestHandler):
 
         logging.info('Starting sanity check cron job on %s' %
                      datetime.now().strftime('%y/%m/%d %H:%M %z'))
-        res = []
+        error_messages = []
 
         all_challenges = Challenge.query().fetch()
         all_challenges.sort(
@@ -49,29 +49,29 @@ class SanityCheck(jeeqs_request_handler.JeeqsRequestHandler):
             if (num_submitted != ch.num_jeeqsers_submitted or
                     num_solved != ch.num_jeeqsers_solved or
                     num_without_review != ch.submissions_without_review):
-                ch_data = '%-20s: submitted %s/%s, solved %s/%s, ' \
+                error_data = '%-20s: submitted %s/%s, solved %s/%s, ' \
                     'no review: %s/%s' % (ch.name[:20], num_submitted,
                     ch.num_jeeqsers_submitted, num_solved,
                     ch.num_jeeqsers_solved, num_without_review,
                     ch.submissions_without_review)
 
-                logging.error(DISCREPANCY_ERROR_MSG + ch_data)
-                res.append(ch_data)
+                logging.error(DISCREPANCY_ERROR_MSG + error_data)
+                error_messages.append(error_data)
 
                 ch.num_jeeqsers_submitted = num_submitted
                 ch.num_jeeqsers_solved = num_solved
                 ch.submissions_without_review = num_without_review
                 ch.put()
 
-        if len(res) > 0:
+        if len(error_messages) > 0:
             # an error has been found, send out an email
-            res.insert(0, DISCREPANCY_ERROR_MSG)
+            error_messages.insert(0, DISCREPANCY_ERROR_MSG)
             message = mail.EmailMessage(sender=ERROR_EMAIL_SENDER,
                                         subject=DISCREPANCY_EMAIL_SUBJ)
-            message.body = '\n'.join(res)
+            message.body = '\n'.join(error_messages)
             message.to = ERROR_EMAIL_RECIPIENTS
             message.send()
-        self.response.write('<br />'.join(res))
+        self.response.write('<br />'.join(error_messages))
 
 
 def main():
