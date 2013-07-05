@@ -28,7 +28,7 @@
             </ul>
         </div>
         {% for submission in submissions %}
-            <div class="submission-placeholder" class="pull-left clear-left">
+            <div class="submission-placeholder pull-left clear-left">
                 <div>
                     {{ avatar(style='pull-left avatar_review',
                         jeeqser_key=submission.author,
@@ -41,8 +41,8 @@
                         {{ submission.review_count }} reviews submitted
                     </div>
                 </div>
-                <div class="row-fluid solution_row">
-                    <div class="span1 voting_div">
+                <div class="solution_row pull-left clear-left">
+                    <div class="voting_div">
                         <i class="icon-chevron-up votes_ctrl upvote
                             {% if jeeqser.key in submission.upvoted %}is_upvoted{% endif %}"
                             id="upvote__{{ submission.key.urlsafe() }}"></i>
@@ -53,7 +53,7 @@
                             {% if jeeqser.key in submission.downvoted %}is_downvoted{% endif %}"
                             id="downvote__{{ submission.key.urlsafe() }}"></i>
                     </div>
-                    <div class="span11">
+                    <div class="submission_div">
                         {{ submission.content|safe }}
                     </div>
                 </div>

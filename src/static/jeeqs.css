@@ -353,6 +353,8 @@ a.black:hover {
     clear: both;
     border: 1px solid #eeeeee;
     border-radius: 5px;
+    overflow: auto;
+    width: 98%;
 }
 
 .submission-feedback {
@@ -408,15 +410,21 @@ a.black:hover {
     color: red;
 }
 
-.row-fluid.solution_row {
-    padding: 10px;
-    overflow: auto;
-    clear:left;
-    width:95%;
+.solution_row {
+    margin-top: 10px;
+    display: table-row;
 }
 
 .voting_div {
-    text-align: center;
+    padding-right: 10px;
+    padding-bottom: 10px;
+    display: table-cell;
+    vertical-align: middle;
+}
+
+.submission_div {
+    display: table-cell;
+    vertical-align: middle;
 }
 
 .own_submission_feedback {
