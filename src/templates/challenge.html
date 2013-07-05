@@ -7,7 +7,7 @@
 <script>
     $(document).ready(function() {
         {% if not challenge.markdown %}
-            $( '#challenge_tabs a[href="#source-pdf"]' ).tab('show');
+            $( '#challenge_tabs a:[href="#source-pdf"]' ).tab('show');
         {% else %}
             $( '#challenge_tabs a:[href="#tabs-1"]' ).tab('show');
         {% endif %}

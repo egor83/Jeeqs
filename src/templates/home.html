@@ -19,67 +19,88 @@
             {% endif %}
         }
 
-        // Website tour
-        guiders.createGuider({
-            buttons: [
-                {name:"Next"}
-                ,{name: "Close"
-                    ,onclick: function() {
-                        finish_tour()
-                    }}
-            ],
-            description: "Jeeqs is a collaborative problem solving and learning platform ... ",
-            id: "first",
-            next: "second",
-            overlay: true,
-            title: "Welcome to Jeeqs!"
-        });
+    // Website tour
+    guiders.createGuider({
+        buttons: [
+            {name:"Next"}
+            ,{name: "Close"
+                ,onclick: function() {
+                    finish_tour()
+                }}
+        ],
+        description: "Jeeqs is a collaborative problem solving and learning platform ... ",
+        id: "first",
+        next: "second",
+        overlay: true,
+        title: "Welcome to Jeeqs!"
+    });
 
-        guiders.createGuider({
-            attachTo: "#challenge-list",
-            highlight: "#challenge-list",
-            buttons: [
-                {name: "Next"}
-                ,{name: "Close"
-                    ,onclick: function() {
-                        finish_tour()
-                    }}],
-            description: "Click on a challenge and submit your solution to the challenge ...",
-            id: "second",
-            next: "third",
-            position: 12,
-            overlay: true,
-            title: "Submit for Challenges"
-        });
-
-        guiders.createGuider({
-            attachTo: "#injeeqs",
-            highlight: "#injeeqs",
-            buttons: [
-                {name: "Next"}
-                ,{name: "Close"
-                    ,onclick: function() {
-                        finish_tour()
-                    }}],
-            description: "Once you submit your solution, Jeeqs will gather reviews (called In-Jeeqs) for your submission and shows it here. Once you have positive reviews for a submission, you can start reviewing other submissions for that challenge ...",
-            id: "third",
-            next: "fourth",
-            position: 12,
-            overlay: true,
-            title: "Wait for Feedbacks (Incoming Jeeqs)"
-        });
-
-        guiders.createGuider({
-            buttons: [
-                {name: "Close"
-                    ,onclick: function() {
+    guiders.createGuider({
+        attachTo: "#challenges",
+        highlight: "#challenges",
+        buttons: [
+            {name: "Next"}
+            ,{name: "Close"
+                ,onclick: function() {
                     finish_tour()
                 }}],
-            description: "Remember to review some submissions before you submit further challenges. You can start with the Factorial challenge to receive automatic review!",
-            id: "fourth",
-            overlay: true,
-            title: "Jeeqs on!"
-        });
+        description: "Click on a challenge and submit your solution to the challenge ...",
+        id: "second",
+        next: "third",
+        position: 12,
+        overlay: true,
+        title: "Submit for Challenges"
+    });
+
+    guiders.createGuider({
+        attachTo: "#injeeqs",
+        highlight: "#injeeqs",
+        buttons: [
+            {name: "Next"}
+            ,{name: "Close"
+                ,onclick: function() {
+                    finish_tour()
+                }}],
+        description: "Once you submit your solution, Jeeqs will gather reviews (called In-Jeeqs) for your submission and shows it here. Once you have positive reviews for a submission, you can start reviewing other submissions for that challenge ...",
+        id: "third",
+        next: "fourth",
+        position: 12,
+        offset: { left:0, top:50 },
+        overlay: true,
+        title: "Wait for Feedbacks (Incoming Jeeqs)",
+        onShow: function(){$( '#home_tabs a:[href="#injeeqs"]' ).tab('show');}
+    });
+
+    guiders.createGuider({
+        buttons: [
+            {name: "Next"}
+            ,{name: "Close"
+                ,onclick: function() {
+                    finish_tour()
+                }}],
+        description: "Remember to review some submissions before you submit further challenges. You can start with the Factorial challenge to receive automatic review!",
+        id: "fourth",
+        next: "fifth",
+        overlay: true,
+        title: "Review others work!",
+        onShow: function(){$( '#home_tabs a:first' ).tab('show');}
+    });
+
+    guiders.createGuider({
+        attachTo: "#course_dropdown",
+        highlight: "#course_dropdown",
+        buttons: [
+            {name: "Close"
+                ,onclick: function() {
+                finish_tour()
+            }}],
+        description: "You have some of world's greatest courses to choose from! Select a course of your choice from this dropdown.",
+        id: "fifth",
+        position: 6,
+        overlay: true,
+        title: "Jeeqs on!",
+    });
+
 
         $(document).ready(function () {
             $('#home_tabs a:first').tab('show');
