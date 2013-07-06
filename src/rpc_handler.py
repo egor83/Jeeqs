@@ -140,6 +140,7 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
                 if jeeqser_challenge.status == AttemptStatus.SUCCESS:
                     # flagging a submission that was considered successful
                     challenge.num_jeeqsers_solved -= 1
+                    challenge.num_jeeqsers_submitted -= 1
 
             submission.flagged_by.append(reviewer.key)
 

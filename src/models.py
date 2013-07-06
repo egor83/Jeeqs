@@ -421,8 +421,9 @@ class Challenge(ndb.Model):
 
         """
 
-        return Jeeqser_Challenge.query()\
-            .filter(Jeeqser_Challenge.challenge == self.key)\
+        return Attempt.query(Attempt.challenge == self.key)\
+            .filter(Attempt.active == True)\
+            .filter(Attempt.flagged == False)\
             .count()
 
     def get_submissions_without_review(self):
