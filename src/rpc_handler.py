@@ -134,9 +134,12 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
             if (submission.flag_count >=
                     spam_manager.SpamManager.SUBMISSION_FLAG_THRESHOLD) or\
                     reviewer.is_moderator or users.is_current_user_admin():
+                # submission has received enough flags or was flagged by admin
                 submission.flagged = True
                 spam_manager.SpamManager.flag_author(submission.author.get())
-                challenge.num_jeeqsers_solved -= 1
+                if jeeqser_challenge.status == AttemptStatus.SUCCESS:
+                    # flagging a submission that was considered successful
+                    challenge.num_jeeqsers_solved -= 1
 
             submission.flagged_by.append(reviewer.key)
 
@@ -312,10 +315,12 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
             self.jeeqser.key, challenge_key)
         previous_index = 0
         if jeeqser_challenge:
-            previous_index = jeeqser_challenge.active_attempt.get().index
-            jeeqser_challenge.active_attempt.get().active = False
-            jeeqser_challenge.active_attempt.get().put()
-            if jeeqser_challenge.status == AttemptStatus.SUCCESS:
+            active_attempt = jeeqser_challenge.active_attempt.get()
+            previous_index = active_attempt.index
+            active_attempt.active = False
+            active_attempt.put()
+            if jeeqser_challenge.status == AttemptStatus.SUCCESS and \
+                    active_attempt.flagged == False:
                 challenge.num_jeeqsers_solved -= 1
         else:
             course_code = None
