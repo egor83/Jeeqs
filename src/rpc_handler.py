@@ -324,9 +324,8 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
                 challenge.num_jeeqsers_solved -= 1
         else:
             course_code = None
-            if challenge_key.get().exercise:
-                course_code = challenge_key.get().exercise.get()\
-                    .course.get().code
+            if challenge.exercise:
+                course_code = challenge.exercise.get().course.get().code
             jeeqser_challenge = Jeeqser_Challenge(
                 parent=self.jeeqser.key,
                 jeeqser=self.jeeqser.key,
