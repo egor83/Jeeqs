@@ -77,29 +77,30 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
             return 0  # flag
 
     @staticmethod
-    def apply_new_status(jeeqser_challenge, previous_status, submission):
+    def apply_new_status(
+            jeeqser_challenge, previous_status, submission, challenge):
         if jeeqser_challenge.status != previous_status:
             jeeqser_challenge.status_changed_on = datetime.datetime.now()
 
+            submission_author = submission.author.get()
             if jeeqser_challenge.status == AttemptStatus.SUCCESS:
                 # TODO: This may not scale since challenge's entity group is
                 # high traffic - use sharded counters
-                submission.challenge.get().num_jeeqsers_solved += 1
-                submission.challenge.get(
-                ).update_last_solver(submission.author.get())
-                submission.author.get().correct_submissions_count += 1
+                challenge.num_jeeqsers_solved += 1
+                challenge.update_last_solver(submission_author)
+                submission_author.correct_submissions_count += 1
 
             elif jeeqser_challenge.status == AttemptStatus.FAIL:
                 if previous_status == AttemptStatus.SUCCESS:
-                    submission.challenge.get().num_jeeqsers_solved -= 1
-                    submission.author.get().correct_submissions_count -= 1
-                last_solver = submission.challenge.get().last_solver
+                    challenge.num_jeeqsers_solved -= 1
+                    submission_author.correct_submissions_count -= 1
+                last_solver = challenge.last_solver
                 if (last_solver and last_solver == submission.author):
-                    submission.challenge.get().update_last_solver(None)
+                    challenge.update_last_solver(None)
 
     @staticmethod
     def update_graph_for_review(
-            submission, jeeqser_challenge, review, reviewer):
+            submission, jeeqser_challenge, review, reviewer, challenge):
         """
         Updates the object graph based on the review given by the reviewer
         :param submission: The submission for which the review is given
@@ -114,9 +115,10 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
         submission.feedback_score_average = float(
             submission.feedback_score_sum / submission.review_count)
         if submission.review_count == 1:
-            logging.info('Decremented # of submissions w/o review after the '
-                'submission %s was reviewed.' % submission.key.urlsafe())
-            submission.challenge.get().submissions_without_review -= 1
+            logging.info(
+                'Decremented # of submissions w/o review after the submission '
+                '%s was reviewed.' % submission.key.urlsafe())
+            challenge.submissions_without_review -= 1
         reviewer.reviews_out_num += 1
         submission.author.get().reviews_in_num += 1
 
@@ -129,13 +131,13 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
         elif review == Review.FLAG:
             submission.flag_count += 1
             jeeqser_challenge.flag_count = submission.flag_count
-            if (
-                submission.flag_count >=
-                spam_manager.SpamManager.SUBMISSION_FLAG_THRESHOLD) or\
-                reviewer.is_moderator or\
-                    users.is_current_user_admin():
+            if (submission.flag_count >=
+                    spam_manager.SpamManager.SUBMISSION_FLAG_THRESHOLD) or\
+                    reviewer.is_moderator or users.is_current_user_admin():
                 submission.flagged = True
                 spam_manager.SpamManager.flag_author(submission.author.get())
+                challenge.num_jeeqsers_solved -= 1
+
             submission.flagged_by.append(reviewer.key)
 
         previous_status = jeeqser_challenge.status
@@ -147,7 +149,7 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
             submission.status = jeeqser_challenge.status = AttemptStatus.FAIL
 
         RPCHandler.apply_new_status(
-            jeeqser_challenge, previous_status, submission)
+            jeeqser_challenge, previous_status, submission, challenge)
 
     @core.authenticate(False)
     def get_activities(self):
@@ -318,7 +320,8 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
         else:
             course_code = None
             if challenge_key.get().exercise:
-                course_code = challenge_key.get().exercise.get().course.get().code
+                course_code = challenge_key.get().exercise.get()\
+                    .course.get().code
             jeeqser_challenge = Jeeqser_Challenge(
                 parent=self.jeeqser.key,
                 jeeqser=self.jeeqser.key,
@@ -328,8 +331,8 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
             challenge.num_jeeqsers_submitted += 1
         challenge.submissions_without_review += 1
         logging.info('Persisting attempt for challenge %s, jeeqser %s - '
-            'incrementing # of submissions w/o review' % (
-            challenge_key.urlsafe(), self.jeeqser.key.urlsafe()))
+                     'incrementing # of submissions w/o review' % (
+                     challenge_key.urlsafe(), self.jeeqser.key.urlsafe()))
 
         challenge.put()
         attempt = Attempt(
@@ -453,24 +456,28 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
     def persist_review(self, feedback,
                        submission_key,
                        jeeqser_challenge_key,
-                       jeeqser_key):
+                       jeeqser_key,
+                       challenge_key):
         (submission,
          jeeqser_challenge,
-         jeeqser) = ndb.get_multi([submission_key,
-                                   jeeqser_challenge_key,
-                                   jeeqser_key, ])
+         jeeqser,
+         challenge) = ndb.get_multi([submission_key,
+                                    jeeqser_challenge_key,
+                                    jeeqser_key,
+                                    challenge_key])
 
         RPCHandler.update_graph_for_review(
             submission,
             jeeqser_challenge,
             feedback.review,
-            jeeqser)
+            jeeqser,
+            challenge)
 
         ndb.put_multi([
             jeeqser,
             submission,
             submission.author.get(),
-            submission.challenge.get(),
+            challenge,
             jeeqser_challenge,
             feedback
         ])
@@ -480,10 +487,10 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
             parent=jeeqser_key,
             type='reviewing',
             done_by=jeeqser_key,
-            done_by_displayname=jeeqser_key.get().displayname,
-            done_by_gravatar=jeeqser_key.get().profile_url,
-            challenge=submission.challenge,
-            challenge_name=submission.challenge.get().name,
+            done_by_displayname=jeeqser.displayname,
+            done_by_gravatar=jeeqser.profile_url,
+            challenge=challenge.key,
+            challenge_name=challenge.name,
             submission=submission.key,
             submission_author=submission.author,
             submission_author_displayname=submission.author.get().displayname,
@@ -544,7 +551,8 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
             feedback,
             submission.key,
             jeeqser_challenge.key,
-            self.jeeqser.key)
+            self.jeeqser.key,
+            submission.challenge)
 
     @ndb.transactional(xg=True)
     def persist_flag(self, jeeqser_key, feedback_key):
@@ -631,25 +639,29 @@ def handle_automatic_review(
         content=markdown.markdown(output, ['codehilite', 'mathjax']),
         review=review)
     persist_testcase_results(
-        attempt.key, jeeqser_challenge.key, feedback, robot.key)
+        attempt.key, jeeqser_challenge.key, feedback, robot.key, challenge.key)
 
 
 @ndb.transactional(xg=True)
 def persist_testcase_results(
-        attempt_key, jeeqser_challenge_key, feedback, reviewer_key):
-    attempt, jeeqser_challenge, reviewer = ndb.get_multi(
-        [attempt_key, jeeqser_challenge_key, reviewer_key])
+        attempt_key, jeeqser_challenge_key, feedback, reviewer_key,
+        challenge_key):
+    attempt, jeeqser_challenge, reviewer, challenge = ndb.get_multi(
+        [attempt_key, jeeqser_challenge_key, reviewer_key, challenge_key])
     RPCHandler.update_graph_for_review(
         attempt,
         jeeqser_challenge,
         feedback.review,
-        reviewer)
+        reviewer,
+        challenge)
 
-    feedback.put()
-    jeeqser_challenge.put()
-    attempt.put()
-    attempt.challenge.get().put()
-    attempt.author.get().put()
-    reviewer.put()
+    ndb.put_multi([
+        feedback,
+        jeeqser_challenge,
+        attempt,
+        challenge,
+        attempt.author.get(),
+        reviewer,
+    ])
     # attempt.author doesn't need to be persisted,
     # since it will only change when an attempt is flagged.

@@ -50,10 +50,10 @@ class SanityCheck(jeeqs_request_handler.JeeqsRequestHandler):
                     num_solved != ch.num_jeeqsers_solved or
                     num_without_review != ch.submissions_without_review):
                 ch_data = '%-20s: submitted %s/%s, solved %s/%s, ' \
-                    'no review: %s/%s' % (ch.name[:20], num_submitted,
-                    ch.num_jeeqsers_submitted, num_solved,
-                    ch.num_jeeqsers_solved, num_without_review,
-                    ch.submissions_without_review)
+                    'no review: %s/%s' % (ch.name[:20],
+                    num_submitted, ch.num_jeeqsers_submitted,
+                    num_solved, ch.num_jeeqsers_solved,
+                    num_without_review, ch.submissions_without_review)
 
                 logging.error(DISCREPANCY_ERROR_MSG + ch_data)
                 res.append(ch_data)

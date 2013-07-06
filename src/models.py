@@ -185,12 +185,14 @@ class Course(ndb.Model):
                                                'December'])
     # Attribution for this course
     attribution = ndb.TextProperty()
+
     @property
     def university(self):
         if self.university_persisted:
             return self.university_persisted
         elif self.program:
-            self.university_persisted = self.program.get().university.get().name
+            self.university_persisted = self.program.get().\
+                university.get().name
             self.put()
             return self.university_persisted
         else:
@@ -275,9 +277,6 @@ class Challenge(ndb.Model):
         else:
             return None
 
-
-
-
     breadcrumb = property(fget=get_breadcrumb, doc="Course Breadcrumb")
 
     # exercise relate info
@@ -336,7 +335,8 @@ class Challenge(ndb.Model):
         if self.attribution_persistent:
             return self.attribution_persistent
         elif self.exercise and self.exercise.get().course.get().attribution:
-            self.attribution_persistent = self.exercise.get().course.get().attribution
+            self.attribution_persistent = self.exercise.get().\
+                course.get().attribution
             self.put()
             return self.attribution_persistent
         else:
@@ -351,7 +351,8 @@ class Challenge(ndb.Model):
         if self.exercise_course_code_persisted:
             return self.exercise_course_code_persisted
         elif self.exercise and self.exercise.get().course:
-            self.exercise_course_code_persisted = self.exercise.get().course.get().code
+            self.exercise_course_code_persisted = self.exercise.get().\
+                course.get().code
             self.put()
             return self.exercise_course_code_persisted
         else:
@@ -362,7 +363,8 @@ class Challenge(ndb.Model):
         if self.exercise_course_name_persisted:
             return self.exercise_course_name_persisted
         elif self.exercise:
-            self.exercise_course_name_persisted = self.exercise.get().course.get().name
+            self.exercise_course_name_persisted = self.exercise.get()\
+                .course.get().name
             self.put()
             return self.exercise_course_name_persisted
         else:
@@ -406,9 +408,10 @@ class Challenge(ndb.Model):
 
         """
 
-        return Jeeqser_Challenge.query()\
-            .filter(Jeeqser_Challenge.challenge == self.key)\
-            .filter(Jeeqser_Challenge.status == AttemptStatus.SUCCESS)\
+        return Attempt.query(Attempt.challenge == self.key)\
+            .filter(Attempt.status == AttemptStatus.SUCCESS)\
+            .filter(Attempt.active == True)\
+            .filter(Attempt.flagged == False)\
             .count()
 
     def get_num_jeeqsers_submitted(self):
@@ -597,7 +600,7 @@ def get_jeeqser_challenge(
                       + jeeqser_key.get().user.email()
                       + " and challenge : "
                       + challenge_key.get().name)
-        course_code=None
+        course_code = None
         if challenge_key.get().exercise:
             course_code = challenge_key.get().exercise.get().course.get().code
 
