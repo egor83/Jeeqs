@@ -620,6 +620,9 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
         elif direction == Attempt.IS_DOWNVOTED:
             submission.votes_total -= 1
             submission.downvoted.append(self.jeeqser.key)
+        elif direction == 'null':
+            # cancelling vote - no new state to set, do nothing
+            pass
         else:
             logging.error('Unknown vote direction: %s' % direction)
             self.error(status_code.StatusCode.internal_error)

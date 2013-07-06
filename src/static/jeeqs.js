@@ -491,7 +491,11 @@ $(document).on('click', '.upvote', function(event) {
     var curr_score = parseInt(score_ctrl.text());
 
     if(upvote_arrow.hasClass('is_upvoted')) {
-        // it's already upvoted, do nothing
+        // it was upvoted - cancel vote
+        upvote_arrow.removeClass('is_upvoted');
+
+        curr_score -= 1;
+        handle_vote(submission_id, null, 'is_upvoted');
     } else if(downvote_arrow.hasClass('is_downvoted') ) {
         // change downvote to upvote
         downvote_arrow.removeClass('is_downvoted');
@@ -525,7 +529,11 @@ $(document).on('click', '.downvote', function(event) {
         curr_score -= 2;
         handle_vote(submission_id, 'is_downvoted', 'is_upvoted');
     } else if(downvote_arrow.hasClass('is_downvoted')) {
-        // it's already downvoted, do nothing
+        // it was downvoted - cancel vote
+        downvote_arrow.removeClass('is_downvoted');
+
+        curr_score += 1;
+        handle_vote(submission_id, null, 'is_downvoted');
     } else {
         // initial downvoting (wasn't upvoted or downvoted before)
         downvote_arrow.addClass('is_downvoted');
@@ -536,6 +544,7 @@ $(document).on('click', '.downvote', function(event) {
     score_ctrl.text(curr_score);
 });
 
+// Send RPC to vote, handle errors.
 function handle_vote(submission_id, direction, original_vote) {
     $.ajax({
         url: "/rpc",
