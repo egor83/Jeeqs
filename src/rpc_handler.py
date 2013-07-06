@@ -114,6 +114,8 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
         submission.feedback_score_average = float(
             submission.feedback_score_sum / submission.review_count)
         if submission.review_count == 1:
+            logging.info('Decremented # of submissions w/o review after the '
+                'submission %s was reviewed.' % submission.key.urlsafe())
             submission.challenge.get().submissions_without_review -= 1
         reviewer.reviews_out_num += 1
         submission.author.get().reviews_in_num += 1
@@ -325,6 +327,9 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
             )
             challenge.num_jeeqsers_submitted += 1
         challenge.submissions_without_review += 1
+        logging.info('Persisting attempt for challenge %s, jeeqser %s - '
+            'incrementing # of submissions w/o review' % (
+            challenge_key.urlsafe(), self.jeeqser.key.urlsafe()))
 
         challenge.put()
         attempt = Attempt(
@@ -584,9 +589,7 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
 
     @core.authenticate(False)
     def get_challenge_avatars(self):
-        logging.debug("get_challenge_avatatars Start")
         challenge = ndb.Key(urlsafe=self.request.get('challenge_key')).get()
-        logging.debug("challenge key : %s" % str(challenge.key))
         solver_jc_list = Jeeqser_Challenge\
             .query()\
             .filter(Jeeqser_Challenge.challenge == challenge.key)\
