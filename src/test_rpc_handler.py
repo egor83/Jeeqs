@@ -381,6 +381,41 @@ class RPCHandlerTestCase(test_jeeqs.JeeqsTestCase):
             traceback.print_exc()
             self.fail()
 
+    def test_cancel_vote(self):
+        challenge, submission, submitter, submitter_challenge = \
+            self.create_submitter_challenge()
+
+        upvoter = self.CreateJeeqser(UPVOTER_EMAIL)
+        self.loginUser(UPVOTER_EMAIL, 'upvoter')
+
+        upvote_params = {
+            'method': 'submit_vote',
+            'submission': submission.key.urlsafe(),
+            'direction': Attempt.IS_UPVOTED,
+            'original_vote': 'null'
+        }
+        cancel_vote_params = {
+            'method': 'submit_vote',
+            'submission': submission.key.urlsafe(),
+            'direction': 'null',
+            'original_vote': Attempt.IS_UPVOTED
+        }
+
+        try:
+            self.testapp.post('/rpc', upvote_params)
+            self.testapp.post('/rpc', cancel_vote_params)
+        except Exception:
+            traceback.print_exc()
+            self.fail()
+
+        # refresh the submission to get a vote
+        submission = submission.key.get()
+        self.assertEqual(submission.votes_total, 0)
+        self.assertFalse(upvoter.key in submission.upvoted)
+        self.assertEqual(len(submission.upvoted), 0)
+        self.assertFalse(upvoter.key in submission.downvoted)
+        self.assertEqual(len(submission.downvoted), 0)
+
 
 if __name__ == '__main__':
     unittest.main()
