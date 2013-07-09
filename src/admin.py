@@ -15,7 +15,7 @@ class EditChallengePage(webapp.RequestHandler):
     def get(self):
         redirect_to = self.request.referer
         challenge = None
-        page_vars = {'redirect_to':redirect_to}
+        page_vars = {'redirect_to': redirect_to}
         challenge_key = self.request.get('ch')
         if challenge_key:
             challenge = ndb.Key(urlsafe=challenge_key).get()
@@ -39,11 +39,11 @@ class EditChallengePage(webapp.RequestHandler):
         challenge_key = self.request.get('ch')
         number = self.request.get('number')
         name = self.request.get('name')
-        has_python = str(self.request.get('has_python'))
-        if has_python!='True':
-            has_python=False
+        has_sandbox = str(self.request.get('has_sandbox'))
+        if has_sandbox != 'True':
+            has_sandbox = False
         else:
-            has_python=True
+            has_sandbox = True
 
         challenge = ndb.Key(urlsafe=challenge_key).get()
         if challenge.exercise:
@@ -54,7 +54,7 @@ class EditChallengePage(webapp.RequestHandler):
         if challenge:
             challenge.exercise_number_persisted = number
             challenge.name_persistent = name
-            challenge.has_python=has_python
+            challenge.has_sandbox = has_sandbox
             challenge.markdown = self.request.get('markdown')
             challenge.template_code = self.request.get('template_code')
             challenge.pdf_url = self.request.get('pdf_url')
@@ -64,9 +64,9 @@ class EditChallengePage(webapp.RequestHandler):
             challenge.pdf_endoffset = self.request.get('pdf_endoffset')
             challenge_key = challenge.put()
             if (old_name != name or old_number != number) and challenge.exercise:
-                exercise = Exercise.query().\
-                    filter(Exercise.number == old_number).\
-                    filter(Exercise.name == old_name).\
+                exercise = Exercise.query(). \
+                    filter(Exercise.number == old_number). \
+                    filter(Exercise.name == old_name). \
                     filter(Exercise.course == course).get()
                 exercise.name = name
                 exercise.number = number
@@ -80,12 +80,13 @@ class AddChallengePage(webapp.RequestHandler):
     """
 Create a new challenge
 """
+
     @core.authenticate(required=True)
     def get(self):
         redirect_to = self.request.referer
         all_courses = Course.query().fetch()
         page_vars = {
-            'redirect_to':redirect_to,
+            'redirect_to': redirect_to,
             'courses': all_courses,
             'jeeqser': self.jeeqser,
             'login_url': users.create_login_url(self.request.url),
@@ -107,12 +108,12 @@ Create a new challenge
             course = ndb.Key(urlsafe=self.request.get('course'))
             number = self.request.get('number')
         name = string.capwords(self.request.get('name'))
-        has_python = str(self.request.get('has_python'))
-        if has_python!='True':
-            has_python=False
+        has_sandbox = str(self.request.get('has_sandbox'))
+        if has_sandbox != 'True':
+            has_sandbox = False
         else:
-            has_python=True
-        #pdf controls
+            has_sandbox = True
+            #pdf controls
         pdf_url = self.request.get('pdf_url')
         pdf_startpage = self.request.get('pdf_startpage')
         pdf_endpage = self.request.get('pdf_endpage')
@@ -121,13 +122,13 @@ Create a new challenge
 
         markdown = self.request.get('markdown')
         template_code = self.request.get('template_code')
-        exercise_key=None
+        exercise_key = None
         if number and course:
             exercise = Exercise(number=number, name=name, course=course)
             exercise_key = exercise.put()
             challenge = Challenge(
                 name_persistent=name,
-                has_python=has_python,
+                has_sandbox=has_sandbox,
                 markdown=markdown,
                 pdf_url=pdf_url,
                 pdf_startpage=pdf_startpage,
@@ -141,7 +142,7 @@ Create a new challenge
             challenge = Challenge(
                 name_persistent=name,
                 markdown=markdown,
-                has_python=has_python,
+                has_sandbox=has_sandbox,
                 pdf_url=pdf_url,
                 pdf_startpage=pdf_startpage,
                 pdf_endpage=pdf_endpage,
@@ -166,8 +167,6 @@ class ChallengeListPage(webapp.RequestHandler):
             self.response.out.write("%s %s <br>" % (number, item.name))
 
 
-
-
 def main():
     application = webapp.WSGIApplication(
         [
@@ -175,9 +174,10 @@ def main():
             ('/admin/challenges/edit', EditChallengePage),
             ('/admin/challenges', ChallengeListPage),
             ('/admin/challenges/', ChallengeListPage),
-            ],
+        ],
         debug=True)
     run_wsgi_app(application)
+
 
 if __name__ == "__main__":
     main()

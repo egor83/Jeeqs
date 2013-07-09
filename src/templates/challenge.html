@@ -11,7 +11,7 @@
         {% else %}
             $( '#challenge_tabs a:[href="#tabs-1"]' ).tab('show');
         {% endif %}
-        {% if not challenge.has_python %}
+        {% if not challenge.has_sandbox %}
             $('#console').hide();
         {% endif %}
 
