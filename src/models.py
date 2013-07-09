@@ -226,6 +226,8 @@ class Challenge(ndb.Model):
 
     name = property(get_name, set_name, "name")
 
+    # Has Python sandbox requirement or not
+    has_sandbox = ndb.BooleanProperty(default=False)
     # compiled markdown
     content = ndb.TextProperty()
     # non-compiled markdown
