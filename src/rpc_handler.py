@@ -569,7 +569,13 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
 
     def flag_feedback(self):
         feedback_key = self.getValueInQuery('feedback_key')
-        feedback = ndb.Key(urlsafe=feedback_key).get()
+        try:
+            feedback = ndb.Key(urlsafe=feedback_key).get()
+        except Exception:
+            logging.error('Exception while trying to flag feedback %s' %
+                feedback_key)
+            self.error(status_code.StatusCode.internal_error)
+            return
 
         if self.jeeqser.key not in feedback.flagged_by:
             response = self.persist_flag(self.jeeqser.key, feedback.key)
