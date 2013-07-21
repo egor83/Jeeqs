@@ -28,7 +28,7 @@
                     finish_tour()
                 }}
         ],
-        description: "Jeeqs is a collaborative problem solving and learning platform ... ",
+        description: "Jeeqs is a collaborative problem solving and learning platform.",
         id: "first",
         next: "second",
         overlay: true,
@@ -44,12 +44,12 @@
                 ,onclick: function() {
                     finish_tour()
                 }}],
-        description: "Click on a challenge and submit your solution to the challenge ...",
+        description: "Click on a challenge and submit your solution for a challenge...",
         id: "second",
         next: "third",
         position: 12,
         overlay: true,
-        title: "Submit for Challenges"
+        title: "Submit Solutions"
     });
 
     guiders.createGuider({
@@ -61,13 +61,13 @@
                 ,onclick: function() {
                     finish_tour()
                 }}],
-        description: "Once you submit your solution, Jeeqs will gather reviews (called In-Jeeqs) for your submission and shows it here. Once you have positive reviews for a submission, you can start reviewing other submissions for that challenge ...",
+        description: "Once you submit your solution, Jeeqs will gather reviews for your submission and show it here.",
         id: "third",
         next: "fourth",
         position: 12,
         offset: { left:0, top:50 },
         overlay: true,
-        title: "Wait for Feedbacks (Incoming Jeeqs)",
+        title: "Wait For Reviews",
         onShow: function(){$( '#home_tabs a:[href="#injeeqs"]' ).tab('show');}
     });
 
@@ -78,7 +78,7 @@
                 ,onclick: function() {
                     finish_tour()
                 }}],
-        description: "Remember to review some submissions before you submit further challenges. You can start with the Factorial challenge to receive automatic review!",
+        description: "When you have received positive reviews, you can start reviewing other submissions for that challenge. You can start with the Factorial challenge to receive automatic review!",
         id: "fourth",
         next: "fifth",
         overlay: true,
