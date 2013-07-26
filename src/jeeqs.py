@@ -108,7 +108,9 @@ class FrontPageHandler(jeeqs_request_handler.JeeqsRequestHandler):
             feedbacks, feedbacks_cursor, has_newer = \
                 fph.get_feedbacks_for_feeqser(self.jeeqser.key)
 
-        all_activities = Activity.query().order(-Activity.date).fetch(10)
+            all_activities = Activity.query().order(-Activity.date).fetch(10)
+        else:
+            all_activities = []
 
         vars = core.add_common_vars({
             'courses': courses,
