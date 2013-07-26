@@ -16,8 +16,14 @@
                 success: function(response){
                 }
             })
-            {% endif %}
-        }
+        {% endif %}
+    }
+
+    {% if jeeqser %}
+        {% set after_first = '"second"' %}
+    {% else %}
+        {% set after_first = '"first_login"' %}
+    {% endif %}
 
     // Website tour
     guiders.createGuider({
@@ -30,10 +36,29 @@
         ],
         description: "Jeeqs is a collaborative problem solving and learning platform.",
         id: "first",
-        next: "second",
+        next: {{ after_first }},
         overlay: true,
         title: "Welcome to Jeeqs!"
     });
+
+    // If the user isn't logged in, mention that he needs to login.
+    {% if not jeeqser %}
+        guiders.createGuider({
+            attachTo: "#login_url",
+            highlight: "#login_url",
+            buttons: [
+                {name: "Next"},
+                {name: "Close",
+                    onclick: function() {finish_tour()}
+                }],
+            description: "Login here using your Google account to start working with Jeeqs.",
+            id: "first_login",
+            next: "second",
+            position: 6,
+            overlay: true,
+            title: "Login to start"
+        });
+    {% endif %}
 
     guiders.createGuider({
         attachTo: "#challenges",
@@ -44,7 +69,7 @@
                 ,onclick: function() {
                     finish_tour()
                 }}],
-        description: "Click on a challenge and submit your solution for a challenge...",
+        description: "Click on a challenge and submit your solution for a challenge.",
         id: "second",
         next: "third",
         position: 12,
@@ -78,7 +103,8 @@
                 ,onclick: function() {
                     finish_tour()
                 }}],
-        description: "When you have received positive reviews, you can start reviewing other submissions for that challenge. You can start with the Factorial challenge to receive automatic review!",
+        description: "When you have received positive reviews, you can start reviewing other submissions for that challenge.<br /><br />" +
+                "You can start with the Factorial challenge to receive automatic review!",
         id: "fourth",
         next: "fifth",
         overlay: true,
@@ -192,7 +218,7 @@
 <div id="challenge-list" class="row-fluid">
     <ul id="home_tabs" class="nav nav-tabs">
         <li><a href="#challenges" data-toggle="tab">Challenges</a></li>
-        <li><a href="#injeeqs" data-toggle="tab"><i class="icon icon-arrow-down"></i>Incoming Jeeqs</a></li>
+        <li><a href="#injeeqs" data-toggle="tab"><i class="icon icon-arrow-down"></i>Incoming Reviews</a></li>
     </ul>
     <div class="tab-content">
         <div class="tab-pane active" id="challenges">
