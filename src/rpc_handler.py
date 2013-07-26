@@ -6,6 +6,7 @@ import json
 import spam_manager
 import program_tester
 import datetime
+import sys
 import lib.markdown as markdown
 from google.appengine.api import users
 from google.appengine.ext import deferred
@@ -572,8 +573,8 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
         try:
             feedback = ndb.Key(urlsafe=feedback_key).get()
         except Exception:
-            logging.error('Exception while trying to flag feedback %s' %
-                feedback_key)
+            logging.error('Exception while trying to flag feedback %s: %s' %
+                (feedback_key, sys.exc_info()[0]))
             self.error(status_code.StatusCode.internal_error)
             return
 
