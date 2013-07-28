@@ -81,6 +81,15 @@ div.submission-feedback .ui-state-active.flag_label {
     margin-left: 20px;
 }
 
+.set_email_notifications {
+    margin-left: 20px;
+    margin-top: 20px;
+}
+
+.notif_label {
+    margin-left: 5px;
+}
+
 .current_profile_picture {
     background-color: green;
     padding: 5px;

@@ -98,6 +98,8 @@ class Jeeqser(ndb.Model):
     # Number of posts this jeeqser has flagged today
     num_flagged_today = ndb.IntegerProperty()
 
+    gets_review_emails = ndb.BooleanProperty()
+
     @property
     def correct_submissions_count(self):
         if not self.correct_submissions_count_persisted:
