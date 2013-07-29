@@ -560,7 +560,8 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
 You can see the review in the "Incoming Reviews" tab on Jeeqs homepage:
 http://www.jeeqs.com/
 
-You can unsubscribe from receiving emails on review on your profile page:
+
+You can unsubscribe from receiving review notifications by email on your profile page:
 http://www.jeeqs.com/user/"""
 
         EMAIL_SUBJECT = "You've got a review on Jeeqs!"
