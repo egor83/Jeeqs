@@ -300,15 +300,17 @@
     {% include "plusone.html" %}
     {#        {% include "facebook_likebox.html" %}#}
 </div>
-<div id="all_activities" class="pull-right clear-right">
-    <ul class="nav nav-tabs">
-        <li class="active">
-            <a href="#">Activities</a>
-        </li>
-    </ul>
-    <div id="activities_more">
-        {% include "activities_list.html"%}
+{% if jeeqser %}
+    <div id="all_activities" class="pull-right clear-right">
+        <ul class="nav nav-tabs">
+            <li class="active">
+                <a href="#">Activities</a>
+            </li>
+        </ul>
+        <div id="activities_more">
+            {% include "activities_list.html"%}
+        </div>
+        <div class="load_more"><button id="load_more" class="btn btn-small">more</button></div>
     </div>
-    <div class="load_more"><button id="load_more" class="btn btn-small">more</button></div>
-</div>
+{% endif %}
 {% endblock column2 %}
