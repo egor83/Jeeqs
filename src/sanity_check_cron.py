@@ -15,7 +15,7 @@ ERROR_EMAIL_RECIPIENTS = \
     'a.akhavan.b@gmail.com, egor.ryabkov@gmail.com, email@anubhavsinha.com'
 
 DISCREPANCY_EMAIL_SUBJ = 'Cron job found a discrepancy'
-DISCREPANCY_ERROR_MSG = 'A discrepancy in challenge parameters has been' \
+DISCREPANCY_ERROR_MSG = 'A discrepancy in challenge parameters has been ' \
     'found, the number obtained from direct DB query and the number stored ' \
     'as a DB record attribute are not the same.'
 
