@@ -84,10 +84,10 @@
             {{ jeeqser.user.email() }}
         </div>
         <div class="set_email_notifications">
-            {% if jeeqser.gets_review_emails %}
-                {% set notif_checked = "checked" %}
+            {% if jeeqser.review_email_subscribed %}
+                {% set notification_checked = "checked" %}
             {% endif %}
-            <input type="checkbox" id="receive_notifications" class="pull-left" {{ notif_checked }} />
+            <input type="checkbox" id="receive_notifications" class="pull-left" {{ notification_checked }} />
             <label for="receive_notifications" class="pull-left notif_label">Receive email notifications whenever someone reviews one of your submissions.</label>
         </div>
     </div>

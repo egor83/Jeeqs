@@ -528,7 +528,7 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
             review=review)
 
         sub_author = submission.author.get()
-        if sub_author.gets_review_emails:
+        if sub_author.review_email_subscribed:
             self.send_review_email(sub_author, submission.challenge)
 
         # check flagging limit
@@ -549,17 +549,19 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
             self.jeeqser.key)
 
     def change_email_notification(self):
-        self.jeeqser.gets_review_emails = not self.jeeqser.gets_review_emails
+        self.jeeqser.review_email_subscribed = not self.jeeqser.review_email_subscribed
         self.jeeqser.put()
 
 
     def send_review_email(self, submitter, challenge_key):
         EMAIL_BODY = \
-"""Your submission to the challenge %s has just been reviewied!
+"""Your submission for challenge '%(ch_name)s' has just been reviewied!
 
 You can see the review in the "Incoming Reviews" tab on Jeeqs homepage:
 http://www.jeeqs.com/
 
+'%(ch_name)s' challenge page:
+%(ch_url)s
 
 You can unsubscribe from receiving review notifications by email on your profile page:
 http://www.jeeqs.com/user/"""
@@ -572,7 +574,10 @@ http://www.jeeqs.com/user/"""
                                     to=submitter.user.email())
 
         challenge = challenge_key.get()
-        message.body = EMAIL_BODY % challenge.name_persistent
+        message.body = EMAIL_BODY % {
+            'ch_name': challenge.name_persistent,
+            'ch_url': 'http://www.jeeqs.com/challenge/?ch=' + challenge_key.urlsafe()
+        }
         message.send()
 
     @ndb.transactional(xg=True)
