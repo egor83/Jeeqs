@@ -28,7 +28,7 @@
     </div>
     <div class="span12">
         <form class="form-inline">
-            <input type="text" id="displayname" class="input-medium" value="{{ jeeqser.displayname }}"  maxlength="10">
+            <input type="text" id="displayname" class="input-medium" value="{{ jeeqser.displayname }}"  maxlength="20">
             <button class="btn" data-updated-text="Updated!" data-error-text="Oops! Try again!" data-duplicate-text="Username already in use by you. Please select a different one!" id = "updateDisplayName">Update</button>
         </form>
     </div>
@@ -109,9 +109,9 @@
             </div>
         </div>
         <dl class="dl-horizontal">
-            <dt>Outgoing Jeeqs</dt>
+            <dt>Outgoing Reviews</dt>
             <dd>{{ target_jeeqser.reviews_out_num|d('0') }}</dd>
-            <dt>Incoming Jeeqs</dt>
+            <dt>Incoming Reviews</dt>
             <dd>{{ target_jeeqser.reviews_in_num|d('0') }} </dd>
             <dt>Submissions</dt>
             <dd>{{ target_jeeqser.submissions_num|d('0') }}</dd>
