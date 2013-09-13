@@ -16,8 +16,14 @@
                 success: function(response){
                 }
             })
-            {% endif %}
-        }
+        {% endif %}
+    }
+
+    {% if jeeqser %}
+        {% set after_first = '"second"' %}
+    {% else %}
+        {% set after_first = '"first_login"' %}
+    {% endif %}
 
     // Website tour
     guiders.createGuider({
@@ -28,12 +34,31 @@
                     finish_tour()
                 }}
         ],
-        description: "Jeeqs is a collaborative problem solving and learning platform ... ",
+        description: "Jeeqs is a collaborative problem solving and learning platform.",
         id: "first",
-        next: "second",
+        next: {{ after_first }},
         overlay: true,
         title: "Welcome to Jeeqs!"
     });
+
+    // If the user isn't logged in, mention that he needs to login.
+    {% if not jeeqser %}
+        guiders.createGuider({
+            attachTo: "#login_url",
+            highlight: "#login_url",
+            buttons: [
+                {name: "Next"},
+                {name: "Close",
+                    onclick: function() {finish_tour()}
+                }],
+            description: "Login here using your Google account to start working with Jeeqs.",
+            id: "first_login",
+            next: "second",
+            position: 6,
+            overlay: true,
+            title: "Login to start"
+        });
+    {% endif %}
 
     guiders.createGuider({
         attachTo: "#challenges",
@@ -44,12 +69,12 @@
                 ,onclick: function() {
                     finish_tour()
                 }}],
-        description: "Click on a challenge and submit your solution to the challenge ...",
+        description: "Click on a challenge and submit your solution for a challenge.",
         id: "second",
         next: "third",
         position: 12,
         overlay: true,
-        title: "Submit for Challenges"
+        title: "Submit Solutions"
     });
 
     guiders.createGuider({
@@ -61,13 +86,13 @@
                 ,onclick: function() {
                     finish_tour()
                 }}],
-        description: "Once you submit your solution, Jeeqs will gather reviews (called In-Jeeqs) for your submission and shows it here. Once you have positive reviews for a submission, you can start reviewing other submissions for that challenge ...",
+        description: "Once you submit your solution, Jeeqs will gather reviews for your submission and show it here.",
         id: "third",
         next: "fourth",
         position: 12,
         offset: { left:0, top:50 },
         overlay: true,
-        title: "Wait for Feedbacks (Incoming Jeeqs)",
+        title: "Wait For Reviews",
         onShow: function(){$( '#home_tabs a:[href="#injeeqs"]' ).tab('show');}
     });
 
@@ -78,7 +103,8 @@
                 ,onclick: function() {
                     finish_tour()
                 }}],
-        description: "Remember to review some submissions before you submit further challenges. You can start with the Factorial challenge to receive automatic review!",
+        description: "When you have received positive reviews, you can start reviewing other submissions for that challenge.<br /><br />" +
+                "You can start with the Factorial challenge to receive automatic review!",
         id: "fourth",
         next: "fifth",
         overlay: true,
@@ -186,13 +212,13 @@
     <a class="noline"
        href="{{ course.url }}"
        target="_blank">
-        <i class="icon-share-alt pull-right"></i>
+        <i class="btn icon-large icon-share-alt pull-right"></i>
     </a>
 </h2>
 <div id="challenge-list" class="row-fluid">
     <ul id="home_tabs" class="nav nav-tabs">
         <li><a href="#challenges" data-toggle="tab">Challenges</a></li>
-        <li><a href="#injeeqs" data-toggle="tab"><i class="icon icon-arrow-down"></i>Incoming Jeeqs</a></li>
+        <li><a href="#injeeqs" data-toggle="tab"><i class="icon icon-arrow-down"></i>Incoming Reviews</a></li>
     </ul>
     <div class="tab-content">
         <div class="tab-pane active" id="challenges">
@@ -300,15 +326,17 @@
     {% include "plusone.html" %}
     {#        {% include "facebook_likebox.html" %}#}
 </div>
-<div id="all_activities" class="pull-right clear-right">
-    <ul class="nav nav-tabs">
-        <li class="active">
-            <a href="#">Activities</a>
-        </li>
-    </ul>
-    <div id="activities_more">
-        {% include "activities_list.html"%}
+{% if jeeqser %}
+    <div id="all_activities" class="pull-right clear-right">
+        <ul class="nav nav-tabs">
+            <li class="active">
+                <a href="#">Activities</a>
+            </li>
+        </ul>
+        <div id="activities_more">
+            {% include "activities_list.html"%}
+        </div>
+        <div class="load_more"><button id="load_more" class="btn btn-small">more</button></div>
     </div>
-    <div class="load_more"><button id="load_more" class="btn btn-small">more</button></div>
-</div>
+{% endif %}
 {% endblock column2 %}
