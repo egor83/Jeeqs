@@ -8,6 +8,7 @@ import program_tester
 import datetime
 import sys
 import lib.markdown as markdown
+from google.appengine.api import mail
 from google.appengine.api import users
 from google.appengine.ext import deferred
 import jeeqs_request_handler
@@ -44,6 +45,8 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
             self.submit_challenge_vertical_scroll()
         elif method == 'took_tour':
             self.took_tour()
+        elif method == 'change_email_notification':
+            self.change_email_notification()
         else:
             self.error(status_code.StatusCode.forbidden)
             return
@@ -525,6 +528,10 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
                 self.request.get('response'), ['codehilite', 'mathjax']),
             review=review)
 
+        sub_author = submission.author.get()
+        if sub_author.review_email_subscribed:
+            self.send_review_email(sub_author, submission.challenge)
+
         # check flagging limit
         if feedback.review == Review.FLAG:
             flags_left = spam_manager.SpamManager.check_and_update_flag_limit(
@@ -541,6 +548,38 @@ class RPCHandler(jeeqs_request_handler.JeeqsRequestHandler):
             submission.key,
             jeeqser_challenge.key,
             self.jeeqser.key)
+
+    def change_email_notification(self):
+        self.jeeqser.review_email_subscribed = not self.jeeqser.review_email_subscribed
+        self.jeeqser.put()
+
+
+    def send_review_email(self, submitter, challenge_key):
+        EMAIL_BODY = \
+"""Your submission for challenge '%(ch_name)s' has just been reviewied!
+
+You can see the review in the "Incoming Reviews" tab on Jeeqs homepage:
+http://www.jeeqs.com/
+
+'%(ch_name)s' challenge page:
+%(ch_url)s
+
+You can unsubscribe from receiving review notifications by email on your profile page:
+http://www.jeeqs.com/user/"""
+
+        EMAIL_SUBJECT = "You've got a review on Jeeqs!"
+        EMAIL_SENDER = 'noreply@jeeqsy.appspotmail.com'
+
+        message = mail.EmailMessage(sender=EMAIL_SENDER,
+                                    subject=EMAIL_SUBJECT,
+                                    to=submitter.user.email())
+
+        challenge = challenge_key.get()
+        message.body = EMAIL_BODY % {
+            'ch_name': challenge.name_persistent,
+            'ch_url': 'http://www.jeeqs.com/challenge/?ch=' + challenge_key.urlsafe()
+        }
+        message.send()
 
     @ndb.transactional(xg=True)
     def persist_flag(self, jeeqser_key, feedback_key):

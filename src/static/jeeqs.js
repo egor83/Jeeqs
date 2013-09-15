@@ -465,6 +465,20 @@ function ajax_fetch_feedbacks(cursor, submission) {
     })
 }
 
+$(document).on('click', '#receive_notifications', function(event) {
+    $.ajax({
+        url: "/rpc",
+        type: "POST",
+        data: {'method': 'change_email_notification'},
+        error: function(response) {
+            alert('Unexpected error while trying to change status. \n' +
+                    'Please try again later or contact support (at?).');
+            var chb = $('#receive_notifications');
+            var curr_state = chb.is(':checked');
+            chb.prop('checked', !curr_state);
+        }
+    })
+});
 
 
 $(document).ready(function() {
